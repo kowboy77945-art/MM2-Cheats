@@ -1,116 +1,210 @@
---// WindUI Library Load
+--[[
+    ╔══════════════════════════════════════════════╗
+    ║       MM2 ELITE HUB — WindUI Edition         ║
+    ║  Совместимость: Solara, Wave, Hydrogen, Delta ║
+    ╚══════════════════════════════════════════════╝
+]]
+
+-- ═══════════════════════════════════════════════
+-- СЕКЦИЯ 1: ЗАГРУЗКА БИБЛИОТЕКИ И СЕРВИСЫ
+-- ═══════════════════════════════════════════════
+
 local WindUI = loadstring(game:HttpGet('https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/dist/main.lua'))()
 
---// Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
---// Local Player
 local LocalPlayer = Players.LocalPlayer
+local Camera = Workspace.CurrentCamera
 
---// State Variables
-local States = {
-    -- Movement
-    WalkSpeedEnabled = true,
-    WalkSpeedValue = 16,
-    JumpPowerValue = 50,
-    NoclipEnabled = false,
-    FlyEnabled = false,
-    FlySpeed = 60,
-    
+-- ═══════════════════════════════════════════════
+-- СЕКЦИЯ 2: ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ СОСТОЯНИЯ
+-- ═══════════════════════════════════════════════
+
+local State = {
+    -- Combat Main
+    AutoKillMurderer = false,
+    AutoGrabGun = false,
+    KillAura = false,
+    KillAuraRadius = 15,
+
+    -- Combat Settings
+    SilentAim = false,
+    TargetPart = "HumanoidRootPart",
+    WallCheck = true,
+
     -- Visuals
-    ESPEnabled = false,
+    PlayerESP = false,
     ESPFillTransparency = 0.5,
-    GunESPEnabled = false,
-    
-    -- Combat
-    AutoKillEnabled = false,
-    AutoGrabGunEnabled = false,
-    
+    GunESP = false,
+
+    -- Movement
+    SpeedEnabled = false,
+    SpeedValue = 16,
+    JumpEnabled = false,
+    JumpValue = 50,
+    InfiniteJump = false,
+    Noclip = false,
+    Fly = false,
+    FlySpeed = 50,
+    AutoEvade = false,
+    AutoEvadeDistance = 20,
+
     -- Misc
-    FakeDeadEnabled = false,
+    FakeDead = false,
     FakeDeadPose = "На живот",
-    FEInvisEnabled = false,
+    FEInvisible = false,
 }
 
---// Connections Storage (для очистки)
-local Connections = {}
-local ESPHighlights = {}
-local GunESPHighlights = {}
+-- Хранилища
+local ESPHighlights = {}      -- [Player] = Highlight
+local GunESPHighlight = nil
+local Connections = {}         -- Все RBXScriptConnections для очистки
+local FlyBodyVelocity = nil
+local FlyBodyGyro = nil
 
----------------------------------------------------------------
--- UTILITY FUNCTIONS
----------------------------------------------------------------
+-- ═══════════════════════════════════════════════
+-- СЕКЦИЯ 3: УТИЛИТЫ (ОПРЕДЕЛЕНИЕ РОЛЕЙ, RAYCAST)
+-- ═══════════════════════════════════════════════
 
-local function GetCharacter()
-    return LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-end
+-- Определяет роль игрока: "Murderer", "Sheriff", "Innocent"
+local function GetRole(player)
+    if not player then return "Innocent" end
 
-local function GetHumanoid()
-    local char = GetCharacter()
-    return char and char:FindFirstChildOfClass("Humanoid")
-end
+    local backpack = player:FindFirstChild("Backpack")
+    local character = player.Character
 
-local function GetRootPart()
-    local char = GetCharacter()
-    return char and char:FindFirstChild("HumanoidRootPart")
-end
-
--- Определение роли игрока в MM2
-local function GetPlayerRole(player)
-    -- Проверяем Backpack и Character на наличие инструментов
-    local function checkForTool(container)
-        if not container then return nil end
-        for _, item in pairs(container:GetChildren()) do
+    local function checkForTool(container, toolName)
+        if not container then return false end
+        for _, item in ipairs(container:GetChildren()) do
             if item:IsA("Tool") then
-                local name = item.Name:lower()
-                if name == "knife" or name == "murderer" then
-                    return "Murderer"
-                elseif name == "gun" or name == "revolver" or name == "sheriff" then
-                    return "Sheriff"
+                local nameL = item.Name:lower()
+                if toolName == "knife" and (nameL == "knife" or nameL:find("knife")) then
+                    return true
+                end
+                if toolName == "gun" and (nameL == "gun" or nameL:find("gun") or nameL:find("revolver")) then
+                    return true
+                end
+            end
+        end
+        return false
+    end
+
+    local hasKnife = checkForTool(backpack, "knife") or checkForTool(character, "knife")
+    local hasGun = checkForTool(backpack, "gun") or checkForTool(character, "gun")
+
+    if hasKnife then return "Murderer" end
+    if hasGun then return "Sheriff" end
+    return "Innocent"
+end
+
+-- Возвращает роль LocalPlayer
+local function GetMyRole()
+    return GetRole(LocalPlayer)
+end
+
+-- Находит игрока-убийцу
+local function FindMurderer()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and GetRole(player) == "Murderer" then
+            return player
+        end
+    end
+    return nil
+end
+
+-- Находит всех живых игроков (кроме local)
+local function GetAlivePlayers()
+    local alive = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid and humanoid.Health > 0 then
+                table.insert(alive, player)
+            end
+        end
+    end
+    return alive
+end
+
+-- Проверка линии видимости (Raycast wall check)
+local function HasLineOfSight(fromPos, toPos)
+    local direction = toPos - fromPos
+    local rayParams = RaycastParams.new()
+    rayParams.FilterType = Enum.RaycastFilterType.Exclude
+
+    -- Исключаем персонажей из рейкаста
+    local filterList = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Character then
+            table.insert(filterList, player.Character)
+        end
+    end
+    rayParams.FilterDescendantsInstances = filterList
+
+    local result = Workspace:Raycast(fromPos, direction, rayParams)
+    -- Если ничего не задело — прямая линия чистая
+    return result == nil
+end
+
+-- Получить тул (оружие) из инвентаря или рук
+local function GetToolFromPlayer(player, toolType)
+    local backpack = player:FindFirstChild("Backpack")
+    local character = player.Character
+
+    local function findTool(container)
+        if not container then return nil end
+        for _, item in ipairs(container:GetChildren()) do
+            if item:IsA("Tool") then
+                local nameL = item.Name:lower()
+                if toolType == "gun" and (nameL == "gun" or nameL:find("gun") or nameL:find("revolver")) then
+                    return item
+                end
+                if toolType == "knife" and (nameL == "knife" or nameL:find("knife")) then
+                    return item
                 end
             end
         end
         return nil
     end
-    
-    local role = checkForTool(player:FindFirstChild("Backpack"))
-    if role then return role end
-    
-    if player.Character then
-        role = checkForTool(player.Character)
-        if role then return role end
-    end
-    
-    return "Innocent"
+
+    return findTool(character) or findTool(backpack)
 end
 
-local function GetRoleColor(role)
-    if role == "Murderer" then
-        return Color3.fromRGB(255, 0, 0) -- Красный
-    elseif role == "Sheriff" then
-        return Color3.fromRGB(0, 100, 255) -- Синий
-    else
-        return Color3.fromRGB(0, 255, 0) -- Зеленый
+-- Экипировать тул
+local function EquipTool(tool)
+    if tool and tool.Parent ~= LocalPlayer.Character then
+        LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):EquipTool(tool)
     end
 end
 
-local function IsMobile()
-    return UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+-- Безопасный HumanoidRootPart
+local function GetHRP(player)
+    if player and player.Character then
+        return player.Character:FindFirstChild("HumanoidRootPart")
+    end
+    return nil
 end
 
----------------------------------------------------------------
--- WINDOW CREATION
----------------------------------------------------------------
+local function GetPartFromChar(player, partName)
+    if player and player.Character then
+        return player.Character:FindFirstChild(partName)
+    end
+    return nil
+end
 
-local Window = WindUI:CreateWindow({
-    Title = "MM2 Hub",
-    Icon = "sword",
-    Author = "Advanced Script",
-    Folder = "MM2Hub",
+-- ═══════════════════════════════════════════════
+-- СЕКЦИЯ 4: СОЗДАНИЕ UI — WINDUI
+-- ═══════════════════════════════════════════════
+
+local Window = Wind:CreateWindow({
+    Title = "MM2 Elite Hub",
+    Icon = "rbxassetid://18220853337",
+    Author = "Elite Dev",
+    Folder = "MM2EliteHub",
     Size = UDim2.fromOffset(580, 460),
     Transparent = true,
     Theme = "Dark",
@@ -118,658 +212,82 @@ local Window = WindUI:CreateWindow({
     HasOutline = false,
 })
 
-WindUI:Notify({
-    Title = "MM2 Hub",
-    Content = "Скрипт успешно загружен! Приятной игры.",
-    Icon = "check-circle",
+-- Стартовое уведомление
+Wind:Notify({
+    Title = "MM2 Elite Hub",
+    Content = "Скрипт успешно загружен!\nВсе модули активированы.\nУдачной игры!",
     Duration = 5,
+    Icon = "rbxassetid://18220853337",
 })
 
----------------------------------------------------------------
--- TAB: MOVEMENT
----------------------------------------------------------------
+-- ═══════════════════════════════════════════════
+-- СЕКЦИЯ 5: ВКЛАДКА "COMBAT (MAIN)"
+-- ═══════════════════════════════════════════════
 
-local MovementTab = Window:Tab({
-    Title = "Movement",
-    Icon = "person-standing",
+local CombatMainTab = Window:Tab({
+    Title = "Combat (Main)",
+    Icon = "sword",
 })
 
-local MovementSection = MovementTab:Section({ Title = "Движение" })
-
--- WalkSpeed Slider
-MovementSection:Slider({
-    Title = "WalkSpeed",
-    Icon = "gauge",
-    Value = {
-        Min = 16,
-        Max = 150,
-        Default = 16,
-    },
-    Callback = function(value)
-        States.WalkSpeedValue = value
-    end,
-})
-
--- WalkSpeed enforcer loop (обход серверного сброса)
-task.spawn(function()
-    RunService.RenderStepped:Connect(function()
-        if States.WalkSpeedValue > 16 then
-            local hum = GetHumanoid()
-            if hum then
-                hum.WalkSpeed = States.WalkSpeedValue
-            end
-        end
-    end)
-end)
-
--- JumpPower Slider
-MovementSection:Slider({
-    Title = "JumpPower",
-    Icon = "arrow-big-up",
-    Value = {
-        Min = 50,
-        Max = 200,
-        Default = 50,
-    },
-    Callback = function(value)
-        States.JumpPowerValue = value
-        local hum = GetHumanoid()
-        if hum then
-            hum.UseJumpPower = true
-            hum.JumpPower = value
-        end
-    end,
-})
-
--- JumpPower enforcer
-task.spawn(function()
-    RunService.RenderStepped:Connect(function()
-        if States.JumpPowerValue > 50 then
-            local hum = GetHumanoid()
-            if hum then
-                hum.UseJumpPower = true
-                hum.JumpPower = States.JumpPowerValue
-            end
-        end
-    end)
-end)
-
--- Noclip Toggle
-MovementSection:Toggle({
-    Title = "Noclip",
-    Icon = "ghost",
+-- ── Auto-Kill Murderer ──
+CombatMainTab:Toggle({
+    Title = "Full Auto-Kill Murderer",
+    Description = "Автоматический выстрел в Убийцу при прямой видимости",
     Default = false,
-    Callback = function(state)
-        States.NoclipEnabled = state
+    Callback = function(val)
+        State.AutoKillMurderer = val
     end,
 })
 
--- Noclip loop
 task.spawn(function()
-    RunService.Stepped:Connect(function()
-        if States.NoclipEnabled then
-            local char = GetCharacter()
-            if char then
-                for _, part in pairs(char:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = false
-                    end
-                end
-            end
-        end
-    end)
-end)
-
--- Fly Toggle
-local FlySection = MovementTab:Section({ Title = "Полёт" })
-
-FlySection:Toggle({
-    Title = "Fly",
-    Icon = "plane",
-    Default = false,
-    Callback = function(state)
-        States.FlyEnabled = state
-        
-        local char = GetCharacter()
-        local hrp = GetRootPart()
-        local hum = GetHumanoid()
-        
-        if not hrp or not hum then return end
-        
-        if state then
-            -- Создаём BodyGyro и BodyVelocity
-            local bg = Instance.new("BodyGyro")
-            bg.Name = "FlyGyro"
-            bg.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
-            bg.D = 300
-            bg.P = 9e4
-            bg.Parent = hrp
-            
-            local bv = Instance.new("BodyVelocity")
-            bv.Name = "FlyVelocity"
-            bv.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-            bv.Velocity = Vector3.zero
-            bv.Parent = hrp
-            
-            hum.PlatformStand = true
-            
-            -- Fly control loop
-            Connections["FlyLoop"] = RunService.RenderStepped:Connect(function()
-                if not States.FlyEnabled then return end
-                
-                local bvInst = hrp:FindFirstChild("FlyVelocity")
-                local bgInst = hrp:FindFirstChild("FlyGyro")
-                if not bvInst or not bgInst then return end
-                
-                local camera = Workspace.CurrentCamera
-                local moveDirection = Vector3.zero
-                
-                if IsMobile() then
-                    -- Мобильное управление: используем MoveDirection гуманоида
-                    if hum.MoveDirection.Magnitude > 0 then
-                        moveDirection = hum.MoveDirection
-                    end
-                    -- Для подъёма/спуска на мобильном используем кнопку прыжка
-                    if UserInputService:IsKeyDown(Enum.KeyCode.Space) or hum.Jump then
-                        moveDirection = moveDirection + Vector3.new(0, 1, 0)
-                    end
-                else
-                    -- ПК управление
-                    if UserInputService:IsKeyDown(Enum.KeyCode.W) then
-                        moveDirection = moveDirection + camera.CFrame.LookVector
-                    end
-                    if UserInputService:IsKeyDown(Enum.KeyCode.S) then
-                        moveDirection = moveDirection - camera.CFrame.LookVector
-                    end
-                    if UserInputService:IsKeyDown(Enum.KeyCode.A) then
-                        moveDirection = moveDirection - camera.CFrame.RightVector
-                    end
-                    if UserInputService:IsKeyDown(Enum.KeyCode.D) then
-                        moveDirection = moveDirection + camera.CFrame.RightVector
-                    end
-                    if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
-                        moveDirection = moveDirection + Vector3.new(0, 1, 0)
-                    end
-                    if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-                        moveDirection = moveDirection - Vector3.new(0, 1, 0)
-                    end
-                end
-                
-                if moveDirection.Magnitude > 0 then
-                    bvInst.Velocity = moveDirection.Unit * States.FlySpeed
-                else
-                    bvInst.Velocity = Vector3.zero
-                end
-                
-                bgInst.CFrame = camera.CFrame
-            end)
-        else
-            -- Отключение полёта
-            if Connections["FlyLoop"] then
-                Connections["FlyLoop"]:Disconnect()
-                Connections["FlyLoop"] = nil
-            end
-            
-            local bg = hrp:FindFirstChild("FlyGyro")
-            local bv = hrp:FindFirstChild("FlyVelocity")
-            if bg then bg:Destroy() end
-            if bv then bv:Destroy() end
-            
-            hum.PlatformStand = false
-        end
-    end,
-})
-
-FlySection:Slider({
-    Title = "Fly Speed",
-    Icon = "gauge",
-    Value = {
-        Min = 10,
-        Max = 200,
-        Default = 60,
-    },
-    Callback = function(value)
-        States.FlySpeed = value
-    end,
-})
-
----------------------------------------------------------------
--- TAB: VISUALS
----------------------------------------------------------------
-
-local VisualsTab = Window:Tab({
-    Title = "Visuals",
-    Icon = "eye",
-})
-
-local ESPSection = VisualsTab:Section({ Title = "ESP Игроков" })
-
--- ESP Functions
-local function ClearAllESP()
-    for _, highlight in pairs(ESPHighlights) do
-        if highlight and highlight.Parent then
-            highlight:Destroy()
-        end
-    end
-    ESPHighlights = {}
-end
-
-local function ApplyESP(player)
-    if not States.ESPEnabled then return end
-    if player == LocalPlayer then return end
-    
-    local character = player.Character
-    if not character then return end
-    
-    -- Удаляем старый highlight
-    local oldKey = player.Name
-    if ESPHighlights[oldKey] and ESPHighlights[oldKey].Parent then
-        ESPHighlights[oldKey]:Destroy()
-    end
-    
-    local role = GetPlayerRole(player)
-    local color = GetRoleColor(role)
-    
-    local highlight = Instance.new("Highlight")
-    highlight.Name = "MM2ESP_" .. player.Name
-    highlight.FillColor = color
-    highlight.OutlineColor = color
-    highlight.FillTransparency = States.ESPFillTransparency
-    highlight.OutlineTransparency = 0
-    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    highlight.Adornee = character
-    highlight.Parent = character
-    
-    ESPHighlights[oldKey] = highlight
-end
-
-local function RefreshAllESP()
-    ClearAllESP()
-    if not States.ESPEnabled then return end
-    
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            ApplyESP(player)
-        end
-    end
-end
-
--- ESP Toggle
-ESPSection:Toggle({
-    Title = "Player ESP",
-    Icon = "scan-eye",
-    Default = false,
-    Callback = function(state)
-        States.ESPEnabled = state
-        if state then
-            RefreshAllESP()
-        else
-            ClearAllESP()
-        end
-    end,
-})
-
--- ESP Fill Transparency Slider
-ESPSection:Slider({
-    Title = "Fill Transparency",
-    Icon = "blend",
-    Value = {
-        Min = 0,
-        Max = 100,
-        Default = 50,
-    },
-    Callback = function(value)
-        States.ESPFillTransparency = value / 100
-        -- Обновляем существующие highlights
-        for _, highlight in pairs(ESPHighlights) do
-            if highlight and highlight.Parent then
-                highlight.FillTransparency = States.ESPFillTransparency
-            end
-        end
-    end,
-})
-
--- Незатухающее ESP: постоянный сканирующий цикл
-task.spawn(function()
-    while true do
-        task.wait(1.5) -- Сканируем каждые 1.5 секунды
-        if States.ESPEnabled then
-            for _, player in pairs(Players:GetPlayers()) do
-                if player ~= LocalPlayer and player.Character then
-                    local existing = ESPHighlights[player.Name]
-                    local role = GetPlayerRole(player)
-                    local color = GetRoleColor(role)
-                    
-                    if existing and existing.Parent then
-                        -- Обновляем цвет если роль изменилась
-                        if existing.FillColor ~= color then
-                            existing.FillColor = color
-                            existing.OutlineColor = color
-                        end
-                        existing.FillTransparency = States.ESPFillTransparency
-                    else
-                        -- ESP пропал — переприменяем
-                        ApplyESP(player)
-                    end
-                end
-            end
-        end
-    end
-end)
-
--- PlayerAdded listener
-Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function(char)
-        task.wait(1) -- Ждём загрузки персонажа
-        if States.ESPEnabled then
-            ApplyESP(player)
-        end
-    end)
-end)
-
--- Для уже существующих игроков
-for _, player in pairs(Players:GetPlayers()) do
-    if player ~= LocalPlayer then
-        player.CharacterAdded:Connect(function(char)
-            task.wait(1)
-            if States.ESPEnabled then
-                ApplyESP(player)
-            end
-        end)
-    end
-end
-
--- Обработка респавна LocalPlayer (роли могут смениться)
-LocalPlayer.CharacterAdded:Connect(function()
-    task.wait(2)
-    if States.ESPEnabled then
-        RefreshAllESP()
-    end
-end)
-
--- Gun ESP Section
-local GunESPSection = VisualsTab:Section({ Title = "Gun ESP" })
-
-local function ClearGunESP()
-    for _, highlight in pairs(GunESPHighlights) do
-        if highlight and highlight.Parent then
-            highlight:Destroy()
-        end
-    end
-    GunESPHighlights = {}
-end
-
-local function ApplyGunESP()
-    if not States.GunESPEnabled then return end
-    ClearGunESP()
-    
-    for _, obj in pairs(Workspace:GetDescendants()) do
-        if obj.Name == "GunDrop" and (obj:IsA("BasePart") or obj:IsA("Model") or obj:IsA("Tool")) then
-            local target = obj
-            if obj:IsA("BasePart") then
-                -- Ищем модель-родитель если есть
-                if obj.Parent and obj.Parent:IsA("Model") then
-                    target = obj.Parent
-                end
-            end
-            
-            local existing = target:FindFirstChild("GunDropESP")
-            if not existing then
-                local highlight = Instance.new("Highlight")
-                highlight.Name = "GunDropESP"
-                highlight.FillColor = Color3.fromRGB(255, 215, 0) -- Золотой
-                highlight.OutlineColor = Color3.fromRGB(255, 255, 0)
-                highlight.FillTransparency = 0.3
-                highlight.OutlineTransparency = 0
-                highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                highlight.Parent = target
-                
-                table.insert(GunESPHighlights, highlight)
-            end
-        end
-    end
-end
-
-GunESPSection:Toggle({
-    Title = "Gun Drop ESP",
-    Icon = "crosshair",
-    Default = false,
-    Callback = function(state)
-        States.GunESPEnabled = state
-        if state then
-            ApplyGunESP()
-        else
-            ClearGunESP()
-        end
-    end,
-})
-
--- Gun ESP scanning loop
-task.spawn(function()
-    while true do
-        task.wait(1)
-        if States.GunESPEnabled then
-            ApplyGunESP()
-        end
-    end
-end)
-
----------------------------------------------------------------
--- TAB: COMBAT
----------------------------------------------------------------
-
-local CombatTab = Window:Tab({
-    Title = "Combat",
-    Icon = "swords",
-})
-
-local CombatSection = CombatTab:Section({ Title = "Автоматическое оружие" })
-
--- Функция поиска убийцы
-local function FindMurderer()
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local hum = player.Character:FindFirstChildOfClass("Humanoid")
-            if hum and hum.Health > 0 then
-                if GetPlayerRole(player) == "Murderer" then
-                    return player
-                end
-            end
-        end
-    end
-    return nil
-end
-
--- Функция проверки Line of Sight с Raycasting
-local function HasLineOfSight(fromPos, toPos)
-    local direction = (toPos - fromPos)
-    local distance = direction.Magnitude
-    
-    local raycastParams = RaycastParams.new()
-    raycastParams.FilterType = Enum.RaycastFilterType.Exclude
-    
-    -- Игнорируем своего персонажа и прозрачные части
-    local ignoreList = {}
-    local localChar = GetCharacter()
-    if localChar then
-        table.insert(ignoreList, localChar)
-    end
-    
-    -- Добавляем прозрачные детали в игнор
-    for _, part in pairs(Workspace:GetDescendants()) do
-        if part:IsA("BasePart") and part.Transparency >= 0.5 then
-            table.insert(ignoreList, part)
-        end
-    end
-    
-    raycastParams.FilterDescendantsInstances = ignoreList
-    
-    local result = Workspace:Raycast(fromPos, direction.Unit * distance, raycastParams)
-    
-    if result then
-        -- Проверяем, попали ли мы в персонаж убийцы
-        local hitPart = result.Instance
-        local hitChar = hitPart:FindFirstAncestorOfClass("Model")
-        if hitChar then
-            local hitPlayer = Players:GetPlayerFromCharacter(hitChar)
-            if hitPlayer and GetPlayerRole(hitPlayer) == "Murderer" then
-                return true
-            end
-        end
-        return false
-    end
-    
-    -- Если ничего не попалось, значит прямая видимость есть
-    return true
-end
-
--- Поиск Remote для стрельбы
-local function FindShootRemote()
-    -- MM2 использует разные remote names, ищем подходящий
-    local possibleNames = {"ShootPlayer", "Fire", "Shoot", "RemoteFunction", "KnifeRemote"}
-    
-    for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
-        if remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction") then
-            for _, name in pairs(possibleNames) do
-                if remote.Name:lower():find(name:lower()) then
-                    return remote
-                end
-            end
-        end
-    end
-    
-    -- Fallback: ищем в определённых местах MM2
-    local mainModule = ReplicatedStorage:FindFirstChild("Remotes")
-    if mainModule then
-        for _, remote in pairs(mainModule:GetChildren()) do
-            if remote:IsA("RemoteEvent") then
-                return remote
-            end
-        end
-    end
-    
-    return nil
-end
-
--- Функция стрельбы (симуляция выстрела из пистолета)
-local function ShootAtPlayer(targetPlayer)
-    local character = GetCharacter()
-    if not character then return end
-    
-    -- Проверяем, есть ли у нас пистолет
-    local gun = nil
-    for _, tool in pairs(character:GetChildren()) do
-        if tool:IsA("Tool") and (tool.Name:lower() == "gun" or tool.Name:lower() == "revolver") then
-            gun = tool
-            break
-        end
-    end
-    
-    if not gun then
-        -- Проверяем Backpack
-        for _, tool in pairs(LocalPlayer.Backpack:GetChildren()) do
-            if tool:IsA("Tool") and (tool.Name:lower() == "gun" or tool.Name:lower() == "revolver") then
-                -- Экипируем пистолет
-                local hum = GetHumanoid()
-                if hum then
-                    hum:EquipTool(tool)
-                    gun = tool
-                    task.wait(0.1)
-                end
-                break
-            end
-        end
-    end
-    
-    if not gun then return end
-    
-    local targetChar = targetPlayer.Character
-    if not targetChar then return end
-    local targetHRP = targetChar:FindFirstChild("HumanoidRootPart") 
-        or targetChar:FindFirstChild("Head")
-    if not targetHRP then return end
-    
-    -- Метод 1: Активация Tool через Remote
-    -- MM2 обычно использует RemoteEvent для стрельбы
-    local shootRemote = FindShootRemote()
-    
-    if shootRemote then
-        pcall(function()
-            if shootRemote:IsA("RemoteEvent") then
-                shootRemote:FireServer(targetPlayer.Character, targetHRP.Position)
-            elseif shootRemote:IsA("RemoteFunction") then
-                shootRemote:InvokeServer(targetPlayer.Character, targetHRP.Position)
-            end
-        end)
-    end
-    
-    -- Метод 2: Симуляция клика мышью в направлении цели
-    pcall(function()
-        local camera = Workspace.CurrentCamera
-        -- Временно направляем камеру на цель
-        local originalCF = camera.CFrame
-        camera.CFrame = CFrame.lookAt(camera.CFrame.Position, targetHRP.Position)
-        
-        -- Активируем инструмент
-        if gun:FindFirstChild("Activate") then
-            gun.Activate:Fire()
-        end
-        mouse1click()
-        
-        task.wait(0.05)
-        camera.CFrame = originalCF
-    end)
-    
-    -- Метод 3: Прямой Fire Remote из инструмента
-    pcall(function()
-        for _, descendant in pairs(gun:GetDescendants()) do
-            if descendant:IsA("RemoteEvent") then
-                descendant:FireServer(targetHRP.Position)
-            end
-        end
-    end)
-end
-
--- Auto-Kill Toggle
-CombatSection:Toggle({
-    Title = "Auto-Kill Murderer (Triggerbot)",
-    Icon = "target",
-    Default = false,
-    Callback = function(state)
-        States.AutoKillEnabled = state
-        if state then
-            WindUI:Notify({
-                Title = "Auto-Kill",
-                Content = "Автоматический убийца активирован. Нужен пистолет!",
-                Icon = "alert-triangle",
-                Duration = 3,
-            })
-        end
-    end,
-})
-
--- Auto-Kill Loop
-task.spawn(function()
-    while true do
-        task.wait(0.15)
-        if States.AutoKillEnabled then
-            local myRole = GetPlayerRole(LocalPlayer)
-            -- Работает только если мы Шериф или подобрали пистолет
-            if myRole == "Sheriff" then
+    while task.wait(0.1) do
+        if State.AutoKillMurderer then
+            local myRole = GetMyRole()
+            if myRole == "Sheriff" or GetToolFromPlayer(LocalPlayer, "gun") then
                 local murderer = FindMurderer()
-                if murderer and murderer.Character then
-                    local myHRP = GetRootPart()
-                    local targetHRP = murderer.Character:FindFirstChild("HumanoidRootPart")
-                    
-                    if myHRP and targetHRP then
-                        local distance = (myHRP.Position - targetHRP.Position).Magnitude
-                        
-                        -- Проверяем дистанцию (разумный предел)
-                        if distance < 300 then
-                            -- Проверяем прямую видимость
-                            if HasLineOfSight(myHRP.Position, targetHRP.Position) then
-                                ShootAtPlayer(murderer)
-                                task.wait(0.5) -- Кулдаун после выстрела
+                if murderer then
+                    local myHRP = GetHRP(LocalPlayer)
+                    local targetPart = GetPartFromChar(murderer, State.TargetPart) or GetHRP(murderer)
+
+                    if myHRP and targetPart then
+                        local canSee = true
+                        if State.WallCheck then
+                            canSee = HasLineOfSight(myHRP.Position, targetPart.Position)
+                        end
+
+                        if canSee then
+                            -- Экипировать пистолет
+                            local gun = GetToolFromPlayer(LocalPlayer, "gun")
+                            if gun then
+                                EquipTool(gun)
+                                task.wait(0.05)
+
+                                -- Имитация выстрела через Remote
+                                -- MM2 использует RemoteEvent для стрельбы
+                                -- Метод: направление камеры + FireServer
+                                pcall(function()
+                                    -- Попытка найти Remote для стрельбы
+                                    local remotes = ReplicatedStorage:FindFirstChild("Remotes")
+                                    if remotes then
+                                        local shootRemote = remotes:FindFirstChild("Shoot") or remotes:FindFirstChild("Fire")
+                                        if shootRemote then
+                                            shootRemote:FireServer(targetPart.Position)
+                                        end
+                                    end
+
+                                    -- Альтернативный метод — активация тула с позицией
+                                    if gun:FindFirstChild("Fire") then
+                                        gun.Fire:FireServer(targetPart.Position)
+                                    elseif gun:FindFirstChild("RemoteFunction") then
+                                        gun.RemoteFunction:InvokeServer(targetPart.Position)
+                                    end
+
+                                    -- Универсальный метод: Mouse1Click с подменой
+                                    local mouseObj = LocalPlayer:GetMouse()
+                                    if mouseObj then
+                                        gun:Activate()
+                                    end
+                                end)
                             end
                         end
                     end
@@ -779,370 +297,972 @@ task.spawn(function()
     end
 end)
 
--- Auto-Grab Gun
-local GrabSection = CombatTab:Section({ Title = "Авто-подбор" })
-
-GrabSection:Toggle({
+-- ── Auto-Grab Gun ──
+CombatMainTab:Toggle({
     Title = "Auto-Grab Gun",
-    Icon = "hand",
+    Description = "Мгновенный подбор пистолета при смерти Шерифа",
     Default = false,
-    Callback = function(state)
-        States.AutoGrabGunEnabled = state
+    Callback = function(val)
+        State.AutoGrabGun = val
     end,
 })
 
--- Auto-Grab Gun Loop
 task.spawn(function()
-    while true do
-        task.wait(0.3)
-        if States.AutoGrabGunEnabled then
-            for _, obj in pairs(Workspace:GetDescendants()) do
-                if obj.Name == "GunDrop" then
-                    local hrp = GetRootPart()
-                    if hrp then
-                        local targetPart = nil
-                        
-                        if obj:IsA("BasePart") then
-                            targetPart = obj
-                        elseif obj:IsA("Model") then
-                            targetPart = obj:FindFirstChildWhichIsA("BasePart") or obj.PrimaryPart
-                        elseif obj:IsA("Tool") then
-                            local handle = obj:FindFirstChild("Handle")
-                            if handle then
-                                targetPart = handle
+    while task.wait(0.15) do
+        if State.AutoGrabGun then
+            pcall(function()
+                local myHRP = GetHRP(LocalPlayer)
+                if not myHRP then return end
+
+                for _, obj in ipairs(Workspace:GetChildren()) do
+                    if obj.Name == "GunDrop" or (obj:IsA("Tool") and obj.Name:lower():find("gun")) then
+                        local handle = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
+                        if handle then
+                            -- Телепорт к пистолету
+                            myHRP.CFrame = handle.CFrame * CFrame.new(0, 3, 0)
+                            task.wait(0.1)
+                            -- Попытка подобрать
+                            if obj:IsA("Tool") then
+                                pcall(function()
+                                    local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                                    if humanoid then
+                                        humanoid:EquipTool(obj)
+                                    end
+                                end)
                             end
-                        end
-                        
-                        if targetPart then
-                            -- CFrame телепорт к пистолету
-                            local originalPos = hrp.CFrame
-                            hrp.CFrame = targetPart.CFrame * CFrame.new(0, 2, 0)
-                            task.wait(0.2)
-                            
-                            -- Касаемся пистолета
-                            hrp.CFrame = targetPart.CFrame
-                            task.wait(0.15)
-                            
-                            -- Возвращаемся обратно (опционально)
-                            -- hrp.CFrame = originalPos
-                            
-                            WindUI:Notify({
-                                Title = "Auto-Grab",
-                                Content = "Пистолет подобран!",
-                                Icon = "check",
-                                Duration = 2,
-                            })
                         end
                     end
                 end
-            end
+
+                -- Также проверяем модели с GunDrop
+                for _, obj in ipairs(Workspace:GetDescendants()) do
+                    if obj.Name == "GunDrop" and obj:IsA("BasePart") then
+                        myHRP.CFrame = obj.CFrame * CFrame.new(0, 3, 0)
+                        task.wait(0.15)
+                    end
+                end
+            end)
         end
     end
 end)
 
----------------------------------------------------------------
--- TAB: MISC
----------------------------------------------------------------
+-- ── Kill Aura (для Маньяка) ──
+CombatMainTab:Toggle({
+    Title = "Kill Aura (Murderer Only)",
+    Description = "Автоатака ножом по ближайшим игрокам",
+    Default = false,
+    Callback = function(val)
+        State.KillAura = val
+    end,
+})
 
-local MiscTab = Window:Tab({
-    Title = "Misc",
+CombatMainTab:Slider({
+    Title = "Kill Aura Radius",
+    Description = "Радиус действия Kill Aura (стадс)",
+    Value = {
+        Min = 5,
+        Max = 50,
+        Default = 15,
+    },
+    Callback = function(val)
+        State.KillAuraRadius = val
+    end,
+})
+
+task.spawn(function()
+    while task.wait(0.05) do
+        if State.KillAura and GetMyRole() == "Murderer" then
+            pcall(function()
+                local knife = GetToolFromPlayer(LocalPlayer, "knife")
+                if not knife then return end
+
+                EquipTool(knife)
+                local myHRP = GetHRP(LocalPlayer)
+                if not myHRP then return end
+
+                for _, player in ipairs(GetAlivePlayers()) do
+                    local theirHRP = GetHRP(player)
+                    if theirHRP then
+                        local dist = (myHRP.Position - theirHRP.Position).Magnitude
+                        if dist <= State.KillAuraRadius then
+                            -- Активация ножа (удар)
+                            pcall(function()
+                                knife:Activate()
+
+                                -- Метод через Remote
+                                if knife:FindFirstChild("Stab") then
+                                    knife.Stab:FireServer(theirHRP.Position)
+                                end
+
+                                local remotes = ReplicatedStorage:FindFirstChild("Remotes")
+                                if remotes then
+                                    local killRemote = remotes:FindFirstChild("Stab") or remotes:FindFirstChild("Kill")
+                                    if killRemote then
+                                        killRemote:FireServer(player)
+                                    end
+                                end
+                            end)
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- ═══════════════════════════════════════════════
+-- СЕКЦИЯ 6: ВКЛАДКА "COMBAT (SETTINGS)"
+-- ═══════════════════════════════════════════════
+
+local CombatSettingsTab = Window:Tab({
+    Title = "Combat (Settings)",
     Icon = "settings",
 })
 
-local FakeDeadSection = MiscTab:Section({ Title = "Fake Dead (Притвориться мертвым)" })
-
--- Dropdown для выбора позы
-FakeDeadSection:Dropdown({
-    Title = "Поза",
-    Icon = "user-x",
-    Multi = false,
-    Items = {"На живот", "На спину"},
-    Value = "На живот",
-    Callback = function(value)
-        States.FakeDeadPose = value
+-- ── Silent Aim Toggle ──
+CombatSettingsTab:Toggle({
+    Title = "Silent Aim",
+    Description = "Пуля автоматически летит в цель при ручной стрельбе",
+    Default = false,
+    Callback = function(val)
+        State.SilentAim = val
     end,
 })
 
--- Fake Dead Toggle
-FakeDeadSection:Toggle({
-    Title = "Fake Dead",
-    Icon = "skull",
-    Default = false,
-    Callback = function(state)
-        States.FakeDeadEnabled = state
-        
-        local char = GetCharacter()
-        local hum = GetHumanoid()
-        local hrp = GetRootPart()
-        
-        if not char or not hum or not hrp then return end
-        
-        if state then
-            -- Останавливаем все анимации
-            hum.PlatformStand = true
-            
-            -- Применяем позу
-            local function applyPose()
-                if States.FakeDeadPose == "На живот" then
-                    -- Лицом вниз
-                    hrp.CFrame = CFrame.new(hrp.Position) * CFrame.Angles(math.rad(-90), 0, 0)
-                elseif States.FakeDeadPose == "На спину" then
-                    -- Лицом вверх
-                    hrp.CFrame = CFrame.new(hrp.Position) * CFrame.Angles(math.rad(90), 0, 0)
-                end
-            end
-            
-            applyPose()
-            
-            -- Останавливаем анимации
-            local animator = hum:FindFirstChildOfClass("Animator")
-            if animator then
-                for _, track in pairs(animator:GetPlayingAnimationTracks()) do
-                    track:Stop()
-                end
-            end
-            
-            -- Поддерживаем позу в цикле
-            Connections["FakeDead"] = RunService.RenderStepped:Connect(function()
-                if States.FakeDeadEnabled then
-                    hum.PlatformStand = true
-                    applyPose()
-                    
-                    -- Блокируем анимации
-                    local anim = hum:FindFirstChildOfClass("Animator")
-                    if anim then
-                        for _, track in pairs(anim:GetPlayingAnimationTracks()) do
-                            track:Stop(0)
-                        end
-                    end
-                end
-            end)
-        else
-            -- Отключаем Fake Dead
-            if Connections["FakeDead"] then
-                Connections["FakeDead"]:Disconnect()
-                Connections["FakeDead"] = nil
-            end
-            
-            hum.PlatformStand = false
-            hrp.CFrame = CFrame.new(hrp.Position) * CFrame.Angles(0, 0, 0)
-        end
+-- ── Target Part Dropdown ──
+CombatSettingsTab:Dropdown({
+    Title = "Target Part",
+    Description = "Часть тела для наведения",
+    Values = {"HumanoidRootPart", "Head"},
+    Value = "HumanoidRootPart",
+    Callback = function(val)
+        State.TargetPart = val
     end,
 })
 
--- FE Invisibility
-local InvisSection = MiscTab:Section({ Title = "Невидимость" })
+-- ── Wall Check Toggle ──
+CombatSettingsTab:Toggle({
+    Title = "Wall Check",
+    Description = "Проверка стен перед выстрелом",
+    Default = true,
+    Callback = function(val)
+        State.WallCheck = val
+    end,
+})
 
-InvisSection:Toggle({
-    Title = "FE Invisibility",
-    Icon = "eye-off",
-    Default = false,
-    Callback = function(state)
-        States.FEInvisEnabled = state
-        
-        local char = GetCharacter()
-        if not char then return end
-        
-        if state then
-            -- Метод 1: Локальная прозрачность всех частей
-            for _, part in pairs(char:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.LocalTransparencyModifier = 1
-                elseif part:IsA("Decal") or part:IsA("Texture") then
-                    part.Transparency = 1
-                end
-            end
-            
-            -- Скрываем аксессуары
-            for _, accessory in pairs(char:GetChildren()) do
-                if accessory:IsA("Accessory") then
-                    local handle = accessory:FindFirstChild("Handle")
-                    if handle then
-                        handle.LocalTransparencyModifier = 1
-                        -- Скрываем меш-детали аксессуаров
-                        for _, child in pairs(handle:GetChildren()) do
-                            if child:IsA("SpecialMesh") or child:IsA("Decal") then
-                                if child:IsA("Decal") then
-                                    child.Transparency = 1
+-- ── Silent Aim Hook ──
+-- Хукаем Namecall/NewIndex для перенаправления пуль
+task.spawn(function()
+    -- Метод через подмену Mouse.Hit
+    local mt = getrawmetatable(game)
+    if mt and setreadonly then
+        local oldNamecall = mt.__namecall
+        local oldIndex = mt.__index
+
+        setreadonly(mt, false)
+
+        mt.__namecall = newcclosure(function(self, ...)
+            local args = {...}
+            local method = getnamecallmethod()
+
+            if State.SilentAim then
+                -- Перехват FireServer для стрельбы
+                if method == "FireServer" then
+                    local selfName = tostring(self)
+                    if selfName:lower():find("shoot") or selfName:lower():find("fire") or selfName:lower():find("remote") then
+                        local murderer = FindMurderer()
+                        if murderer then
+                            local targetPart = GetPartFromChar(murderer, State.TargetPart) or GetHRP(murderer)
+                            if targetPart then
+                                local canShoot = true
+                                if State.WallCheck then
+                                    local myHRP = GetHRP(LocalPlayer)
+                                    if myHRP then
+                                        canShoot = HasLineOfSight(myHRP.Position, targetPart.Position)
+                                    end
+                                end
+
+                                if canShoot then
+                                    -- Подменяем первый аргумент (позицию) на позицию цели
+                                    if typeof(args[1]) == "Vector3" then
+                                        args[1] = targetPart.Position
+                                    elseif typeof(args[1]) == "CFrame" then
+                                        args[1] = targetPart.CFrame
+                                    end
+                                    return oldNamecall(self, unpack(args))
                                 end
                             end
                         end
                     end
                 end
             end
-            
-            -- Скрываем лицо
-            local head = char:FindFirstChild("Head")
-            if head then
-                for _, face in pairs(head:GetChildren()) do
-                    if face:IsA("Decal") then
-                        face.Transparency = 1
-                    end
-                end
-            end
-            
-            -- Поддерживаем невидимость в цикле (на случай переодевания)
-            Connections["FEInvis"] = RunService.RenderStepped:Connect(function()
-                if States.FEInvisEnabled then
-                    local c = GetCharacter()
-                    if c then
-                        for _, part in pairs(c:GetDescendants()) do
-                            if part:IsA("BasePart") then
-                                part.LocalTransparencyModifier = 1
+
+            return oldNamecall(self, ...)
+        end)
+
+        mt.__index = newcclosure(function(self, key)
+            if State.SilentAim then
+                -- Подмена Mouse.Hit для тулов использующих Mouse
+                if tostring(self) == "Instance" or (typeof(self) == "Instance" and self:IsA("Mouse")) then
+                    if key == "Hit" then
+                        local murderer = FindMurderer()
+                        if murderer then
+                            local targetPart = GetPartFromChar(murderer, State.TargetPart) or GetHRP(murderer)
+                            if targetPart then
+                                local canShoot = true
+                                if State.WallCheck then
+                                    local myHRP = GetHRP(LocalPlayer)
+                                    if myHRP then
+                                        canShoot = HasLineOfSight(myHRP.Position, targetPart.Position)
+                                    end
+                                end
+                                if canShoot then
+                                    return targetPart.CFrame
+                                end
+                            end
+                        end
+                    elseif key == "Target" then
+                        local murderer = FindMurderer()
+                        if murderer then
+                            local targetPart = GetPartFromChar(murderer, State.TargetPart) or GetHRP(murderer)
+                            if targetPart then
+                                return targetPart
                             end
                         end
                     end
                 end
-            end)
-            
-            -- Метод 2: Сдвиг хитбокса (дополнительно)
-            -- Смещаем HRP далеко вниз относительно остальных частей
-            pcall(function()
-                local hrp = GetRootPart()
-                if hrp then
-                    -- Сохраняем оригинальный offset
-                    local rootJoint = hrp:FindFirstChild("RootJoint")
-                    if rootJoint then
-                        rootJoint.C0 = rootJoint.C0 * CFrame.new(0, 0, -100)
-                    end
-                end
-            end)
-            
-            WindUI:Notify({
-                Title = "FE Invisibility",
-                Content = "Локальная невидимость активирована.",
-                Icon = "eye-off",
-                Duration = 3,
-            })
-        else
-            -- Восстановление видимости
-            if Connections["FEInvis"] then
-                Connections["FEInvis"]:Disconnect()
-                Connections["FEInvis"] = nil
             end
-            
-            for _, part in pairs(char:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.LocalTransparencyModifier = 0
-                elseif part:IsA("Decal") or part:IsA("Texture") then
-                    part.Transparency = 0
-                end
-            end
-            
-            -- Восстанавливаем аксессуары
-            for _, accessory in pairs(char:GetChildren()) do
-                if accessory:IsA("Accessory") then
-                    local handle = accessory:FindFirstChild("Handle")
-                    if handle then
-                        handle.LocalTransparencyModifier = 0
-                    end
-                end
-            end
-            
-            -- Восстанавливаем лицо
-            local head = char:FindFirstChild("Head")
-            if head then
-                for _, face in pairs(head:GetChildren()) do
-                    if face:IsA("Decal") then
-                        face.Transparency = 0
-                    end
-                end
-            end
-            
-            -- Восстанавливаем хитбокс
-            pcall(function()
-                local hrp = GetRootPart()
-                if hrp then
-                    local rootJoint = hrp:FindFirstChild("RootJoint")
-                    if rootJoint then
-                        rootJoint.C0 = CFrame.new(0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 1, 0)
-                    end
-                end
-            end)
-            
-            WindUI:Notify({
-                Title = "FE Invisibility",
-                Content = "Видимость восстановлена.",
-                Icon = "eye",
-                Duration = 3,
-            })
-        end
-    end,
-})
 
----------------------------------------------------------------
--- ANTI-AFK (Бонус)
----------------------------------------------------------------
+            return oldIndex(self, key)
+        end)
 
-local AntiAFKSection = MiscTab:Section({ Title = "Утилиты" })
-
-AntiAFKSection:Toggle({
-    Title = "Anti-AFK",
-    Icon = "timer-off",
-    Default = true,
-    Callback = function(state)
-        if state then
-            -- Удаляем AFK handler
-            local VirtualUser = game:GetService("VirtualUser")
-            Connections["AntiAFK"] = LocalPlayer.Idled:Connect(function()
-                VirtualUser:CaptureController()
-                VirtualUser:ClickButton2(Vector2.new())
-            end)
-        else
-            if Connections["AntiAFK"] then
-                Connections["AntiAFK"]:Disconnect()
-                Connections["AntiAFK"] = nil
-            end
-        end
-    end,
-})
-
----------------------------------------------------------------
--- CLEANUP ON CHARACTER RESPAWN
----------------------------------------------------------------
-
-LocalPlayer.CharacterAdded:Connect(function(newChar)
-    -- Сбрасываем Fly при респавне
-    if States.FlyEnabled then
-        States.FlyEnabled = false
-        if Connections["FlyLoop"] then
-            Connections["FlyLoop"]:Disconnect()
-            Connections["FlyLoop"] = nil
-        end
-    end
-    
-    -- Сбрасываем Fake Dead при респавне
-    if States.FakeDeadEnabled then
-        States.FakeDeadEnabled = false
-        if Connections["FakeDead"] then
-            Connections["FakeDead"]:Disconnect()
-            Connections["FakeDead"] = nil
-        end
-    end
-    
-    -- Сбрасываем FE Invis при респавне
-    if States.FEInvisEnabled then
-        States.FEInvisEnabled = false
-        if Connections["FEInvis"] then
-            Connections["FEInvis"]:Disconnect()
-            Connections["FEInvis"] = nil
-        end
-    end
-    
-    -- Ждём загрузки и обновляем ESP
-    task.wait(2)
-    if States.ESPEnabled then
-        RefreshAllESP()
+        setreadonly(mt, true)
     end
 end)
 
----------------------------------------------------------------
--- FINAL NOTIFICATION
----------------------------------------------------------------
+-- ═══════════════════════════════════════════════
+-- СЕКЦИЯ 7: ВКЛАДКА "VISUALS"
+-- ═══════════════════════════════════════════════
 
-WindUI:Notify({
-    Title = "MM2 Hub Loaded",
-    Content = "4 вкладки: Movement, Visuals, Combat, Misc. Удачной игры!",
-    Icon = "party-popper",
-    Duration = 6,
+local VisualsTab = Window:Tab({
+    Title = "Visuals",
+    Icon = "eye",
 })
+
+-- ── Player ESP ──
+VisualsTab:Toggle({
+    Title = "Player ESP (Role Chams)",
+    Description = "Подсветка игроков по ролям сквозь стены",
+    Default = false,
+    Callback = function(val)
+        State.PlayerESP = val
+        if not val then
+            -- Удалить все ESP
+            for player, highlight in pairs(ESPHighlights) do
+                if highlight and highlight.Parent then
+                    highlight:Destroy()
+                end
+            end
+            ESPHighlights = {}
+        end
+    end,
+})
+
+VisualsTab:Slider({
+    Title = "ESP Fill Transparency",
+    Description = "Прозрачность заливки подсветки",
+    Value = {
+        Min = 0,
+        Max = 1,
+        Default = 0.5,
+    },
+    Callback = function(val)
+        State.ESPFillTransparency = val
+        -- Обновить существующие
+        for _, highlight in pairs(ESPHighlights) do
+            if highlight and highlight.Parent then
+                highlight.FillTransparency = val
+            end
+        end
+    end,
+})
+
+-- Цвета ролей
+local RoleColors = {
+    Murderer = Color3.fromRGB(255, 0, 0),
+    Sheriff = Color3.fromRGB(0, 100, 255),
+    Innocent = Color3.fromRGB(0, 255, 0),
+}
+
+local function UpdateESP(player)
+    if not State.PlayerESP then return end
+    if player == LocalPlayer then return end
+
+    local character = player.Character
+    if not character then
+        -- Удалить ESP если нет персонажа
+        if ESPHighlights[player] then
+            ESPHighlights[player]:Destroy()
+            ESPHighlights[player] = nil
+        end
+        return
+    end
+
+    local role = GetRole(player)
+    local color = RoleColors[role] or RoleColors.Innocent
+
+    -- Создать или обновить Highlight
+    local highlight = ESPHighlights[player]
+    if not highlight or not highlight.Parent then
+        highlight = Instance.new("Highlight")
+        highlight.Name = "MM2_ESP"
+        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        highlight.Adornee = character
+        highlight.Parent = character
+        ESPHighlights[player] = highlight
+    end
+
+    highlight.FillColor = color
+    highlight.OutlineColor = color
+    highlight.FillTransparency = State.ESPFillTransparency
+    highlight.OutlineTransparency = 0
+    highlight.Adornee = character
+end
+
+-- ESP Loop — непрерывный цикл обновления
+task.spawn(function()
+    while task.wait(0.5) do
+        if State.PlayerESP then
+            for _, player in ipairs(Players:GetPlayers()) do
+                pcall(function()
+                    UpdateESP(player)
+                end)
+            end
+        end
+    end
+end)
+
+-- Подписка на новых игроков
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        task.wait(1)
+        if State.PlayerESP then
+            UpdateESP(player)
+        end
+    end)
+end)
+
+-- Подписка на существующих игроков (CharacterAdded)
+for _, player in ipairs(Players:GetPlayers()) do
+    player.CharacterAdded:Connect(function()
+        task.wait(1)
+        if State.PlayerESP then
+            UpdateESP(player)
+        end
+    end)
+end
+
+-- Очистка ESP при выходе игрока
+Players.PlayerRemoving:Connect(function(player)
+    if ESPHighlights[player] then
+        ESPHighlights[player]:Destroy()
+        ESPHighlights[player] = nil
+    end
+end)
+
+-- ── Gun ESP ──
+VisualsTab:Toggle({
+    Title = "Gun ESP",
+    Description = "Подсветка выпавшего пистолета золотым цветом",
+    Default = false,
+    Callback = function(val)
+        State.GunESP = val
+        if not val and GunESPHighlight then
+            GunESPHighlight:Destroy()
+            GunESPHighlight = nil
+        end
+    end,
+})
+
+task.spawn(function()
+    while task.wait(0.3) do
+        if State.GunESP then
+            pcall(function()
+                local gunDrop = nil
+
+                for _, obj in ipairs(Workspace:GetChildren()) do
+                    if obj.Name == "GunDrop" then
+                        gunDrop = obj
+                        break
+                    end
+                end
+
+                if not gunDrop then
+                    for _, obj in ipairs(Workspace:GetDescendants()) do
+                        if obj.Name == "GunDrop" then
+                            if obj:IsA("BasePart") then
+                                gunDrop = obj
+                            elseif obj:IsA("Model") then
+                                gunDrop = obj
+                            end
+                            break
+                        end
+                    end
+                end
+
+                if gunDrop then
+                    if not GunESPHighlight or not GunESPHighlight.Parent then
+                        GunESPHighlight = Instance.new("Highlight")
+                        GunESPHighlight.Name = "MM2_GunESP"
+                        GunESPHighlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                        GunESPHighlight.FillColor = Color3.fromRGB(255, 215, 0)
+                        GunESPHighlight.OutlineColor = Color3.fromRGB(255, 255, 0)
+                        GunESPHighlight.FillTransparency = 0.3
+                        GunESPHighlight.OutlineTransparency = 0
+                    end
+
+                    GunESPHighlight.Adornee = gunDrop
+                    if GunESPHighlight.Parent ~= gunDrop then
+                        GunESPHighlight.Parent = gunDrop
+                    end
+                else
+                    if GunESPHighlight and GunESPHighlight.Parent then
+                        GunESPHighlight:Destroy()
+                        GunESPHighlight = nil
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- ═══════════════════════════════════════════════
+-- СЕКЦИЯ 8: ВКЛАДКА "MOVEMENT"
+-- ═══════════════════════════════════════════════
+
+local MovementTab = Window:Tab({
+    Title = "Movement",
+    Icon = "zap",
+})
+
+-- ── Speed ──
+MovementTab:Toggle({
+    Title = "Speed Hack",
+    Description = "Увеличение скорости передвижения",
+    Default = false,
+    Callback = function(val)
+        State.SpeedEnabled = val
+        if not val then
+            pcall(function()
+                local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then humanoid.WalkSpeed = 16 end
+            end)
+        end
+    end,
+})
+
+MovementTab:Slider({
+    Title = "Walk Speed",
+    Value = {
+        Min = 16,
+        Max = 150,
+        Default = 16,
+    },
+    Callback = function(val)
+        State.SpeedValue = val
+    end,
+})
+
+-- Speed Loop через RenderStepped для обхода проверок
+RunService.RenderStepped:Connect(function()
+    if State.SpeedEnabled then
+        pcall(function()
+            local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = State.SpeedValue
+            end
+        end)
+    end
+end)
+
+-- ── Jump Power ──
+MovementTab:Toggle({
+    Title = "Jump Power",
+    Description = "Увеличение высоты прыжка",
+    Default = false,
+    Callback = function(val)
+        State.JumpEnabled = val
+        if not val then
+            pcall(function()
+                local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.JumpPower = 50
+                    humanoid.UseJumpPower = true
+                end
+            end)
+        end
+    end,
+})
+
+MovementTab:Slider({
+    Title = "Jump Power Value",
+    Value = {
+        Min = 50,
+        Max = 200,
+        Default = 50,
+    },
+    Callback = function(val)
+        State.JumpValue = val
+    end,
+})
+
+RunService.RenderStepped:Connect(function()
+    if State.JumpEnabled then
+        pcall(function()
+            local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.UseJumpPower = true
+                humanoid.JumpPower = State.JumpValue
+            end
+        end)
+    end
+end)
+
+-- ── Infinite Jump ──
+MovementTab:Toggle({
+    Title = "Infinite Jump",
+    Description = "Прыжки в воздухе без ограничений",
+    Default = false,
+    Callback = function(val)
+        State.InfiniteJump = val
+    end,
+})
+
+UserInputService.JumpRequest:Connect(function()
+    if State.InfiniteJump then
+        pcall(function()
+            local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end)
+    end
+end)
+
+-- ── Noclip ──
+MovementTab:Toggle({
+    Title = "Noclip",
+    Description = "Проход сквозь стены и объекты",
+    Default = false,
+    Callback = function(val)
+        State.Noclip = val
+    end,
+})
+
+RunService.Stepped:Connect(function()
+    if State.Noclip then
+        pcall(function()
+            local character = LocalPlayer.Character
+            if character then
+                for _, part in ipairs(character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+-- ── Fly ──
+MovementTab:Toggle({
+    Title = "Fly",
+    Description = "Полёт (ПК: WASD+Space/Ctrl, Мобильный: джойстик)",
+    Default = false,
+    Callback = function(val)
+        State.Fly = val
+
+        pcall(function()
+            local character = LocalPlayer.Character
+            local hrp = character:FindFirstChild("HumanoidRootPart")
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+            if val then
+                -- Создаём BodyVelocity и BodyGyro
+                FlyBodyVelocity = Instance.new("BodyVelocity")
+                FlyBodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                FlyBodyVelocity.Velocity = Vector3.zero
+                FlyBodyVelocity.Parent = hrp
+
+                FlyBodyGyro = Instance.new("BodyGyro")
+                FlyBodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+                FlyBodyGyro.P = 9e4
+                FlyBodyGyro.Parent = hrp
+            else
+                if FlyBodyVelocity then
+                    FlyBodyVelocity:Destroy()
+                    FlyBodyVelocity = nil
+                end
+                if FlyBodyGyro then
+                    FlyBodyGyro:Destroy()
+                    FlyBodyGyro = nil
+                end
+            end
+        end)
+    end,
+})
+
+MovementTab:Slider({
+    Title = "Fly Speed",
+    Value = {
+        Min = 10,
+        Max = 200,
+        Default = 50,
+    },
+    Callback = function(val)
+        State.FlySpeed = val
+    end,
+})
+
+-- Fly Movement Loop
+RunService.RenderStepped:Connect(function()
+    if State.Fly and FlyBodyVelocity and FlyBodyGyro then
+        pcall(function()
+            local hrp = GetHRP(LocalPlayer)
+            if not hrp then return end
+
+            local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            local moveDir = humanoid.MoveDirection -- Работает и с джойстиком на мобильном
+            local camCF = Camera.CFrame
+
+            FlyBodyGyro.CFrame = camCF
+
+            local velocity = Vector3.zero
+
+            -- Движение вперед/назад/влево/вправо (джойстик на мобильном тоже задаёт MoveDirection)
+            if moveDir.Magnitude > 0 then
+                velocity = velocity + (camCF.LookVector * moveDir.Z + camCF.RightVector * moveDir.X).Unit * State.FlySpeed
+            end
+
+            -- Подъём/спуск — ПК
+            if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+                velocity = velocity + Vector3.new(0, State.FlySpeed, 0)
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+                velocity = velocity + Vector3.new(0, -State.FlySpeed, 0)
+            end
+
+            -- Мобильный: если джойстик + Jump кнопка
+            if humanoid.Jump then
+                velocity = velocity + Vector3.new(0, State.FlySpeed * 0.5, 0)
+            end
+
+            -- Если нет ввода с джойстика, используем камеру для направления
+            if moveDir.Magnitude > 0 then
+                local lookDir = camCF.LookVector
+                local rightDir = camCF.RightVector
+                velocity = (lookDir * moveDir.Z + rightDir * moveDir.X) * State.FlySpeed
+
+                -- Добавляем вертикаль
+                if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+                    velocity = velocity + Vector3.new(0, State.FlySpeed, 0)
+                elseif UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
+                    velocity = velocity + Vector3.new(0, -State.FlySpeed, 0)
+                end
+            end
+
+            FlyBodyVelocity.Velocity = velocity
+
+            -- Отключить падение
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, false)
+        end)
+    end
+end)
+
+-- ── Auto-Evade Murderer ──
+MovementTab:Toggle({
+    Title = "Auto-Evade Murderer",
+    Description = "Автоматическое уклонение от Убийцы при сближении",
+    Default = false,
+    Callback = function(val)
+        State.AutoEvade = val
+    end,
+})
+
+MovementTab:Slider({
+    Title = "Evade Distance",
+    Description = "Дистанция срабатывания (стадс)",
+    Value = {
+        Min = 10,
+        Max = 50,
+        Default = 20,
+    },
+    Callback = function(val)
+        State.AutoEvadeDistance = val
+    end,
+})
+
+task.spawn(function()
+    while task.wait(0.1) do
+        if State.AutoEvade then
+            pcall(function()
+                local myRole = GetMyRole()
+                if myRole == "Murderer" then return end -- Маньяк не убегает от себя
+
+                local murderer = FindMurderer()
+                if not murderer then return end
+
+                local myHRP = GetHRP(LocalPlayer)
+                local murderHRP = GetHRP(murderer)
+
+                if not myHRP or not murderHRP then return end
+
+                -- Проверяем, держит ли убийца нож в руках
+                local murdererHasKnifeEquipped = false
+                if murderer.Character then
+                    for _, item in ipairs(murderer.Character:GetChildren()) do
+                        if item:IsA("Tool") and item.Name:lower():find("knife") then
+                            murdererHasKnifeEquipped = true
+                            break
+                        end
+                    end
+                end
+
+                if not murdererHasKnifeEquipped then return end
+
+                local dist = (myHRP.Position - murderHRP.Position).Magnitude
+
+                if dist <= State.AutoEvadeDistance then
+                    -- Направление ОТ убийцы
+                    local awayDir = (myHRP.Position - murderHRP.Position).Unit
+                    -- Телепорт на 10 стадов в противоположную сторону
+                    local newPos = myHRP.Position + awayDir * 12
+                    myHRP.CFrame = CFrame.new(newPos)
+
+                    -- Также увеличиваем скорость временно
+                    local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                    if humanoid then
+                        local origSpeed = humanoid.WalkSpeed
+                        humanoid.WalkSpeed = math.max(origSpeed, 32)
+                        task.delay(1, function()
+                            if humanoid and humanoid.Parent and not State.SpeedEnabled then
+                                humanoid.WalkSpeed = 16
+                            end
+                        end)
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- ═══════════════════════════════════════════════
+-- СЕКЦИЯ 9: ВКЛАДКА "MISC"
+-- ═══════════════════════════════════════════════
+
+local MiscTab = Window:Tab({
+    Title = "Misc",
+    Icon = "puzzle",
+})
+
+-- ── Fake Dead ──
+MiscTab:Dropdown({
+    Title = "Fake Dead Pose",
+    Description = "Выбор позы при притворстве",
+    Values = {"На живот", "На спину"},
+    Value = "На живот",
+    Callback = function(val)
+        State.FakeDeadPose = val
+    end,
+})
+
+MiscTab:Toggle({
+    Title = "Fake Dead",
+    Description = "Притвориться мертвым (смена позы персонажа)",
+    Default = false,
+    Callback = function(val)
+        State.FakeDead = val
+
+        pcall(function()
+            local character = LocalPlayer.Character
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            local hrp = character:FindFirstChild("HumanoidRootPart")
+
+            if val then
+                humanoid.PlatformStand = true
+
+                if State.FakeDeadPose == "На живот" then
+                    -- Поворот лицом вниз
+                    hrp.CFrame = hrp.CFrame * CFrame.Angles(math.rad(90), 0, 0)
+                else
+                    -- Поворот лицом вверх (на спину)
+                    hrp.CFrame = hrp.CFrame * CFrame.Angles(math.rad(-90), 0, 0)
+                end
+            else
+                humanoid.PlatformStand = false
+                -- Возврат нормальной ориентации
+                local pos = hrp.Position
+                hrp.CFrame = CFrame.new(pos)
+            end
+        end)
+    end,
+})
+
+-- Поддержание позы Fake Dead
+RunService.RenderStepped:Connect(function()
+    if State.FakeDead then
+        pcall(function()
+            local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.PlatformStand = true
+            end
+        end)
+    end
+end)
+
+-- ── FE Invisibility ──
+MiscTab:Toggle({
+    Title = "FE Invisibility",
+    Description = "Локальная невидимость персонажа (смещение хитбокса)",
+    Default = false,
+    Callback = function(val)
+        State.FEInvisible = val
+
+        pcall(function()
+            local character = LocalPlayer.Character
+            if not character then return end
+
+            if val then
+                -- Метод: смещение HRP далеко + перемещение визуальных частей
+                -- Альтернатива: скрытие всех частей локально
+                for _, part in ipairs(character:GetDescendants()) do
+                    if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                        part.LocalTransparencyModifier = 1
+                    end
+                    if part:IsA("Decal") or part:IsA("Texture") then
+                        part.Transparency = 1
+                    end
+                end
+
+                -- Скрытие аксессуаров
+                for _, acc in ipairs(character:GetChildren()) do
+                    if acc:IsA("Accessory") then
+                        local handle = acc:FindFirstChild("Handle")
+                        if handle then
+                            handle.LocalTransparencyModifier = 1
+                        end
+                    end
+                end
+
+                -- Скрытие головы (face)
+                local head = character:FindFirstChild("Head")
+                if head then
+                    for _, face in ipairs(head:GetChildren()) do
+                        if face:IsA("Decal") then
+                            face.Transparency = 1
+                        end
+                    end
+                end
+            else
+                -- Восстановление видимости
+                for _, part in ipairs(character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.LocalTransparencyModifier = 0
+                    end
+                    if part:IsA("Decal") or part:IsA("Texture") then
+                        if part.Parent and part.Parent.Name == "Head" then
+                            part.Transparency = 0
+                        end
+                    end
+                end
+
+                for _, acc in ipairs(character:GetChildren()) do
+                    if acc:IsA("Accessory") then
+                        local handle = acc:FindFirstChild("Handle")
+                        if handle then
+                            handle.LocalTransparencyModifier = 0
+                        end
+                    end
+                end
+            end
+        end)
+    end,
+})
+
+-- FE Invis поддержание в цикле
+RunService.RenderStepped:Connect(function()
+    if State.FEInvisible then
+        pcall(function()
+            local character = LocalPlayer.Character
+            if not character then return end
+
+            for _, part in ipairs(character:GetDescendants()) do
+                if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                    part.LocalTransparencyModifier = 1
+                end
+            end
+        end)
+    end
+end)
+
+-- ═══════════════════════════════════════════════
+-- СЕКЦИЯ 10: ВОССТАНОВЛЕНИЕ ПОСЛЕ РЕСПАУНА
+-- ═══════════════════════════════════════════════
+
+LocalPlayer.CharacterAdded:Connect(function(character)
+    task.wait(1)
+
+    -- Восстановить ESP
+    if State.PlayerESP then
+        for _, player in ipairs(Players:GetPlayers()) do
+            pcall(function() UpdateESP(player) end)
+        end
+    end
+
+    -- Сброс Fly при респауне
+    if State.Fly then
+        pcall(function()
+            local hrp = character:WaitForChild("HumanoidRootPart", 5)
+            if hrp then
+                FlyBodyVelocity = Instance.new("BodyVelocity")
+                FlyBodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                FlyBodyVelocity.Velocity = Vector3.zero
+                FlyBodyVelocity.Parent = hrp
+
+                FlyBodyGyro = Instance.new("BodyGyro")
+                FlyBodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+                FlyBodyGyro.P = 9e4
+                FlyBodyGyro.Parent = hrp
+            end
+        end)
+    end
+
+    -- Сброс FakeDead
+    if State.FakeDead then
+        pcall(function()
+            local humanoid = character:WaitForChild("Humanoid", 5)
+            local hrp = character:WaitForChild("HumanoidRootPart", 5)
+            if humanoid and hrp then
+                humanoid.PlatformStand = true
+                if State.FakeDeadPose == "На живот" then
+                    hrp.CFrame = hrp.CFrame * CFrame.Angles(math.rad(90), 0, 0)
+                else
+                    hrp.CFrame = hrp.CFrame * CFrame.Angles(math.rad(-90), 0, 0)
+                end
+            end
+        end)
+    end
+end)
+
+-- ═══════════════════════════════════════════════
+-- СЕКЦИЯ 11: ФИНАЛЬНОЕ УВЕДОМЛЕНИЕ
+-- ═══════════════════════════════════════════════
+
+Wind:Notify({
+    Title = "✅ Все модули загружены",
+    Content = "Combat • Visuals • Movement • Misc\nВсе системы готовы к работе!",
+    Duration = 4,
+    Icon = "check-circle",
+})
+
+print("[MM2 Elite Hub] Скрипт полностью загружен и работает.")
