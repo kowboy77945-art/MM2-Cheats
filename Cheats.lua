@@ -16,7 +16,7 @@ end
 if game.PlaceId ~= 142823291 then return end
 
 -- WindUI Load
-local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/dist/main.lua"))()
+local WindUI = loadstring(game:HttpGet('https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/dist/main.lua"))()
 
 local executor = identifyexecutor and identifyexecutor() or getexecutorname and getexecutorname() or "Unknown"
 local GameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
