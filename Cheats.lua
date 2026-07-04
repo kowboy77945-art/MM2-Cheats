@@ -1,5 +1,5 @@
 --// WindUI Library Load
-local WindUI = loadstring(game:HttpGet('https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/dist.lua'))()
+local WindUI = loadstring(game:HttpGet('https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/main.lua'))()
 
 --// Services
 local Players = game:GetService("Players")
