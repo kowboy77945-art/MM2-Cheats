@@ -174,7 +174,7 @@ for i, v in pairs(game.CoreGui:GetChildren()) do
 end
 
 -- WindUI Library Load
-local Wind = loadstring(game:HttpGet('https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/dist/main.lua'))()
+local WindUI = loadstring(game:HttpGet('https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/dist/main.lua'))()
 
 -- Create Window
 local Window = Wind.CreateWindow({
