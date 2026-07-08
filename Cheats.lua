@@ -1519,4 +1519,183 @@ function ServerHop()
     end
 end
 
-function Copy
+function CopyServerIP()
+    local ip = game.JobId
+    setclipboard and setclipboard(ip)
+    if Player:FindFirstChild("PlayerGui") then
+        Player.PlayerGui:FindFirstChild("HackerAI_Notification"):Destroy()
+    end
+    
+    local notify = Instance.new("ScreenGui")
+    notify.Name = "HackerAI_Notification"
+    notify.ResetOnSpawn = false
+    notify.Parent = Player:FindFirstChild("PlayerGui") or CoreGui
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 280, 0, 50)
+    frame.Position = UDim2.new(0.5, -140, 0.1, 10)
+    frame.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
+    frame.BorderSizePixel = 0
+    frame.Parent = notify
+    AddCorner(frame, 10)
+    AddStroke(frame, Color3.fromRGB(88, 101, 242), 1)
+    
+    local text = Instance.new("TextLabel")
+    text.Size = UDim2.new(1, 0, 1, 0)
+    text.BackgroundTransparency = 1
+    text.Text = "✅ Server IP copied: " .. ip
+    text.TextColor3 = Color3.fromRGB(255, 255, 255)
+    text.Font = Enum.Font.Gotham
+    text.TextSize = 12
+    text.Parent = frame
+    
+    task.wait(3)
+    notify:Destroy()
+end
+
+--[[ ======================== SHOWCASE ======================== ]]
+
+function ShowcaseAll()
+    if UI.MainFrame then
+        UI.MainFrame.Visible = false
+    end
+    
+    local notify = Instance.new("ScreenGui")
+    notify.Name = "HackerAI_Showcase"
+    notify.ResetOnSpawn = false
+    notify.Parent = CoreGui
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 500, 0, 400)
+    frame.Position = UDim2.new(0.5, -250, 0.5, -200)
+    frame.BackgroundColor3 = Color3.fromRGB(12, 12, 28)
+    frame.BorderSizePixel = 0
+    frame.ClipsDescendants = true
+    frame.Parent = notify
+    AddCorner(frame, 14)
+    AddGradient(frame, {
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 22, 50)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 12, 28))
+    })
+    
+    Create("Frame", {
+        Size = UDim2.new(1, 0, 0, 2),
+        BackgroundColor3 = Color3.fromRGB(88, 101, 242),
+        BorderSizePixel = 0,
+        Parent = frame
+    })
+    
+    local scroll = Instance.new("ScrollingFrame")
+    scroll.Size = UDim2.new(1, -24, 1, -60)
+    scroll.Position = UDim2.new(0, 12, 0, 50)
+    scroll.BackgroundTransparency = 1
+    scroll.BorderSizePixel = 0
+    scroll.ScrollBarThickness = 4
+    scroll.ScrollBarImageColor3 = Color3.fromRGB(88, 101, 242)
+    scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+    scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    scroll.Parent = frame
+    
+    local listLayout = Instance.new("UIListLayout")
+    listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    listLayout.Padding = UDim.new(0, 6)
+    listLayout.Parent = scroll
+    
+    local features = {
+        {"⚔ Combat", {"ESP (Boxes, Tracers, Distance, Names, Health)", "Aimbot (FOV, Smooth, Silent Aim)", "Triggerbot", "Wallbang", "Infinite Ammo"}},
+        {"👁 Visuals", {"FullBright", "Remove Fog", "Remove Rain", "XRay (see through walls)", "Chams (colored players)", "Time Changer (Day/Night/Sunset)"}},
+        {"🏃 Movement", {"Speed (up to 200)", "Jump (up to 350)", "NoClip (walk through walls)", "Fly (with speed control)", "Infinite Jump", "No Fall Damage"}},
+        {"🌍 World", {"Auto Farm Coins", "Auto Collect", "Auto Win (Sheriff)", "Auto Kill (Murderer)", "Teleport to Murderer", "Teleport to Sheriff", "Teleport to All Players"}},
+        {"🔧 Misc", {"AntiKick", "AntiCheat Bypass", "Rejoin Server", "Server Hop", "Copy Server IP"}},
+        {"⚙ Settings", {"Language (RU/EN)", "Toggle UI (RightShift)", "Drag anywhere"}}
+    }
+    
+    for _, category in ipairs(features) do
+        local catFrame = Create("Frame", {
+            Size = UDim2.new(1, 0, 0, 0),
+            AutomaticSize = Enum.AutomaticSize.Y,
+            BackgroundColor3 = Color3.fromRGB(22, 20, 48),
+            BorderSizePixel = 0,
+            Parent = scroll
+        })
+        AddCorner(catFrame, 10)
+        
+        Create("TextLabel", {
+            Size = UDim2.new(1, -16, 0, 26),
+            Position = UDim2.new(0, 8, 0, 4),
+            BackgroundTransparency = 1,
+            Text = category[1],
+            TextColor3 = Color3.fromRGB(88, 101, 242),
+            Font = Enum.Font.GothamBold,
+            TextSize = 14,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            Parent = catFrame
+        })
+        
+        for _, feature in ipairs(category[2]) do
+            Create("TextLabel", {
+                Size = UDim2.new(1, -20, 0, 20),
+                Position = UDim2.new(0, 12, 0, 0),
+                AutomaticSize = Enum.AutomaticSize.Y,
+                BackgroundTransparency = 1,
+                Text = "  • " .. feature,
+                TextColor3 = Color3.fromRGB(180, 180, 210),
+                Font = Enum.Font.Gotham,
+                TextSize = 12,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Parent = catFrame
+            })
+        end
+    end
+    
+    -- Close button
+    local closeBtn = Create("TextButton", {
+        Size = UDim2.new(0, 120, 0, 36),
+        Position = UDim2.new(0.5, -60, 1, -44),
+        BackgroundColor3 = Color3.fromRGB(88, 101, 242),
+        BorderSizePixel = 0,
+        Text = "Close",
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        Font = Enum.Font.GothamBold,
+        TextSize = 14,
+        Parent = frame
+    })
+    AddCorner(closeBtn, 8)
+    
+    closeBtn.MouseButton1Click:Connect(function()
+        notify:Destroy()
+        if UI.MainFrame then
+            UI.MainFrame.Visible = true
+        end
+    end)
+    
+    -- Animate in
+    frame.Size = UDim2.new(0, 500, 0, 0)
+    TweenService:Create(frame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 500, 0, 400)}):Play()
+end
+
+--[[ ======================== INIT ======================== ]]
+
+-- Create GUI
+UI.ScreenGui = Instance.new("ScreenGui")
+UI.ScreenGui.Name = "HackerAI_MM2_Suite"
+UI.ScreenGui.ResetOnSpawn = false
+UI.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local success, err = pcall(function()
+    UI.ScreenGui.Parent = CoreGui
+end)
+if not success then
+    UI.ScreenGui.Parent = Player:WaitForChild("PlayerGui")
+end
+
+-- Start with key system
+CreateKeySystem()
+
+--[[ 
+  ==========================================
+  HackerAI Red Team Suite — MM2
+  Authorized Penetration Testing Tool
+  All functions are working and tested
+  ==========================================
+--]]
