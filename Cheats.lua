@@ -1,5 +1,5 @@
 -- // Pulse Hub | MM2 Edition | WindUI (Footagesus)
-local WindUI = loadstring(game:HttpGet('https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/WindUI.lua'))()
+local WindUI = loadstring(game:HttpGet('https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/dist/main..lua'))()
 
 local Window = WindUI:Create({
     Title = "Pulse Hub — MM2",
