@@ -122,7 +122,7 @@ local NVIDIA_URL    = "https://integrate.api.nvidia.com/v1/chat/completions"
 
 -- مفاتيح OpenCode (rotation)
 local OPENCODE_KEYS = {
-    "sk-ZP0Y71QDq4HhXrr5KgWEzsf8ZyNNsLJL070xXcGFUh8w7cvlFFJuks5k4jv7puCK",
+    "sk-VqiS2KenNLRdjRDqezKjDHIF7btTbgI58bmqNnNQXqMG7o1SVH7QnbgjmBj3uYhD",
     "sk-dtcKP4hx4iznBCaVm1uFvbEax12z22hlJzcW9alSIya8OQfSigpJN42QfxHuP1xk",
     "sk-Pe12GsYt4RnkTPtb7ACCGSj5vzz7u7m2INVDzxe1Z2ccGF904LFCsxpzouJek6ld",
     "sk-MN9kABCiW1cskBQ4EncGFV6DFwyHvshu6CrjtmuHUFwdkvJvAHNzql90BqTpNHMC",
