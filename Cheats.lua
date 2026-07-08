@@ -1,7597 +1,3787 @@
--- Yet Another Random Hub Menu 1.21 by Aetherion
+--[[
+	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
+]]
 
-if not game:IsLoaded() then
-	game:GetService("StarterGui"):SetCore("SendNotification", {
-		Title = "Script loading",
-		Text = "Waiting for the game to finish loading!",
-		Duration = 5
-	})
-	game.Loaded:Wait()
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UIS = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+local CoreGui = game:GetService("CoreGui")
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+local StarterPack = game:GetService("StarterPack")
+local ServerStorage = game:GetService("ServerStorage")
+local StarterGui = game:GetService("StarterGui")
+local StarterPlayer = game:GetService("StarterPlayer")
+
+-- CRITICAL: StarterCharacterScripts and StarterPlayerScripts are special Roblox
+-- objects with their own unique ClassName, NOT Folders with the same name. If we
+-- Instance.new("Folder") and rename it "StarterPlayerScripts", it conflicts with
+-- the real Roblox service object — creating a fake container that receives scripts
+-- while the Explorer shows the real (empty) service. This was the root cause of
+-- "Not Found" when clicking scripts, even though create_script returned "✅ Success".
+-- Fix: use the existing real object (FindFirstChildOfClass), or if it doesn't exist
+-- (rare, since these are default Roblox services), create with the correct ClassName.
+local StarterCharacterScripts = StarterPlayer:FindFirstChildOfClass("StarterCharacterScripts")
+if not StarterCharacterScripts then
+    local ok, created = pcall(function() return Instance.new("StarterCharacterScripts") end)
+    if ok and created then
+        created.Parent = StarterPlayer
+        StarterCharacterScripts = created
+    end
 end
--- Instances:
+local StarterPlayerScripts = StarterPlayer:FindFirstChildOfClass("StarterPlayerScripts")
+if not StarterPlayerScripts then
+    local ok, created = pcall(function() return Instance.new("StarterPlayerScripts") end)
+    if ok and created then
+        created.Parent = StarterPlayer
+        StarterPlayerScripts = created
+    end
+end
+local player = Players.LocalPlayer
+math.randomseed(tick() * 10000)
 
-local Converted = {
-	["_YARHM"] = Instance.new("ScreenGui");
-	["_FUNCTIONS"] = Instance.new("ModuleScript");
-	["_Flee the Facility"] = Instance.new("LocalScript");
-	["_Universal"] = Instance.new("LocalScript");
-	["_DraggableObject"] = Instance.new("ModuleScript");
-	["_ClickAndHold"] = Instance.new("ModuleScript");
-	["_Spring"] = Instance.new("ModuleScript");
-	["_Init"] = Instance.new("LocalScript");
-	["_Forsaken"] = Instance.new("LocalScript");
-	["_Murder Mystery 2"] = Instance.new("LocalScript");
-	["_ESPIndicator"] = Instance.new("ModuleScript");
-	["_Bezier"] = Instance.new("ModuleScript");
-	["_PointSave"] = Instance.new("ModuleScript");
-	["_Theme"] = Instance.new("ModuleScript");
-	["_FlyUtility"] = Instance.new("ModuleScript");
-	["_Open"] = Instance.new("TextButton");
-	["_InitOpen"] = Instance.new("LocalScript");
-	["_OnClick"] = Instance.new("LocalScript");
-	["_Resizer"] = Instance.new("LocalScript");
-	["_UICorner"] = Instance.new("UICorner");
-	["_UIPadding"] = Instance.new("UIPadding");
-	["_DropdownFrameSample"] = Instance.new("Frame");
-	["_UICorner1"] = Instance.new("UICorner");
-	["_UIGradient"] = Instance.new("UIGradient");
-	["_UIStroke"] = Instance.new("UIStroke");
-	["_UIGradient1"] = Instance.new("UIGradient");
-	["_ScrollingFrame"] = Instance.new("ScrollingFrame");
-	["_UIListLayout"] = Instance.new("UIListLayout");
-	["_Sample"] = Instance.new("TextButton");
-	["_UIPadding1"] = Instance.new("UIPadding");
-	["_UICorner2"] = Instance.new("UICorner");
-	["_UIPadding2"] = Instance.new("UIPadding");
-	["_themedColor"] = Instance.new("StringValue");
-	["_ListButton"] = Instance.new("TextButton");
-	["_UICorner3"] = Instance.new("UICorner");
-	["_Notifications"] = Instance.new("Frame");
-	["_UIListLayout1"] = Instance.new("UIListLayout");
-	["_UIPadding3"] = Instance.new("UIPadding");
-	["_Placeholder"] = Instance.new("Frame");
-	["_UICorner4"] = Instance.new("UICorner");
-	["_TextLabel"] = Instance.new("TextLabel");
-	["_TextBoxPlaceholder"] = Instance.new("Frame");
-	["_UIListLayout2"] = Instance.new("UIListLayout");
-	["_TextButton"] = Instance.new("TextButton");
-	["_UICorner5"] = Instance.new("UICorner");
-	["_UIPadding4"] = Instance.new("UIPadding");
-	["_TextBox"] = Instance.new("TextBox");
-	["_UICorner6"] = Instance.new("UICorner");
-	["_FloatingButton"] = Instance.new("TextButton");
-	["_Keybinding"] = Instance.new("LocalScript");
-	["_Invisible"] = Instance.new("LocalScript");
-	["_UIPadding5"] = Instance.new("UIPadding");
-	["_UICorner7"] = Instance.new("UICorner");
-	["_UIStroke1"] = Instance.new("UIStroke");
-	["_Lock"] = Instance.new("TextLabel");
-	["_UIScale"] = Instance.new("UIScale");
-	["_Ripple"] = Instance.new("Frame");
-	["_UICorner8"] = Instance.new("UICorner");
-	["_UIScale1"] = Instance.new("UIScale");
-	["_Dropdown"] = Instance.new("Frame");
-	["_TextLabel1"] = Instance.new("TextLabel");
-	["_UIListLayout3"] = Instance.new("UIListLayout");
-	["_UIPadding6"] = Instance.new("UIPadding");
-	["_Frame"] = Instance.new("TextButton");
-	["_UIPadding7"] = Instance.new("UIPadding");
-	["_UICorner9"] = Instance.new("UICorner");
-	["_AddCustomModule"] = Instance.new("Frame");
-	["_UICorner10"] = Instance.new("UICorner");
-	["_UIStroke2"] = Instance.new("UIStroke");
-	["_UIGradient2"] = Instance.new("UIGradient");
-	["_UIGradient3"] = Instance.new("UIGradient");
-	["_UIScale2"] = Instance.new("UIScale");
-	["_TextLabel2"] = Instance.new("TextLabel");
-	["_TextBox1"] = Instance.new("TextBox");
-	["_UICorner11"] = Instance.new("UICorner");
-	["_UIPadding8"] = Instance.new("UIPadding");
-	["_TextLabel3"] = Instance.new("TextLabel");
-	["_Add"] = Instance.new("TextButton");
-	["_LocalScript"] = Instance.new("LocalScript");
-	["_UICorner12"] = Instance.new("UICorner");
-	["_UIPadding9"] = Instance.new("UIPadding");
-	["_UIStroke3"] = Instance.new("UIStroke");
-	["_Cancel"] = Instance.new("TextButton");
-	["_LocalScript1"] = Instance.new("LocalScript");
-	["_UICorner13"] = Instance.new("UICorner");
-	["_UIPadding10"] = Instance.new("UIPadding");
-	["_UIStroke4"] = Instance.new("UIStroke");
-	["_themedColor1"] = Instance.new("StringValue");
-	["_Menu"] = Instance.new("Frame");
-	["_UICorner14"] = Instance.new("UICorner");
-	["_UIStroke5"] = Instance.new("UIStroke");
-	["_UIGradient4"] = Instance.new("UIGradient");
-	["_Animator"] = Instance.new("LocalScript");
-	["_HubCredits"] = Instance.new("TextLabel");
-	["_HubDesc"] = Instance.new("TextLabel");
-	["_HubName"] = Instance.new("TextLabel");
-	["_CanvasGroup"] = Instance.new("CanvasGroup");
-	["_UICorner15"] = Instance.new("UICorner");
-	["_ImageLabel"] = Instance.new("ImageLabel");
-	["_Opener"] = Instance.new("TextButton");
-	["_TextLabel4"] = Instance.new("TextLabel");
-	["_CloseArea"] = Instance.new("TextButton");
-	["_CloseOpen"] = Instance.new("LocalScript");
-	["_Frame1"] = Instance.new("Frame");
-	["_UICorner16"] = Instance.new("UICorner");
-	["_themedColor2"] = Instance.new("StringValue");
-	["_TextLabel5"] = Instance.new("TextLabel");
-	["_UICorner17"] = Instance.new("UICorner");
-	["_AllowForSpring"] = Instance.new("BindableEvent");
-	["_themedColor3"] = Instance.new("StringValue");
-	["_UIGradient5"] = Instance.new("UIGradient");
-	["_Area"] = Instance.new("CanvasGroup");
-	["_Area1"] = Instance.new("ScrollingFrame");
-	["_TextLabel6"] = Instance.new("TextLabel");
-	["_TextLabel7"] = Instance.new("TextLabel");
-	["_UICorner18"] = Instance.new("UICorner");
-	["_List"] = Instance.new("CanvasGroup");
-	["_AutoSetup"] = Instance.new("LocalScript");
-	["_UICorner19"] = Instance.new("UICorner");
-	["_ScrollingFrame1"] = Instance.new("ScrollingFrame");
-	["_UIListLayout4"] = Instance.new("UIListLayout");
-	["_UIPadding11"] = Instance.new("UIPadding");
-	["_UIPadding12"] = Instance.new("UIPadding");
-	["_UIStroke6"] = Instance.new("UIStroke");
-	["_UIGradient6"] = Instance.new("UIGradient");
-	["_AddCustomModule1"] = Instance.new("TextButton");
-	["_LocalScript2"] = Instance.new("LocalScript");
-	["_UICorner20"] = Instance.new("UICorner");
-	["_UIPadding13"] = Instance.new("UIPadding");
-	["_UIStroke7"] = Instance.new("UIStroke");
-	["_themedColor4"] = Instance.new("StringValue");
-	["_themedColor5"] = Instance.new("StringValue");
-	["_themedColor6"] = Instance.new("StringValue");
-	["_UIScale3"] = Instance.new("UIScale");
-	["_Stub"] = Instance.new("Frame");
-	["_themedColor7"] = Instance.new("StringValue");
-	["_Stub1"] = Instance.new("Frame");
-	["_themedColor8"] = Instance.new("StringValue");
-	["_Toggle"] = Instance.new("Frame");
-	["_TextLabel8"] = Instance.new("TextLabel");
-	["_UIListLayout5"] = Instance.new("UIListLayout");
-	["_Frame2"] = Instance.new("Frame");
-	["_Frame3"] = Instance.new("Frame");
-	["_UICorner21"] = Instance.new("UICorner");
-	["_Toggler"] = Instance.new("TextButton");
-	["_UICorner22"] = Instance.new("UICorner");
-	["_ImageLabel1"] = Instance.new("ImageLabel");
-	["_UIPadding14"] = Instance.new("UIPadding");
-	["_Modules"] = Instance.new("Folder");
-	["_NotificationSample"] = Instance.new("Frame");
-	["_UICorner23"] = Instance.new("UICorner");
-	["_UIStroke8"] = Instance.new("UIStroke");
-	["_UIGradient7"] = Instance.new("UIGradient");
-	["_ImageLabel2"] = Instance.new("ImageLabel");
-	["_TextLabel9"] = Instance.new("TextLabel");
-	["_UITextSizeConstraint"] = Instance.new("UITextSizeConstraint");
-	["_Close"] = Instance.new("ImageButton");
-	["_UICorner24"] = Instance.new("UICorner");
-	["_UIStroke9"] = Instance.new("UIStroke");
-	["_UIScale4"] = Instance.new("UIScale");
-	["_themedColor9"] = Instance.new("StringValue");
-	["_Dialog"] = Instance.new("Frame");
-	["_UICorner25"] = Instance.new("UICorner");
-	["_UIGradient8"] = Instance.new("UIGradient");
-	["_UIPadding15"] = Instance.new("UIPadding");
-	["_UIStroke10"] = Instance.new("UIStroke");
-	["_UIGradient9"] = Instance.new("UIGradient");
-	["_DialogTitle"] = Instance.new("TextLabel");
-	["_UIListLayout6"] = Instance.new("UIListLayout");
-	["_DialogDesc"] = Instance.new("TextLabel");
-	["_UITextSizeConstraint1"] = Instance.new("UITextSizeConstraint");
-	["_Options"] = Instance.new("Frame");
-	["_UIListLayout7"] = Instance.new("UIListLayout");
-	["_OptionPlaceholder"] = Instance.new("TextButton");
-	["_UIPadding16"] = Instance.new("UIPadding");
-	["_UICorner26"] = Instance.new("UICorner");
-	["_UIStroke11"] = Instance.new("UIStroke");
-	["_UIGradient10"] = Instance.new("UIGradient");
-	["_themedColor10"] = Instance.new("StringValue");
-	["_OnSelect"] = Instance.new("BindableEvent");
-	["_UIScale5"] = Instance.new("UIScale");
-	["_themedColor11"] = Instance.new("StringValue");
-	["_Range"] = Instance.new("Frame");
-	["_TextLabel10"] = Instance.new("TextLabel");
-	["_UIListLayout8"] = Instance.new("UIListLayout");
-	["_UIPadding17"] = Instance.new("UIPadding");
-	["_Frame4"] = Instance.new("Frame");
-	["_UIPadding18"] = Instance.new("UIPadding");
-	["_UICorner27"] = Instance.new("UICorner");
-	["_Track"] = Instance.new("Frame");
-	["_UICorner28"] = Instance.new("UICorner");
-	["_Ball"] = Instance.new("TextButton");
-	["_BallProgress"] = Instance.new("TextLabel");
-	["_UIPadding19"] = Instance.new("UIPadding");
-	["_themedColor12"] = Instance.new("StringValue");
-	["_UICorner29"] = Instance.new("UICorner");
-	["_UIPadding20"] = Instance.new("UIPadding");
-	["_TrackProgress"] = Instance.new("TextLabel");
-	["_themedColor13"] = Instance.new("StringValue");
-	["_UISizeConstraint"] = Instance.new("UISizeConstraint");
-	["_FloatingButtonSetting"] = Instance.new("Frame");
-	["_ControlBarContainer"] = Instance.new("Frame");
-	["_ControlBar"] = Instance.new("Frame");
-	["_UIListLayout9"] = Instance.new("UIListLayout");
-	["_Visibility"] = Instance.new("TextButton");
-	["_LocalScript3"] = Instance.new("LocalScript");
-	["_UICorner30"] = Instance.new("UICorner");
-	["_UIPadding21"] = Instance.new("UIPadding");
-	["_Event"] = Instance.new("BindableEvent");
-	["_themedColor14"] = Instance.new("StringValue");
-	["_Lock1"] = Instance.new("TextButton");
-	["_LocalScript4"] = Instance.new("LocalScript");
-	["_UICorner31"] = Instance.new("UICorner");
-	["_UIPadding22"] = Instance.new("UIPadding");
-	["_Event1"] = Instance.new("BindableEvent");
-	["_themedColor15"] = Instance.new("StringValue");
-	["_Exit"] = Instance.new("TextButton");
-	["_LocalScript5"] = Instance.new("LocalScript");
-	["_UICorner32"] = Instance.new("UICorner");
-	["_UIPadding23"] = Instance.new("UIPadding");
-	["_UIAspectRatioConstraint"] = Instance.new("UIAspectRatioConstraint");
-	["_themedColor16"] = Instance.new("StringValue");
-	["_UIListLayout10"] = Instance.new("UIListLayout");
-	["_Tip"] = Instance.new("TextLabel");
-	["_UIStroke12"] = Instance.new("UIStroke");
-	["_UIScale6"] = Instance.new("UIScale");
-	["_FloatingButtons"] = Instance.new("Frame");
-	["_FloatingButtons1"] = Instance.new("Frame");
+local sceneState = {}
+-- FIX v1.4: حد أقصى لـ sceneState — بعده نحذف أقدم مدخل لمنع تسرب الذاكرة
+local SCENE_STATE_MAX = 60
+
+local function pruneSceneState()
+    local count = 0
+    for _ in pairs(sceneState) do count = count + 1 end
+    if count <= SCENE_STATE_MAX then return end
+    -- احذف المدخلات الأقدم (lastAction الأصغر)
+    local oldest_key, oldest_time = nil, math.huge
+    for k, v in pairs(sceneState) do
+        if (v.lastAction or 0) < oldest_time then
+            oldest_key = k
+            oldest_time = v.lastAction or 0
+        end
+    end
+    if oldest_key then sceneState[oldest_key] = nil end
+end
+
+local function updateSceneState(action, didSucceed)
+    if not didSucceed then return end
+    if not action or type(action) ~= "table" then return end
+    _searchCache = nil -- scene changed, invalidate search cache
+    local containerKey = action.containerName or (action.name or action.className or "default")
+    if not sceneState[containerKey] then
+        sceneState[containerKey] = { className = action.className, count = 0, namePrefix = action.namePrefix, createdNames = {} }
+    end
+    local ss = sceneState[containerKey]
+    ss.lastAction = os.time()
+    ss.className = action.className or ss.className
+    if action.namePrefix then ss.namePrefix = action.namePrefix end
+    if action.type == "create_instance" then
+        ss.count = ss.count + 1
+        if action.name then ss.createdNames[action.name] = true end
+    elseif action.type == "create_multiple" then
+        local c = math.clamp(tonumber(action.count) or 1, 1, 200)
+        ss.count = ss.count + c
+    elseif action.type == "create_compound" then
+        ss.count = ss.count + 1
+        if action.name then ss.createdNames[action.name] = true end
+    elseif action.type == "delete" then
+        local targetName = action.target
+        if targetName and ss.createdNames then
+            for n, _ in pairs(ss.createdNames) do
+                if n:lower():find(targetName:lower(), 1, true) then
+                    ss.createdNames[n] = nil
+                    ss.count = math.max(0, ss.count - 1)
+                    break
+                end
+            end
+        end
+    end
+    -- FIX v1.4: تنظيف تلقائي لمنع تسرب الذاكرة
+    pruneSceneState()
+end
+
+local undoStack = {}
+local undoLimit = 20
+local _logLabels = {} -- cleared after each request, tracks addLog labels for cleanup
+local _batchCreated = {} -- cleared before each batch
+local _lastClickInstance = nil -- for clickable messages
+local _batchPlacedGrid = nil -- tracks grid positions in create_multiple
+local _autoRunScripts = {} -- scripts to re-execute on player respawn (max 20)
+local AUTORUN_MAX = 20
+local _requestQueue = {}
+local _processingRequest = false
+local _searchCache = nil  -- FIX: كان implicit global يُعاد تصفيره في updateSceneState بدون تعريف local
+local MESSAGE_MAX = 50
+local MAX_TOKENS_LOW = 16000
+local MAX_TOKENS_HIGH = 32000
+
+-- re-run registered scripts on every respawn so effects (crosshair, camera, GUI) persist
+-- ═══════════════════════════════════════════════════════
+-- MODEL REGISTRY — Free (OpenCode) + NVIDIA NIM
+-- ═══════════════════════════════════════════════════════
+local OPENCODE_URL  = "https://opencode.ai/zen/v1/chat/completions"
+local NVIDIA_URL    = "https://integrate.api.nvidia.com/v1/chat/completions"
+
+-- مفاتيح OpenCode (rotation)
+local OPENCODE_KEYS = {
+    "sk-ZP0Y71QDq4HhXrr5KgWEzsf8ZyNNsLJL070xXcGFUh8w7cvlFFJuks5k4jv7puCK",
+    "sk-dtcKP4hx4iznBCaVm1uFvbEax12z22hlJzcW9alSIya8OQfSigpJN42QfxHuP1xk",
+    "sk-Pe12GsYt4RnkTPtb7ACCGSj5vzz7u7m2INVDzxe1Z2ccGF904LFCsxpzouJek6ld",
+    "sk-MN9kABCiW1cskBQ4EncGFV6DFwyHvshu6CrjtmuHUFwdkvJvAHNzql90BqTpNHMC",
+    "sk-yXrnjOHCXVejD3v1Ngk2trqs8B2cFpQd9hbhBlpVyrNZgeevk3lPolVY0EtgQZha",
+}
+-- you need put it 
+local NVIDIA_API_KEY = " "
+
+-- 
+local MODEL_LIST = {
+    -- ── Free (OpenCode) ──────────────────────────────────
+    { label = "⭐ Big Pickle (Free)",           provider = "opencode", id = "big-pickle" },
+    { label = "DeepSeek V4 Flash (Free)",       provider = "opencode", id = "deepseek-v4-flash-free" },
+    { label = "MiMo V2.5 (Free)",               provider = "opencode", id = "mimo-v2.5-free" },
+    { label = "Nemotron 3 Ultra (Free)",        provider = "opencode", id = "nemotron-3-ultra-free" },
+    { label = "North Mini Code (Free)",         provider = "opencode", id = "north-mini-code-free" },
+    -- ── NVIDIA NIM (verified active 2026-06) ─────────────
+    { label = "── NVIDIA NIM ──",               provider = "separator" },
+    { label = "DeepSeek V4 Flash",              provider = "nvidia", id = "deepseek-ai/deepseek-v4-flash", maxOutput = 8192 },
+    { label = "DeepSeek V4 Pro",                provider = "nvidia", id = "deepseek-ai/deepseek-v4-pro", maxOutput = 8192 },
+    { label = "Llama 4 Maverick 17b",           provider = "nvidia", id = "meta/llama-4-maverick-17b-128e-instruct", maxOutput = 4096 },
+    { label = "Llama 3.3 70b",                  provider = "nvidia", id = "meta/llama-3.3-70b-instruct", maxOutput = 4096 },
+    { label = "Llama 3.1 70b",                  provider = "nvidia", id = "meta/llama-3.1-70b-instruct", maxOutput = 4096 },
+    { label = "Llama 3.1 8b",                   provider = "nvidia", id = "meta/llama-3.1-8b-instruct", maxOutput = 4096 },
+    { label = "Mistral Large 3 675b",           provider = "nvidia", id = "mistralai/mistral-large-3-675b-instruct-2512", maxOutput = 8192 },
+    { label = "Mistral Medium 3.5 128b",        provider = "nvidia", id = "mistralai/mistral-medium-3.5-128b", maxOutput = 8192 },
+    { label = "Mistral Small 4 119b",           provider = "nvidia", id = "mistralai/mistral-small-4-119b-2603", maxOutput = 8192 },
+    { label = "Mistral 7b",                     provider = "nvidia", id = "mistralai/mistral-7b-instruct-v0.3", maxOutput = 4096 },
+    { label = "Mixtral 8x22b",                  provider = "nvidia", id = "mistralai/mixtral-8x22b-v0.1", maxOutput = 4096 },
+    { label = "Mixtral 8x7b",                   provider = "nvidia", id = "mistralai/mixtral-8x7b-instruct-v0.1", maxOutput = 4096 },
+    { label = "Mistral Nemo 12b",               provider = "nvidia", id = "nv-mistralai/mistral-nemo-12b-instruct", maxOutput = 4096 },
+    { label = "Qwen3.5 397b A17b",              provider = "nvidia", id = "qwen/qwen3.5-397b-a17b", maxOutput = 8192 },
+    { label = "Qwen3.5 122b A10b",              provider = "nvidia", id = "qwen/qwen3.5-122b-a10b", maxOutput = 8192 },
+    { label = "Qwen3-Next 80b A3b",             provider = "nvidia", id = "qwen/qwen3-next-80b-a3b-instruct", maxOutput = 8192 },
+    { label = "Kimi K2.6 (1M ctx)",             provider = "nvidia", id = "moonshotai/kimi-k2.6", maxOutput = 8192 },
+    { label = "GLM-5.1 (Zhipu)",                provider = "nvidia", id = "z-ai/glm-5.1", maxOutput = 8192 },
+    { label = "Gemma 4 31b",                    provider = "nvidia", id = "google/gemma-4-31b-it", maxOutput = 4096 },
+    { label = "Gemma 3 12b",                    provider = "nvidia", id = "google/gemma-3-12b-it", maxOutput = 4096 },
+    { label = "Gemma 3n E4b",                   provider = "nvidia", id = "google/gemma-3n-e4b-it", maxOutput = 4096 },
+    { label = "Phi-4 Mini",                     provider = "nvidia", id = "microsoft/phi-4-mini-instruct", maxOutput = 4096 },
+    { label = "Phi-4 Multimodal",               provider = "nvidia", id = "microsoft/phi-4-multimodal-instruct", maxOutput = 4096 },
+    { label = "Phi-3.5 MoE",                    provider = "nvidia", id = "microsoft/phi-3.5-moe-instruct", maxOutput = 4096 },
+    { label = "Nemotron 3 Super 120b (1M ctx)", provider = "nvidia", id = "nvidia/nemotron-3-super-120b-a12b", maxOutput = 8192 },
+    { label = "Nemotron 3 Ultra 253b",          provider = "nvidia", id = "nvidia/llama-3.1-nemotron-ultra-253b-v1", maxOutput = 8192 },
+    { label = "Nemotron 3 Nano 30b",            provider = "nvidia", id = "nvidia/nemotron-3-nano-30b-a3b", maxOutput = 4096 },
+    { label = "Nemotron 3 Nano Omni",           provider = "nvidia", id = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning", maxOutput = 4096 },
+    { label = "Llama 3.1 Nemotron 70b",         provider = "nvidia", id = "nvidia/llama-3.1-nemotron-70b-instruct", maxOutput = 4096 },
+    { label = "Llama 3.3 Nemotron Super 49b",   provider = "nvidia", id = "nvidia/llama-3.3-nemotron-super-49b-v1", maxOutput = 4096 },
+    { label = "MiniMax M2.7",                   provider = "nvidia", id = "minimaxai/minimax-m2.7", maxOutput = 8192 },
+    { label = "MiniMax M3",                     provider = "nvidia", id = "minimaxai/minimax-m3", maxOutput = 8192 },
+    { label = "Step 3.5 Flash",                 provider = "nvidia", id = "stepfun-ai/step-3.5-flash", maxOutput = 4096 },
+    { label = "Step 3.7 Flash",                 provider = "nvidia", id = "stepfun-ai/step-3.7-flash", maxOutput = 4096 },
+    { label = "GPT-OSS 120b",                   provider = "nvidia", id = "openai/gpt-oss-120b", maxOutput = 8192 },
+    { label = "GPT-OSS 20b",                    provider = "nvidia", id = "openai/gpt-oss-20b", maxOutput = 4096 },
+    { label = "Seed-OSS 36b (ByteDance)",       provider = "nvidia", id = "bytedance/seed-oss-36b-instruct", maxOutput = 8192 },
+    { label = "DBRX Instruct (Databricks)",     provider = "nvidia", id = "databricks/dbrx-instruct", maxOutput = 4096 },
+    { label = "Granite 34b Code (IBM)",         provider = "nvidia", id = "ibm/granite-34b-code-instruct", maxOutput = 4096 },
+    { label = "Jamba 1.5 Large (AI21)",         provider = "nvidia", id = "ai21labs/jamba-1.5-large-instruct", maxOutput = 4096 },
+    { label = "Sarvam M (multilingual)",        provider = "nvidia", id = "sarvamai/sarvam-m", maxOutput = 4096 },
+    { label = "Llama Guard 4 12b",              provider = "nvidia", id = "meta/llama-guard-4-12b", maxOutput = 4096 },
 }
 
--- Properties:
+-- الحالة الحالية — تُحمَّل من الملف عند البدء
+local CURRENT_PROVIDER = "opencode"
+local CURRENT_MODEL_LABEL = "⭐ Big Pickle (Free)"
 
-Converted["_YARHM"].DisplayOrder = 3
-Converted["_YARHM"].IgnoreGuiInset = true
-Converted["_YARHM"].ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets
-Converted["_YARHM"].ResetOnSpawn = false
-Converted["_YARHM"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-Converted["_YARHM"].Name = "YARHM"
-Converted["_YARHM"].Parent = game:GetService("CoreGui")
+-- ملف الحفظ
+local SAVE_FILE = "SkillAI_ModelSave.txt"
 
-Converted["_Open"].Font = Enum.Font.Gotham
-Converted["_Open"].Text = "Triple-click this region to open YARHM."
-Converted["_Open"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Open"].TextScaled = true
-Converted["_Open"].TextSize = 14
-Converted["_Open"].TextTransparency = 1
-Converted["_Open"].TextWrapped = true
-Converted["_Open"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_Open"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Open"].BackgroundTransparency = 1
-Converted["_Open"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Open"].BorderSizePixel = 0
-Converted["_Open"].Position = UDim2.new(0.499372631, 0, 0.06341701, 0)
-Converted["_Open"].Selectable = false
-Converted["_Open"].Size = UDim2.new(0, 493, 0, 50)
-Converted["_Open"].Visible = false
-Converted["_Open"].Name = "Open"
-Converted["_Open"].Parent = Converted["_YARHM"]
+local function saveModelChoice(label, provider, modelId)
+    pcall(function()
+        if writefile then
+            local data = label .. "\n" .. provider .. "\n" .. (modelId or "")
+            writefile(SAVE_FILE, data)
+        end
+    end)
+end
 
-Converted["_UICorner"].Parent = Converted["_Open"]
+local function loadModelChoice()
+    local ok, data = pcall(function()
+        if readfile and isfile and isfile(SAVE_FILE) then
+            return readfile(SAVE_FILE)
+        end
+        return nil
+    end)
+    if ok and data and data ~= "" then
+        local lines = {}
+        for line in data:gmatch("[^\n]+") do table.insert(lines, line) end
+        local savedLabel    = lines[1] or ""
+        local savedProvider = lines[2] or "opencode"
+        local savedId       = lines[3] or "big-pickle"
+        -- ابحث عنه في القائمة
+        for _, m in ipairs(MODEL_LIST) do
+            if m.provider ~= "separator" and m.label == savedLabel then
+                return m
+            end
+        end
+        -- إذا مو موجود في القائمة، أنشئ entry مؤقت
+        return { label = savedLabel, provider = savedProvider, id = savedId }
+    end
+    return nil
+end
 
-Converted["_UIPadding"].PaddingBottom = UDim.new(0, 10)
-Converted["_UIPadding"].PaddingLeft = UDim.new(0, 20)
-Converted["_UIPadding"].PaddingRight = UDim.new(0, 20)
-Converted["_UIPadding"].PaddingTop = UDim.new(0, 10)
-Converted["_UIPadding"].Parent = Converted["_Open"]
+-- تطبيق اختيار النموذج (يعدّل API_URL + MODEL_ID + API_KEYS)
+local API_URL   = OPENCODE_URL
+local MODEL_ID  = "big-pickle"
+local API_KEYS  = OPENCODE_KEYS
+local KEY_INDEX = 0      -- FIX: تعريف واحد فقط هنا (كان مكرر بعدين كـ global implicit)
+local KEY_RESET_TIME = 0 -- tick() when all keys exhausted
 
-Converted["_DropdownFrameSample"].AnchorPoint = Vector2.new(0.5, 0)
-Converted["_DropdownFrameSample"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_DropdownFrameSample"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_DropdownFrameSample"].BorderSizePixel = 0
-Converted["_DropdownFrameSample"].Size = UDim2.new(0, 108, 0, 239)
-Converted["_DropdownFrameSample"].Visible = false
-Converted["_DropdownFrameSample"].Name = "DropdownFrameSample"
-Converted["_DropdownFrameSample"].Parent = Converted["_YARHM"]
+-- FIX v1.4: cache maxOutput عند تغيير النموذج بدل البحث في كل طلب
+local CURRENT_MODEL_MAX_OUTPUT = nil
 
-Converted["_UICorner1"].Parent = Converted["_DropdownFrameSample"]
+local function applyModelChoice(entry)
+    if not entry or entry.provider == "separator" then return end
+    CURRENT_PROVIDER     = entry.provider
+    CURRENT_MODEL_LABEL  = entry.label
+    MODEL_ID             = entry.id
+    CURRENT_MODEL_MAX_OUTPUT = entry.maxOutput or nil  -- FIX v1.4
+    if entry.provider == "nvidia" then
+        API_URL  = NVIDIA_URL
+        API_KEYS = { NVIDIA_API_KEY }
+    else
+        API_URL  = OPENCODE_URL
+        API_KEYS = OPENCODE_KEYS
+    end
+    KEY_INDEX = 0
+    saveModelChoice(entry.label, entry.provider, entry.id)
+end
 
-Converted["_UIGradient"].Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(36.00000165402889, 36.00000165402889, 36.00000165402889)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(68.00000354647636, 68.00000354647636, 68.00000354647636))
+-- حمّل الاختيار المحفوظ عند البدء
+do
+    local saved = loadModelChoice()
+    if saved then applyModelChoice(saved) end
+end
+local function getApiKey()
+    if type(API_KEYS) ~= "table" or #API_KEYS == 0 then return nil end
+    local key = API_KEYS[KEY_INDEX + 1] or API_KEYS[1]
+    KEY_INDEX = (KEY_INDEX + 1) % #API_KEYS
+    return key
+end
+local function currentKeyLabel()
+    return "key " .. (KEY_INDEX % #API_KEYS + 1) .. "/" .. #API_KEYS
+end
+
+-- 💰 أسعار تقريبية للتوكنز (دولار لكل 1 مليون توكن)
+local PRICE_PER_1M_INPUT = 0.15
+local PRICE_PER_1M_OUTPUT = 0.60
+
+local requestFunc = nil
+if syn and syn.request then
+    requestFunc = syn.request
+elseif http_request then
+    requestFunc = http_request
+elseif request then
+    requestFunc = request
+elseif fluxus_request then
+    requestFunc = fluxus_request
+else
+    requestFunc = function(data)
+        return HttpService:PostAsync(data.Url, data.Body, Enum.HttpContentType.ApplicationJson, false, data.Headers)
+    end
+end
+
+pcall(function()
+    local old = CoreGui:FindFirstChild("Skill-AI")
+    if old then old:Destroy() end
+end)
+
+local C = {
+    bg = Color3.fromRGB(10, 10, 16),
+    surface = Color3.fromRGB(18, 18, 26),
+    surfaceHi = Color3.fromRGB(28, 28, 38),
+    border = Color3.fromRGB(45, 45, 55),
+    accent = Color3.fromRGB(0, 200, 255),
+    text = Color3.fromRGB(240, 240, 245),
+    textDim = Color3.fromRGB(140, 140, 155),
+    green = Color3.fromRGB(0, 255, 150),
+    red = Color3.fromRGB(255, 80, 80),
+    yellow = Color3.fromRGB(255, 210, 0),
+    orange = Color3.fromRGB(255, 140, 0),
 }
-Converted["_UIGradient"].Rotation = 68
-Converted["_UIGradient"].Parent = Converted["_DropdownFrameSample"]
 
-Converted["_UIStroke"].Color = Color3.fromRGB(255, 255, 255)
-Converted["_UIStroke"].Thickness = 2
-Converted["_UIStroke"].Parent = Converted["_DropdownFrameSample"]
+local function corner(inst, r)
+    local c = Instance.new("UICorner", inst)
+    c.CornerRadius = UDim.new(0, r or 10)
+    return c
+end
 
-Converted["_UIGradient1"].Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(111.00000098347664, 111.00000098347664, 111.00000098347664)),
-	ColorSequenceKeypoint.new(0.6401384472846985, Color3.fromRGB(114.23875719308853, 114.23875719308853, 114.23875719308853)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255))
+local function stroke(inst, col, t, trans)
+    local s = Instance.new("UIStroke", inst)
+    s.Color = col or C.border
+    s.Thickness = t or 1
+    s.Transparency = trans or 0.2
+    return s
+end
+
+local function tw(inst, info, props)
+    local t = TweenService:Create(inst, info, props)
+    t:Play()
+    return t
+end
+
+local function makeDraggable(frame, handle)
+    handle = handle or frame
+    local dragging, dragStart, startPos = false, nil, nil
+    handle.InputBegan:Connect(function(inp)
+        if (inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch) then
+            dragging = true
+            dragStart = inp.Position
+            startPos = frame.Position
+        end
+    end)
+    UIS.InputChanged:Connect(function(inp)
+        if dragging and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
+            local d = inp.Position - dragStart
+            frame.Position = UDim2.new(
+                startPos.X.Scale, startPos.X.Offset + d.X,
+                startPos.Y.Scale, startPos.Y.Offset + d.Y
+            )
+        end
+    end)
+    UIS.InputEnded:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+end
+
+local sg = Instance.new("ScreenGui")
+sg.Name = "Skill-AI"
+sg.ResetOnSpawn = false
+sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+sg.IgnoreGuiInset = true
+local sgParented = pcall(function() sg.Parent = CoreGui end)
+if not sgParented then
+    pcall(function() sg.Parent = Players.LocalPlayer:WaitForChild("PlayerGui") end)
+end
+
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Name = "Toggle"
+toggleBtn.Size = UDim2.new(0, 42, 0, 42)
+toggleBtn.Position = UDim2.new(0.04, 0, 0.15, 0)
+toggleBtn.BackgroundColor3 = C.surfaceHi
+toggleBtn.Text = "🧠"
+toggleBtn.TextColor3 = C.accent
+toggleBtn.TextSize = 20
+toggleBtn.Font = Enum.Font.GothamBold
+toggleBtn.Parent = sg
+corner(toggleBtn, 21)
+stroke(toggleBtn, C.accent, 1.5, 0.3)
+makeDraggable(toggleBtn)
+
+local PW = 340
+local PH = 440
+local panel = Instance.new("Frame")
+panel.Name = "Panel"
+panel.Size = UDim2.new(0, PW, 0, PH)
+panel.Position = UDim2.new(0.5, -PW/2, 0.5, -PH/2)
+panel.BackgroundColor3 = C.bg
+panel.BorderSizePixel = 0
+panel.ClipsDescendants = true
+panel.Parent = sg
+corner(panel, 12)
+stroke(panel, C.accent, 1, 0.7)
+
+local tb = Instance.new("Frame")
+tb.Size = UDim2.new(1, 0, 0, 34)
+tb.BackgroundTransparency = 1
+tb.Parent = panel
+
+local titleText = Instance.new("TextLabel")
+titleText.Size = UDim2.new(1, -130, 1, 0)
+titleText.Position = UDim2.new(0, 12, 0, 0)
+titleText.BackgroundTransparency = 1
+titleText.Text = "🧠 Skill-AI v1.4"
+titleText.TextColor3 = C.accent
+titleText.TextXAlignment = Enum.TextXAlignment.Left
+titleText.TextSize = 14
+titleText.Font = Enum.Font.GothamBold
+titleText.Parent = tb
+
+-- زر اختيار النموذج
+local modelBtn = Instance.new("TextButton")
+modelBtn.Size = UDim2.new(0, 110, 0, 22)
+modelBtn.Position = UDim2.new(1, -138, 0.5, -11)
+modelBtn.BackgroundColor3 = C.surfaceHi
+modelBtn.TextColor3 = C.yellow
+modelBtn.TextSize = 9
+modelBtn.Font = Enum.Font.Gotham
+modelBtn.TextTruncate = Enum.TextTruncate.AtEnd
+modelBtn.Parent = tb
+corner(modelBtn, 5)
+stroke(modelBtn, C.yellow, 1, 0.4)
+
+local function updateModelBtn()
+    local short = CURRENT_MODEL_LABEL:gsub("%(Free%)", ""):gsub("%(NVIDIA%)", ""):match("^%s*(.-)%s*$")
+    if #short > 18 then short = short:sub(1, 17) .. "…" end
+    modelBtn.Text = "⚙ " .. short
+end
+updateModelBtn()
+
+-- ── Model Picker Popup ──────────────────────────────────────────────────────
+
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 22, 0, 22)
+closeBtn.Position = UDim2.new(1, -28, 0.5, -11)
+closeBtn.BackgroundColor3 = C.surfaceHi
+closeBtn.Text = "✕"
+closeBtn.TextColor3 = C.red
+closeBtn.TextSize = 10
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.Parent = tb
+corner(closeBtn, 6)
+closeBtn.MouseButton1Click:Connect(function() sg:Destroy() end)
+
+makeDraggable(panel, tb)
+
+toggleBtn.MouseButton1Click:Connect(function()
+    panel.Visible = not panel.Visible
+    tw(toggleBtn, TweenInfo.new(0.3), {Rotation = panel.Visible and 0 or 180})
+end)
+
+local displayArea = Instance.new("ScrollingFrame")
+displayArea.Size = UDim2.new(1, -16, 1, -115)
+displayArea.Position = UDim2.new(0, 8, 0, 40)
+displayArea.BackgroundColor3 = C.surface
+displayArea.BorderSizePixel = 0
+displayArea.ScrollBarThickness = 0
+displayArea.AutomaticCanvasSize = Enum.AutomaticSize.Y
+displayArea.CanvasSize = UDim2.new(0, 0, 0, 0)
+displayArea.Parent = panel
+corner(displayArea, 8)
+stroke(displayArea, C.border, 1, 0.3)
+
+local displayList = Instance.new("UIListLayout", displayArea)
+displayList.Padding = UDim.new(0, 6)
+displayList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+displayList.SortOrder = Enum.SortOrder.LayoutOrder
+
+local welcomeLbl = Instance.new("TextLabel")
+welcomeLbl.Size = UDim2.new(1, -10, 0, 40)
+welcomeLbl.BackgroundTransparency = 1
+welcomeLbl.Text = "💬 Ask me anything or give me a command — I plan and execute..."
+welcomeLbl.TextColor3 = C.textDim
+welcomeLbl.TextSize = 12
+welcomeLbl.Font = Enum.Font.Gotham
+welcomeLbl.Parent = displayArea
+
+local inputArea = Instance.new("Frame")
+inputArea.Size = UDim2.new(1, -16, 0, 52)
+inputArea.Position = UDim2.new(0, 8, 1, -60)
+inputArea.BackgroundColor3 = C.surface
+inputArea.Parent = panel
+corner(inputArea, 8)
+stroke(inputArea, C.border, 1, 0.3)
+
+local inputBox = Instance.new("TextBox")
+inputBox.Size = UDim2.new(1, -64, 1, -8)
+inputBox.Position = UDim2.new(0, 8, 0, 4)
+inputBox.BackgroundTransparency = 1
+inputBox.PlaceholderText = "Type any command in any language..."
+inputBox.TextColor3 = C.text
+inputBox.PlaceholderColor3 = C.textDim
+inputBox.TextSize = 13
+inputBox.Font = Enum.Font.Gotham
+inputBox.ClearTextOnFocus = false
+inputBox.Parent = inputArea
+
+local sendBtn = Instance.new("TextButton")
+sendBtn.Size = UDim2.new(0, 44, 1, -8)
+sendBtn.Position = UDim2.new(1, -52, 0, 4)
+sendBtn.BackgroundColor3 = C.accent
+sendBtn.Text = "➤"
+sendBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
+sendBtn.TextSize = 18
+sendBtn.Font = Enum.Font.GothamBold
+sendBtn.Parent = inputArea
+corner(sendBtn, 6)
+
+local function getInstancePath(inst)
+    if not inst then return "nil" end
+    local parts = {}
+    local current = inst
+    while current do
+        local name = current.Name or "?"
+        table.insert(parts, 1, name)
+        current = current.Parent
+    end
+    return table.concat(parts, " > ")
+end
+
+-- Popup window showing full generated script code with a real copy button.
+-- Used when direct Source writing fails (executor blocks it): shows the code
+-- ready to copy/paste instead of trying to bypass the restriction.
+local function showScriptPopup(code, scriptName)
+    local overlay = Instance.new("Frame")
+    overlay.Size = UDim2.new(1, 0, 1, 0)
+    overlay.BackgroundColor3 = Color3.new(0, 0, 0)
+    overlay.BackgroundTransparency = 0.4
+    overlay.ZIndex = 50
+    overlay.Parent = sg
+
+    local box = Instance.new("Frame")
+    box.Size = UDim2.new(0.9, 0, 0.7, 0)
+    box.Position = UDim2.new(0.05, 0, 0.15, 0)
+    box.BackgroundColor3 = C.surface
+    box.ZIndex = 51
+    box.Parent = overlay
+    corner(box, 12)
+    stroke(box, C.accent, 1.5, 0.2)
+
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, -16, 0, 36)
+    title.Position = UDim2.new(0, 8, 0, 4)
+    title.BackgroundTransparency = 1
+    title.Text = "📝 " .. (scriptName or "Script") .. " — Copy this code into a new Script"
+    title.TextColor3 = C.accent
+    title.TextSize = 13
+    title.Font = Enum.Font.GothamBold
+    title.TextWrapped = true
+    title.ZIndex = 52
+    title.Parent = box
+
+    local codeScroll = Instance.new("ScrollingFrame")
+    codeScroll.Size = UDim2.new(1, -16, 1, -90)
+    codeScroll.Position = UDim2.new(0, 8, 0, 40)
+    codeScroll.BackgroundColor3 = C.bg
+    codeScroll.ScrollBarThickness = 6
+    codeScroll.ZIndex = 52
+    codeScroll.Parent = box
+    corner(codeScroll, 8)
+
+    local codeLbl = Instance.new("TextLabel")
+    codeLbl.Size = UDim2.new(1, -12, 0, 0)
+    codeLbl.Position = UDim2.new(0, 6, 0, 6)
+    codeLbl.BackgroundTransparency = 1
+    codeLbl.Text = code
+    codeLbl.TextColor3 = C.green
+    codeLbl.TextSize = 12
+    codeLbl.Font = Enum.Font.Code
+    codeLbl.TextWrapped = true
+    codeLbl.TextXAlignment = Enum.TextXAlignment.Left
+    codeLbl.TextYAlignment = Enum.TextYAlignment.Top
+    codeLbl.ZIndex = 53
+    codeLbl.Parent = codeScroll
+
+    local lineCount = select(2, code:gsub("\n", "\n")) + 1
+    local approxHeight = math.max(100, lineCount * 16 + (#code / 50) * 14)
+    codeLbl.Size = UDim2.new(1, -12, 0, approxHeight)
+    codeScroll.CanvasSize = UDim2.new(0, 0, 0, approxHeight + 12)
+
+    local copyBtn = Instance.new("TextButton")
+    copyBtn.Size = UDim2.new(0.48, -4, 0, 36)
+    copyBtn.Position = UDim2.new(0, 8, 1, -42)
+    copyBtn.BackgroundColor3 = C.accent
+    copyBtn.Text = "📋 Copy Code"
+    copyBtn.TextColor3 = Color3.new(0, 0, 0)
+    copyBtn.TextSize = 13
+    copyBtn.Font = Enum.Font.GothamBold
+    copyBtn.ZIndex = 52
+    copyBtn.Parent = box
+    corner(copyBtn, 8)
+
+    copyBtn.MouseButton1Click:Connect(function()
+        local copied = false
+        if setclipboard then
+            copied = pcall(function() setclipboard(code) end)
+        end
+        if copied then
+            copyBtn.Text = "✅ Copied! Paste into a Script in the Explorer"
+        else
+            copyBtn.Text = "❌ Clipboard not supported by this Executor"
+        end
+    end)
+
+    local closeBtn2 = Instance.new("TextButton")
+    closeBtn2.Size = UDim2.new(0.48, -4, 0, 36)
+    closeBtn2.Position = UDim2.new(0.52, 0, 1, -42)
+    closeBtn2.BackgroundColor3 = C.surfaceHi
+    closeBtn2.Text = "Close"
+    closeBtn2.TextColor3 = C.text
+    closeBtn2.TextSize = 13
+    closeBtn2.Font = Enum.Font.Gotham
+    closeBtn2.ZIndex = 52
+    closeBtn2.Parent = box
+    corner(closeBtn2, 8)
+    closeBtn2.MouseButton1Click:Connect(function()
+        overlay:Destroy()
+    end)
+end
+
+local showInstanceInfo
+
+local function addMessage(text, isUser, isError, isSystem, clickInstance)
+    welcomeLbl.Visible = false
+
+    -- FIX v1.4: message cap أسرع — بدل GetChildren() في كل message نتتبع العداد
+    local allEntries = displayArea:GetChildren()
+    local entryCount = #allEntries
+    if entryCount > MESSAGE_MAX then
+        local toRemove = entryCount - MESSAGE_MAX
+        for i = 1, toRemove do
+            local oldest = allEntries[i]
+            if oldest and oldest ~= welcomeLbl and oldest ~= displayList then
+                oldest:Destroy()
+            end
+        end
+    end
+
+    local entry = Instance.new("Frame")
+    entry.Size = UDim2.new(1, -10, 0, 0)
+    entry.BackgroundTransparency = 1
+    entry.Parent = displayArea
+
+    local bg = Instance.new("Frame")
+    bg.Size = UDim2.new(1, 0, 0, 0)
+    if isError then
+        bg.BackgroundColor3 = C.red
+    elseif isSystem then
+        bg.BackgroundColor3 = Color3.fromRGB(30, 30, 20)
+    elseif isUser then
+        bg.BackgroundColor3 = C.surfaceHi
+    else
+        bg.BackgroundColor3 = C.surface
+    end
+    bg.Parent = entry
+    corner(bg, 8)
+    stroke(bg, isError and C.red or (isUser and C.accent or C.border), 0.5, 0.3)
+
+    local lbl = Instance.new("TextButton")
+    lbl.Size = UDim2.new(1, -16, 1, -8)
+    lbl.Position = UDim2.new(0, 8, 0, 4)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = text
+    lbl.TextColor3 = isError and C.text or (isUser and C.accent or C.text)
+    lbl.TextSize = 12
+    lbl.Font = Enum.Font.Gotham
+    lbl.TextWrapped = true
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.AutoButtonColor = false
+    lbl.Selectable = false
+    lbl.Parent = bg
+
+    if clickInstance then
+        local actual = clickInstance
+        if type(actual) == "table" and actual._ref then
+            actual = actual._ref
+        end
+        if actual and type(actual) == "userdata" then
+            lbl.TextColor3 = Color3.fromRGB(100, 180, 255)
+            lbl.MouseButton1Click:Connect(function()
+                showInstanceInfo(actual)
+            end)
+            entry.BackgroundTransparency = 0.85
+        end
+    end
+
+    -- FIX v1.4: حساب الارتفاع الدقيق بدون مسح النص — O(1) بدل O(n)
+    -- نعتمد على عدد السطور الفعلي + طول النص كمؤشر للف
+    local lineBreaks = select(2, text:gsub("\n", "\n"))
+    local wrapLines = math.floor(#text / 42) -- تقدير الف عند عرض ~42 حرف
+    local totalLines = math.max(1, lineBreaks + wrapLines)
+    local height = math.max(30, math.min(300, totalLines * 16 + 18))
+    bg.Size = UDim2.new(1, 0, 0, height)
+    entry.Size = UDim2.new(1, 0, 0, height + 4)
+
+    task.wait()
+    displayArea.CanvasPosition = Vector2.new(0, displayArea.CanvasSize.Y.Offset)
+end
+
+showInstanceInfo = function(inst)
+    if not inst then
+        addMessage("❌ Instance no longer exists", false, true)
+        return
+    end
+    local className = inst:IsA("BasePart") and inst.ClassName or inst.ClassName or "Instance"
+    local info = "📦 " .. className
+    info = info .. " \"" .. inst.Name .. "\"\n📁 " .. getInstancePath(inst)
+    if inst:IsA("BasePart") then
+        local pos = inst.Position
+        info = info .. ("\n📍 %.1f, %.1f, %.1f"):format(pos.X, pos.Y, pos.Z)
+    end
+    if inst:IsA("Script") or inst:IsA("LocalScript") then
+        local src = inst.Source or ""
+        if #src > 0 then
+            info = info .. "\n📝 " .. #src .. " chars"
+        else
+            info = info .. "\n⚠️ Source is empty."
+        end
+    end
+    if inst:IsA("StringValue") then
+        local val = inst.Value or ""
+        if #val > 0 then
+            info = info .. "\n━━━━━━━━━━━━━━━━━━\n" .. val .. "\n━━━━━━━━━━━━━━━━━━"
+        else
+            info = info .. "\n⚠️ StringValue is empty"
+        end
+    end
+    addMessage(info, false, false, true)
+end
+
+-- Model picker popup
+local function showModelPicker()
+    -- overlay
+    local overlay = Instance.new("Frame")
+    overlay.Size = UDim2.new(1, 0, 1, 0)
+    overlay.BackgroundColor3 = Color3.new(0, 0, 0)
+    overlay.BackgroundTransparency = 0.5
+    overlay.ZIndex = 60
+    overlay.Parent = sg
+
+    local popup = Instance.new("Frame")
+    popup.Size = UDim2.new(0, 290, 0, 380)
+    popup.Position = UDim2.new(0.5, -145, 0.5, -190)
+    popup.BackgroundColor3 = C.bg
+    popup.ZIndex = 61
+    popup.Parent = overlay
+    corner(popup, 12)
+    stroke(popup, C.accent, 1.5, 0.2)
+
+    local hdr = Instance.new("TextLabel")
+    hdr.Size = UDim2.new(1, -40, 0, 32)
+    hdr.Position = UDim2.new(0, 10, 0, 4)
+    hdr.BackgroundTransparency = 1
+    hdr.Text = "⚙ Select Model"
+    hdr.TextColor3 = C.accent
+    hdr.TextXAlignment = Enum.TextXAlignment.Left
+    hdr.TextSize = 13
+    hdr.Font = Enum.Font.GothamBold
+    hdr.ZIndex = 62
+    hdr.Parent = popup
+
+    local closePop = Instance.new("TextButton")
+    closePop.Size = UDim2.new(0, 24, 0, 24)
+    closePop.Position = UDim2.new(1, -30, 0, 4)
+    closePop.BackgroundColor3 = C.surfaceHi
+    closePop.Text = "✕"
+    closePop.TextColor3 = C.red
+    closePop.TextSize = 10
+    closePop.Font = Enum.Font.GothamBold
+    closePop.ZIndex = 62
+    closePop.Parent = popup
+    corner(closePop, 6)
+    closePop.MouseButton1Click:Connect(function() overlay:Destroy() end)
+
+    -- Current model label
+    local curLbl = Instance.new("TextLabel")
+    curLbl.Size = UDim2.new(1, -12, 0, 20)
+    curLbl.Position = UDim2.new(0, 6, 0, 36)
+    curLbl.BackgroundTransparency = 1
+    curLbl.Text = "Now: " .. CURRENT_MODEL_LABEL
+    curLbl.TextColor3 = C.green
+    curLbl.TextSize = 10
+    curLbl.Font = Enum.Font.Gotham
+    curLbl.TextTruncate = Enum.TextTruncate.AtEnd
+    curLbl.TextXAlignment = Enum.TextXAlignment.Left
+    curLbl.ZIndex = 62
+    curLbl.Parent = popup
+
+    local scroll = Instance.new("ScrollingFrame")
+    scroll.Size = UDim2.new(1, -12, 1, -64)
+    scroll.Position = UDim2.new(0, 6, 0, 58)
+    scroll.BackgroundColor3 = C.surface
+    scroll.ScrollBarThickness = 4
+    scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+    scroll.ZIndex = 62
+    scroll.Parent = popup
+    corner(scroll, 8)
+
+    local list = Instance.new("UIListLayout", scroll)
+    list.Padding = UDim.new(0, 3)
+    list.SortOrder = Enum.SortOrder.LayoutOrder
+
+    local pad = Instance.new("UIPadding", scroll)
+    pad.PaddingLeft = UDim.new(0, 4)
+    pad.PaddingTop  = UDim.new(0, 4)
+
+    for idx, entry in ipairs(MODEL_LIST) do
+        if entry.provider == "separator" then
+            local sep = Instance.new("TextLabel")
+            sep.Size = UDim2.new(1, -8, 0, 20)
+            sep.BackgroundColor3 = C.surfaceHi
+            sep.Text = "── NVIDIA NIM ──"
+            sep.TextColor3 = C.yellow
+            sep.TextSize = 10
+            sep.Font = Enum.Font.GothamBold
+            sep.LayoutOrder = idx
+            sep.ZIndex = 63
+            sep.Parent = scroll
+            corner(sep, 4)
+        else
+            local isActive = (entry.label == CURRENT_MODEL_LABEL)
+            local btn = Instance.new("TextButton")
+            btn.Size = UDim2.new(1, -8, 0, 26)
+            btn.BackgroundColor3 = isActive and C.accent or C.surfaceHi
+            btn.TextColor3 = isActive and Color3.new(0,0,0) or C.text
+            btn.Text = entry.label
+            btn.TextSize = 10
+            btn.Font = Enum.Font.Gotham
+            btn.TextXAlignment = Enum.TextXAlignment.Left
+            btn.TextTruncate = Enum.TextTruncate.AtEnd
+            btn.LayoutOrder = idx
+            btn.ZIndex = 63
+            btn.Parent = scroll
+            corner(btn, 5)
+
+            local lbl2 = Instance.new("UIPadding", btn)
+            lbl2.PaddingLeft = UDim.new(0, 6)
+
+            local capturedEntry = entry
+            btn.MouseButton1Click:Connect(function()
+                applyModelChoice(capturedEntry)
+                updateModelBtn()
+                curLbl.Text = "✅ Now: " .. CURRENT_MODEL_LABEL
+                for _, child in ipairs(scroll:GetChildren()) do
+                    if child:IsA("TextButton") then
+                        child.BackgroundColor3 = C.surfaceHi
+                        child.TextColor3 = C.text
+                    end
+                end
+                btn.BackgroundColor3 = C.accent
+                btn.TextColor3 = Color3.new(0, 0, 0)
+                task.delay(0.2, function()
+                    overlay:Destroy()
+                    addMessage("✅ Model changed → **" .. CURRENT_MODEL_LABEL .. "**\nProvider: " .. CURRENT_PROVIDER:upper() .. " | Saved automatically.", false)
+                end)
+            end)
+        end
+    end
+end
+
+modelBtn.MouseButton1Click:Connect(showModelPicker)
+
+local LOG_FILE = "SkillAI_Log.txt"
+
+local function logToFile(label, content)
+    local ok = pcall(function()
+        local stamp = "\n[" .. os.date("%X") .. "] " .. label .. ":\n" .. tostring(content) .. "\n" .. string.rep("-", 30) .. "\n"
+        if writefile then
+            if isfile and isfile(LOG_FILE) and readfile then
+                local existing = readfile(LOG_FILE)
+                writefile(LOG_FILE, existing .. stamp)
+            else
+                writefile(LOG_FILE, stamp)
+            end
+        end
+    end)
+    return ok
+end
+
+local function setupRespawnReRunner()
+    local plr = Players.LocalPlayer
+    local function reRunAll()
+        for _, entry in ipairs(_autoRunScripts) do
+            local fn, err = loadstring("local script = ...\n" .. entry.source)
+            if fn then
+                task.spawn(function()
+                    local ok, e = pcall(fn, entry.inst)
+                    if not ok then logToFile("Respawn re-run error " .. entry.name, e) end
+                end)
+            end
+        end
+    end
+    reRunAll()
+    plr.CharacterAdded:Connect(reRunAll)
+end
+
+-- 🧠 تصنيف ذكي لتعقيد الطلب — يصير محلياً بالكود (فوري، صفر توكنز، صفر وقت
+-- إضافي)، يقرر هل الطلب يحتاج تفكير عميق (high) أو بسيط (low). هذا يحل
+-- التناقض "أريد دقة high بسرعة low": الحل مو إعداد ثابت واحد، بل نستخدم
+-- high فقط للطلبات اللي فعلاً تحتاجه (سكربتات، أنظمة، خطط معقدة)، وlow
+-- لكل شي آخر (يغطي أغلب الطلبات اليومية: قطعة، أداة، تعديل، حذف، إلخ).
+local HIGH_EFFORT_KEYWORDS = {
+    "script", "system", "unlock", "lock", "track", "when ", "challenge",
+    "complete", "trigger", "damage", "spawn enemies", "ai", "npc",
+    "leaderboard", "datastore", "save", "load", "remote", "multiplayer",
+    "quest", "checkpoint", "gate", "obstacle course", "lap", "stage",
+    "wave", "phase", "progression", "rank", "level", "door", "key",
+    "boss", "health bar", "timer", "countdown", "score", "points",
+    "سكربت", "نظام", "يفتح", "يقفل", "تحدي", "يتتبع",
+    "بوابة", "مرحلة", "مستوى", "نقاط", "مؤقت", "بوس",
 }
-Converted["_UIGradient1"].Rotation = -107
-Converted["_UIGradient1"].Parent = Converted["_UIStroke"]
+local function classifyEffort(question)
+    if type(question) ~= "string" then return "low" end
+    local lowerQ = question:lower()
+    -- طول الطلب نفسه مؤشر قوي: طلبات طويلة ومفصلة غالباً معقدة منطقياً
+    if #question > 220 then return "high" end
+    for _, kw in ipairs(HIGH_EFFORT_KEYWORDS) do
+        if lowerQ:find(kw, 1, true) then
+            return "high"
+        end
+    end
+    return "low"
+end
 
-Converted["_ScrollingFrame"].AutomaticCanvasSize = Enum.AutomaticSize.XY
-Converted["_ScrollingFrame"].CanvasSize = UDim2.new(0, 0, 0, 0)
-Converted["_ScrollingFrame"].ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_ScrollingFrame"].ScrollBarThickness = 0
-Converted["_ScrollingFrame"].Active = true
-Converted["_ScrollingFrame"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_ScrollingFrame"].BackgroundTransparency = 1
-Converted["_ScrollingFrame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_ScrollingFrame"].BorderSizePixel = 0
-Converted["_ScrollingFrame"].Size = UDim2.new(1, 0, 1, 0)
-Converted["_ScrollingFrame"].Parent = Converted["_DropdownFrameSample"]
+-- FIX v1.4: مهلة الطلب — يمنع التجميد اللانهائي عند انقطاع الشبكة
+local REQUEST_TIMEOUT = math.huge
 
-Converted["_UIListLayout"].Padding = UDim.new(0, 5)
-Converted["_UIListLayout"].SortOrder = Enum.SortOrder.LayoutOrder
-Converted["_UIListLayout"].Parent = Converted["_ScrollingFrame"]
+local function callAI(messages, _isRetry, effort, _keyAttempt)
+    _keyAttempt = _keyAttempt or 0
+    local maxKeyAttempts = (#API_KEYS or 1) * 2
 
-Converted["_Sample"].Font = Enum.Font.Unknown
-Converted["_Sample"].Text = "This can fit a lot of text, probably."
-Converted["_Sample"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Sample"].TextScaled = true
-Converted["_Sample"].TextSize = 14
-Converted["_Sample"].TextWrapped = true
-Converted["_Sample"].BackgroundColor3 = Color3.fromRGB(22.000000588595867, 22.000000588595867, 22.000000588595867)
-Converted["_Sample"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Sample"].BorderSizePixel = 0
-Converted["_Sample"].Size = UDim2.new(1, 0, 0, 35)
-Converted["_Sample"].Visible = false
-Converted["_Sample"].Name = "Sample"
-Converted["_Sample"].Parent = Converted["_ScrollingFrame"]
+    local currentKey = getApiKey()
+    if not currentKey then
+        return nil, "❌ No API keys configured. Add keys to API_KEYS table."
+    end
 
-Converted["_UIPadding1"].PaddingBottom = UDim.new(0, 7)
-Converted["_UIPadding1"].PaddingLeft = UDim.new(0, 7)
-Converted["_UIPadding1"].PaddingRight = UDim.new(0, 7)
-Converted["_UIPadding1"].PaddingTop = UDim.new(0, 7)
-Converted["_UIPadding1"].Parent = Converted["_Sample"]
+    -- FIX v1.4: cache modelMaxOutput بدل البحث في كل مرة
+    local cap = (effort == "high") and MAX_TOKENS_HIGH or MAX_TOKENS_LOW
+    local maxTokens = math.min(cap, CURRENT_MODEL_MAX_OUTPUT or cap)
+    local data = {
+        model = MODEL_ID,
+        messages = messages,
+        max_tokens = maxTokens,
+        temperature = 0.2,
+        top_p = 0.95,
+    }
 
-Converted["_UICorner2"].Parent = Converted["_Sample"]
+    local json = HttpService:JSONEncode(data)
+    local headers = {
+        ["Content-Type"] = "application/json",
+        ["Authorization"] = "Bearer " .. currentKey,
+    }
 
-Converted["_UIPadding2"].PaddingBottom = UDim.new(0, 7)
-Converted["_UIPadding2"].PaddingLeft = UDim.new(0, 7)
-Converted["_UIPadding2"].PaddingRight = UDim.new(0, 7)
-Converted["_UIPadding2"].PaddingTop = UDim.new(0, 7)
-Converted["_UIPadding2"].Parent = Converted["_DropdownFrameSample"]
+    -- FIX v1.4: Timeout wrapper — الطلب يتوقف بعد REQUEST_TIMEOUT ثانية
+    local success, response
+    do
+        local done = false
+        local result_ok, result_val
+        task.spawn(function()
+            result_ok, result_val = pcall(function()
+                if requestFunc then
+                    return requestFunc({
+                        Url = API_URL,
+                        Method = "POST",
+                        Headers = headers,
+                        Body = json,
+                    })
+                else
+                    return HttpService:PostAsync(API_URL, json, Enum.HttpContentType.ApplicationJson, false, headers)
+                end
+            end)
+            done = true
+        end)
+        local t0 = tick()
+        while not done and (tick() - t0) < REQUEST_TIMEOUT do
+            task.wait(0.2)
+        end
+        if not done then
+            return nil, "❌ Request timed out after " .. REQUEST_TIMEOUT .. "s. Check connection."
+        end
+        success, response = result_ok, result_val
+    end
 
-Converted["_themedColor"].Value = "backgroundColorCSQ"
-Converted["_themedColor"].Name = "themedColor"
-Converted["_themedColor"].Parent = Converted["_DropdownFrameSample"]
+    if not success then
+        if not _isRetry then
+            -- FIX v1.4: 0.8s بدل 2s على الـ retry الأول — أسرع
+            task.wait(0.8)
+            return callAI(messages, true, effort, _keyAttempt)
+        end
+        return nil, "❌ Connection failed: " .. tostring(response)
+    end
 
-Converted["_ListButton"].Font = Enum.Font.Gotham
-Converted["_ListButton"].Text = "Placeholder"
-Converted["_ListButton"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_ListButton"].TextSize = 14
-Converted["_ListButton"].TextWrapped = true
-Converted["_ListButton"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_ListButton"].BackgroundColor3 = Color3.fromRGB(49.00000087916851, 49.00000087916851, 49.00000087916851)
-Converted["_ListButton"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_ListButton"].BorderSizePixel = 0
-Converted["_ListButton"].Position = UDim2.new(0.0450000018, 0, 0.112000003, 0)
-Converted["_ListButton"].Size = UDim2.new(1, 0, 0, 50)
-Converted["_ListButton"].Visible = false
-Converted["_ListButton"].Name = "ListButton"
-Converted["_ListButton"].Parent = Converted["_YARHM"]
+    local body = response.Body or response
+    local okDecode, decoded = pcall(function() return HttpService:JSONDecode(body) end)
+    if not okDecode or not decoded then
+        logToFile("JSON decode failed", tostring(body):sub(1, 500))
+        if not _isRetry then
+            task.wait(0.8) -- FIX v1.4: أسرع
+            return callAI(messages, true, effort, _keyAttempt)
+        end
+        return nil, "❌ Server returned invalid JSON. Check " .. LOG_FILE
+    end
 
-Converted["_UICorner3"].Parent = Converted["_ListButton"]
+    local errMsg = nil
+    if decoded.error then
+        if type(decoded.error) == "table" then
+            errMsg = tostring(decoded.error.message or decoded.error.code or "")
+        elseif type(decoded.error) == "string" then
+            errMsg = decoded.error
+        end
+    elseif decoded.message then
+        errMsg = tostring(decoded.message)
+    elseif decoded.detail then
+        errMsg = tostring(decoded.detail)
+    end
+    if errMsg then
+        logToFile("API error", errMsg)
+        if errMsg:find("FreeUsageLimitError", 1, true) or errMsg:find("rate limit", 1, true) or errMsg:find("quota", 1, true) then
+            if _keyAttempt < maxKeyAttempts then
+                local backoff = math.min(2 ^ (_keyAttempt - math.floor(_keyAttempt / #API_KEYS)), 60)
+                task.wait(backoff)
+                return callAI(messages, _isRetry, effort, _keyAttempt + 1)
+            end
+            KEY_RESET_TIME = tick()
+            return nil, "❌ All API keys exhausted. Wait ~60s or add new keys. Last key: " .. currentKeyLabel()
+        end
+        return nil, "❌ API: " .. errMsg
+    end
 
-Converted["_Notifications"].AnchorPoint = Vector2.new(1, 0.5)
-Converted["_Notifications"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Notifications"].BackgroundTransparency = 1
-Converted["_Notifications"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Notifications"].BorderSizePixel = 0
-Converted["_Notifications"].Position = UDim2.new(0.99000001, 0, 0.5, 0)
-Converted["_Notifications"].Size = UDim2.new(0, 242, 1, 0)
-Converted["_Notifications"].Name = "Notifications"
-Converted["_Notifications"].Parent = Converted["_YARHM"]
+    if decoded.choices and decoded.choices[1] then
+        local msg = decoded.choices[1].message
+        local content = msg and msg.content
+        local usage = decoded.usage
+        if content and content ~= "" then
+            return content, nil, usage
+        end
+        local reasoning = msg and msg.reasoning_content
+        if reasoning and reasoning ~= "" then
+            return reasoning, nil, usage
+        end
+        logToFile("Model returned no content", pcall(function() return HttpService:JSONEncode(decoded) end) and HttpService:JSONEncode(decoded) or tostring(decoded))
+        return nil, "⚠️ Model did not generate a response. Try again."
+    end
 
-Converted["_UIListLayout1"].Padding = UDim.new(0, 10)
-Converted["_UIListLayout1"].HorizontalAlignment = Enum.HorizontalAlignment.Center
-Converted["_UIListLayout1"].SortOrder = Enum.SortOrder.LayoutOrder
-Converted["_UIListLayout1"].VerticalAlignment = Enum.VerticalAlignment.Bottom
-Converted["_UIListLayout1"].Parent = Converted["_Notifications"]
+    local decodedStr = pcall(function() return HttpService:JSONEncode(decoded) end) and HttpService:JSONEncode(decoded) or tostring(decoded)
+    logToFile("No choices in response", decodedStr)
+    if not _isRetry then
+        task.wait(0.8) -- FIX v1.4: أسرع
+        return callAI(messages, true, effort, _keyAttempt)
+    end
+    return nil, "❌ Unexpected server response. Check " .. LOG_FILE
+end
 
-Converted["_UIPadding3"].PaddingBottom = UDim.new(0, 10)
-Converted["_UIPadding3"].PaddingLeft = UDim.new(0, 10)
-Converted["_UIPadding3"].Parent = Converted["_Notifications"]
-
-Converted["_Placeholder"].AnchorPoint = Vector2.new(0.5, 0)
-Converted["_Placeholder"].BackgroundColor3 = Color3.fromRGB(31.000001952052116, 31.000001952052116, 31.000001952052116)
-Converted["_Placeholder"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Placeholder"].BorderSizePixel = 0
-Converted["_Placeholder"].Position = UDim2.new(0.0450000018, 0, 0.112000003, 0)
-Converted["_Placeholder"].Visible = false
-Converted["_Placeholder"].Name = "Placeholder"
-Converted["_Placeholder"].Parent = Converted["_Notifications"]
-
-Converted["_UICorner4"].Parent = Converted["_Placeholder"]
-
-Converted["_TextLabel"].Font = Enum.Font.Gotham
-Converted["_TextLabel"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel"].TextScaled = true
-Converted["_TextLabel"].TextSize = 14
-Converted["_TextLabel"].TextWrapped = true
-Converted["_TextLabel"].TextXAlignment = Enum.TextXAlignment.Left
-Converted["_TextLabel"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_TextLabel"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel"].BackgroundTransparency = 1
-Converted["_TextLabel"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel"].BorderSizePixel = 0
-Converted["_TextLabel"].Position = UDim2.new(0.5, 0, 0.5, 0)
-Converted["_TextLabel"].Size = UDim2.new(0.899999976, 0, 0.800000012, 0)
-Converted["_TextLabel"].Parent = Converted["_Placeholder"]
-
-Converted["_TextBoxPlaceholder"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextBoxPlaceholder"].BackgroundTransparency = 1
-Converted["_TextBoxPlaceholder"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextBoxPlaceholder"].BorderSizePixel = 0
-Converted["_TextBoxPlaceholder"].Size = UDim2.new(1, 0, 0, 50)
-Converted["_TextBoxPlaceholder"].Visible = false
-Converted["_TextBoxPlaceholder"].Name = "TextBoxPlaceholder"
-Converted["_TextBoxPlaceholder"].Parent = Converted["_YARHM"]
-
-Converted["_UIListLayout2"].Padding = UDim.new(0, 5)
-Converted["_UIListLayout2"].FillDirection = Enum.FillDirection.Horizontal
-Converted["_UIListLayout2"].HorizontalAlignment = Enum.HorizontalAlignment.Center
-Converted["_UIListLayout2"].Parent = Converted["_TextBoxPlaceholder"]
-
-Converted["_TextButton"].Font = Enum.Font.Gotham
-Converted["_TextButton"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextButton"].TextScaled = true
-Converted["_TextButton"].TextSize = 14
-Converted["_TextButton"].TextWrapped = true
-Converted["_TextButton"].BackgroundColor3 = Color3.fromRGB(22.000000588595867, 22.000000588595867, 22.000000588595867)
-Converted["_TextButton"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextButton"].BorderSizePixel = 0
-Converted["_TextButton"].Position = UDim2.new(0.292333364, 0, 1.67999995, 0)
-Converted["_TextButton"].Size = UDim2.new(0, 50, 0, 50)
-Converted["_TextButton"].Parent = Converted["_TextBoxPlaceholder"]
-
-Converted["_UICorner5"].Parent = Converted["_TextButton"]
-
-Converted["_UIPadding4"].PaddingBottom = UDim.new(0, 5)
-Converted["_UIPadding4"].PaddingLeft = UDim.new(0, 5)
-Converted["_UIPadding4"].PaddingRight = UDim.new(0, 5)
-Converted["_UIPadding4"].PaddingTop = UDim.new(0, 5)
-Converted["_UIPadding4"].Parent = Converted["_TextButton"]
-
-Converted["_TextBox"].Font = Enum.Font.Gotham
-Converted["_TextBox"].PlaceholderText = "Placeholder"
-Converted["_TextBox"].Text = ""
-Converted["_TextBox"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextBox"].TextSize = 14
-Converted["_TextBox"].TextWrapped = true
-Converted["_TextBox"].BackgroundColor3 = Color3.fromRGB(22.000000588595867, 22.000000588595867, 22.000000588595867)
-Converted["_TextBox"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextBox"].BorderSizePixel = 0
-Converted["_TextBox"].Size = UDim2.new(0.800000012, 0, 0, 50)
-Converted["_TextBox"].Parent = Converted["_TextBoxPlaceholder"]
-
-Converted["_UICorner6"].Parent = Converted["_TextBox"]
-
-Converted["_FloatingButton"].Font = Enum.Font.Unknown
-Converted["_FloatingButton"].Text = "Shoot into murderer"
-Converted["_FloatingButton"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_FloatingButton"].TextScaled = true
-Converted["_FloatingButton"].TextSize = 14
-Converted["_FloatingButton"].TextWrapped = true
-Converted["_FloatingButton"].AutoButtonColor = false
-Converted["_FloatingButton"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_FloatingButton"].BackgroundColor3 = Color3.fromRGB(31.000000052154064, 31.000000052154064, 31.000000052154064)
-Converted["_FloatingButton"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_FloatingButton"].BorderSizePixel = 0
-Converted["_FloatingButton"].ClipsDescendants = true
-Converted["_FloatingButton"].Position = UDim2.new(0, 125, 0, 40)
-Converted["_FloatingButton"].Size = UDim2.new(0, 50, 0, 100)
-Converted["_FloatingButton"].Visible = false
-Converted["_FloatingButton"].Name = "FloatingButton"
-Converted["_FloatingButton"].Parent = Converted["_YARHM"]
-
-Converted["_UIPadding5"].PaddingBottom = UDim.new(0, 5)
-Converted["_UIPadding5"].PaddingLeft = UDim.new(0, 5)
-Converted["_UIPadding5"].PaddingRight = UDim.new(0, 5)
-Converted["_UIPadding5"].PaddingTop = UDim.new(0, 5)
-Converted["_UIPadding5"].Parent = Converted["_FloatingButton"]
-
-Converted["_UICorner7"].Parent = Converted["_FloatingButton"]
-
-Converted["_UIStroke1"].ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-Converted["_UIStroke1"].Color = Color3.fromRGB(255, 255, 255)
-Converted["_UIStroke1"].Parent = Converted["_FloatingButton"]
-
-Converted["_Lock"].Font = Enum.Font.Gotham
-Converted["_Lock"].Text = "ðŸ”’"
-Converted["_Lock"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Lock"].TextScaled = true
-Converted["_Lock"].TextSize = 14
-Converted["_Lock"].TextWrapped = true
-Converted["_Lock"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_Lock"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Lock"].BackgroundTransparency = 1
-Converted["_Lock"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Lock"].BorderSizePixel = 0
-Converted["_Lock"].Position = UDim2.new(1, -10, 1, -10)
-Converted["_Lock"].Size = UDim2.new(0, 20, 0, 20)
-Converted["_Lock"].ZIndex = 999999999
-Converted["_Lock"].Name = "Lock"
-Converted["_Lock"].Parent = Converted["_FloatingButton"]
-
-Converted["_UIScale"].Scale = 1.0000000116860974e-07
-Converted["_UIScale"].Parent = Converted["_Lock"]
-
-Converted["_Ripple"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_Ripple"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Ripple"].BackgroundTransparency = 1
-Converted["_Ripple"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Ripple"].BorderSizePixel = 0
-Converted["_Ripple"].Size = UDim2.new(0, 100, 0, 100)
-Converted["_Ripple"].Name = "Ripple"
-Converted["_Ripple"].Parent = Converted["_FloatingButton"]
-
-Converted["_UICorner8"].CornerRadius = UDim.new(1, 0)
-Converted["_UICorner8"].Parent = Converted["_Ripple"]
-
-Converted["_UIScale1"].Parent = Converted["_FloatingButton"]
-
-Converted["_Dropdown"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Dropdown"].BackgroundTransparency = 1
-Converted["_Dropdown"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Dropdown"].BorderSizePixel = 0
-Converted["_Dropdown"].Size = UDim2.new(1, 0, 0, 35)
-Converted["_Dropdown"].Visible = false
-Converted["_Dropdown"].Name = "Dropdown"
-Converted["_Dropdown"].Parent = Converted["_YARHM"]
-
-Converted["_TextLabel1"].Font = Enum.Font.Unknown
-Converted["_TextLabel1"].Text = "Loop walkspeed and FOV"
-Converted["_TextLabel1"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel1"].TextScaled = true
-Converted["_TextLabel1"].TextSize = 14
-Converted["_TextLabel1"].TextWrapped = true
-Converted["_TextLabel1"].TextXAlignment = Enum.TextXAlignment.Left
-Converted["_TextLabel1"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel1"].BackgroundTransparency = 1
-Converted["_TextLabel1"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel1"].BorderSizePixel = 0
-Converted["_TextLabel1"].Size = UDim2.new(0.699999988, 0, 1, 0)
-Converted["_TextLabel1"].Parent = Converted["_Dropdown"]
-
-Converted["_UIListLayout3"].Padding = UDim.new(0, 15)
-Converted["_UIListLayout3"].FillDirection = Enum.FillDirection.Horizontal
-Converted["_UIListLayout3"].HorizontalAlignment = Enum.HorizontalAlignment.Center
-Converted["_UIListLayout3"].SortOrder = Enum.SortOrder.LayoutOrder
-Converted["_UIListLayout3"].Parent = Converted["_Dropdown"]
-
-Converted["_UIPadding6"].PaddingLeft = UDim.new(0.0700000003, 0)
-Converted["_UIPadding6"].PaddingRight = UDim.new(0.0700000003, 0)
-Converted["_UIPadding6"].Parent = Converted["_Dropdown"]
-
-Converted["_Frame"].Font = Enum.Font.Gotham
-Converted["_Frame"].Text = "Select..."
-Converted["_Frame"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Frame"].TextScaled = true
-Converted["_Frame"].TextWrapped = true
-Converted["_Frame"].Active = false
-Converted["_Frame"].BackgroundColor3 = Color3.fromRGB(31.000001952052116, 31.000001952052116, 31.000001952052116)
-Converted["_Frame"].BackgroundTransparency = -0.03999999910593033
-Converted["_Frame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Frame"].BorderSizePixel = 0
-Converted["_Frame"].Selectable = false
-Converted["_Frame"].Size = UDim2.new(0.400000006, 0, 1, 0)
-Converted["_Frame"].Name = "Frame"
-Converted["_Frame"].Parent = Converted["_Dropdown"]
-
-Converted["_UIPadding7"].PaddingBottom = UDim.new(0, 7)
-Converted["_UIPadding7"].PaddingLeft = UDim.new(0, 7)
-Converted["_UIPadding7"].PaddingRight = UDim.new(0, 7)
-Converted["_UIPadding7"].PaddingTop = UDim.new(0, 7)
-Converted["_UIPadding7"].Parent = Converted["_Frame"]
-
-Converted["_UICorner9"].Parent = Converted["_Frame"]
-
-Converted["_AddCustomModule"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_AddCustomModule"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_AddCustomModule"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_AddCustomModule"].BorderSizePixel = 0
-Converted["_AddCustomModule"].ClipsDescendants = true
-Converted["_AddCustomModule"].Position = UDim2.new(0.5, 0, -0.5, 0)
-Converted["_AddCustomModule"].Size = UDim2.new(0, 440, 0, 268)
-Converted["_AddCustomModule"].ZIndex = 3
-Converted["_AddCustomModule"].Name = "AddCustomModule"
-Converted["_AddCustomModule"].Parent = Converted["_YARHM"]
-
-Converted["_UICorner10"].Parent = Converted["_AddCustomModule"]
-
-Converted["_UIStroke2"].Color = Color3.fromRGB(255, 255, 255)
-Converted["_UIStroke2"].Thickness = 2
-Converted["_UIStroke2"].Parent = Converted["_AddCustomModule"]
-
-Converted["_UIGradient2"].Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(53.00000064074993, 53.00000064074993, 53.00000064074993)),
-	ColorSequenceKeypoint.new(0.15224914252758026, Color3.fromRGB(50.69031357765198, 50.69031357765198, 50.69031357765198)),
-	ColorSequenceKeypoint.new(0.4723183512687683, Color3.fromRGB(255, 255, 255)),
-	ColorSequenceKeypoint.new(0.7577854990959167, Color3.fromRGB(50.13314567506313, 50.13314567506313, 50.13314567506313)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(48.000000938773155, 48.000000938773155, 48.000000938773155))
+local PARENT_MAP = {
+    Workspace = Workspace,
+    StarterPack = StarterPack,
+    Lighting = Lighting,
+    ServerStorage = ServerStorage,
+    ReplicatedStorage = ReplicatedStorage,
+    StarterGui = StarterGui,
+    StarterPlayer = StarterPlayer,
+    StarterCharacterScripts = StarterCharacterScripts,
+    StarterPlayerScripts = StarterPlayerScripts,
+    CoreGui = CoreGui,
+    Players = Players,
 }
-Converted["_UIGradient2"].Rotation = 62
-Converted["_UIGradient2"].Parent = Converted["_UIStroke2"]
 
-Converted["_UIGradient3"].Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(36.00000165402889, 36.00000165402889, 36.00000165402889)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(68.00000354647636, 68.00000354647636, 68.00000354647636))
+local function resolveParent(name, fallback)
+    if type(name) == "string" and PARENT_MAP[name] then
+        return PARENT_MAP[name]
+    end
+    return fallback or Workspace
+end
+
+local function fixLuaCode(source, compileErr)
+    local sysContent = "You fix Lua syntax errors. Return ONLY the corrected Lua code. No explanations, no markdown."
+    local userContent = "Fix this Lua error: " .. compileErr .. "\n\n```lua\n" .. source .. "\n```"
+    local fixMessages
+    if CURRENT_PROVIDER == "nvidia" then
+        fixMessages = { { role = "user", content = sysContent .. "\n\n" .. userContent } }
+    else
+        fixMessages = {
+            { role = "system", content = sysContent },
+            { role = "user", content = userContent }
+        }
+    end
+    local fixBody = HttpService:JSONEncode({
+        model = MODEL_ID,
+        messages = fixMessages,
+        max_tokens = 1000,
+        temperature = 0.1
+    })
+    local fixKey = getApiKey() or ""
+    local ok, response = pcall(function()
+        return requestFunc({
+            Url = API_URL,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json",
+                ["Authorization"] = "Bearer " .. fixKey
+            },
+            Body = fixBody
+        })
+    end)
+    if not ok or not response then return nil end
+    local ok2, data = pcall(HttpService.JSONDecode, HttpService, response.Body)
+    if not ok2 or not data or not data.choices or not data.choices[1] then return nil end
+    local fixed = data.choices[1].message.content or ""
+    fixed = fixed:gsub("```lua", ""):gsub("```", ""):gsub("^%s+", ""):gsub("%s+$", "")
+    local fn, err2 = loadstring("local script = ...\n" .. fixed)
+    if fn then return fixed end
+    return nil, err2
+end
+
+local MAX_HISTORY_TURNS = 8
+local conversationHistory = {} -- each entry: { user = "...", summary = "..." }
+local CURRENT_REQUEST_TEXT = "" -- stores the latest user request text for context safety checks (e.g., fog detection)
+
+local function pushHistory(userMsg, summary)
+    table.insert(conversationHistory, { user = userMsg, summary = summary })
+    while #conversationHistory > MAX_HISTORY_TURNS do
+        table.remove(conversationHistory, 1)
+    end
+end
+
+local function buildHistoryMessages()
+    local msgs = {}
+    -- Only send last exchange (saves tokens, speeds up response)
+    local startIdx = math.max(1, #conversationHistory - 1)
+    for i = startIdx, #conversationHistory do
+        local turn = conversationHistory[i]
+        table.insert(msgs, { role = "user", content = turn.user })
+        table.insert(msgs, { role = "assistant", content = turn.summary })
+    end
+    return msgs
+end
+
+local SEARCH_SERVICES = { Workspace, StarterPack, Lighting, ServerStorage, ReplicatedStorage, StarterGui, StarterPlayer, StarterCharacterScripts, StarterPlayerScripts, Players, CoreGui }
+-- _searchCache معرَّف في الأعلى (سطر ~88) — لا تعريف مكرر هنا
+local _searchCacheTime = 0
+-- FIX v1.4: رفعنا TTL من 0.3 → 1.5 ثانية — المشهد نادراً يتغير بين طلبين متتاليين
+local SEARCH_CACHE_TTL = 1.5
+local function searchAllDescendants()
+    if _searchCache and tick() - _searchCacheTime < SEARCH_CACHE_TTL then
+        return _searchCache
+    end
+    -- FIX v1.4: pre-allocate بدل table.insert المتكرر
+    local all = {}
+    local idx = 0
+    for _, svc in ipairs(SEARCH_SERVICES) do
+        if svc and type(svc) == "userdata" then
+            local desc = svc:GetDescendants()
+            for i = 1, #desc do
+                idx = idx + 1
+                all[idx] = desc[i]
+            end
+        end
+    end
+    -- FIX v1.4: فقط اللاعب المحلي (بدل كل اللاعبين) لأن هذا LocalScript
+    local pg = player:FindFirstChild("PlayerGui")
+    if pg then
+        local desc = pg:GetDescendants()
+        for i = 1, #desc do
+            idx = idx + 1
+            all[idx] = desc[i]
+        end
+    end
+    _searchCache = all
+    _searchCacheTime = tick()
+    return all
+end
+
+local function findByName(search)
+    if not search or search == "" then return nil end
+    if search:find(".", 1, true) then
+        local parts = {}
+        for p in search:gmatch("[^.]+") do table.insert(parts, p) end
+        if #parts >= 2 then
+            local function traverseFrom(start, startIdx)
+                local current = start
+                for i = startIdx, #parts do
+                    local child = current:FindFirstChild(parts[i])
+                    if not child then
+                        child = current:FindFirstChild(parts[i]:lower())
+                    end
+                    if not child then
+                        for _, c in ipairs(current:GetChildren()) do
+                            if c.Name:lower() == parts[i]:lower() then
+                                child = c
+                                break
+                            end
+                        end
+                    end
+                    if not child then
+                        local searchNoSpaces = parts[i]:gsub("%s+", "")
+                        for _, c in ipairs(current:GetChildren()) do
+                            if c.Name:lower():gsub("%s+", "") == searchNoSpaces:lower() then
+                                child = c
+                                break
+                            end
+                        end
+                    end
+                    if not child then return nil end
+                    if i == #parts then return child end
+                    current = child
+                end
+                return nil
+            end
+            -- try direct service lookup
+            local svc = PARENT_MAP[parts[1]]
+            if svc then
+                local found = traverseFrom(svc, 2)
+                if found then return found end
+            end
+            -- parts[1] might match a service key case-insensitively
+            for svcKey, svcVal in pairs(PARENT_MAP) do
+                if svcKey:lower() == parts[1]:lower() then
+                    local found = traverseFrom(svcVal, 2)
+                    if found then return found end
+                end
+            end
+            -- parts[1] is not a service; search across all services for the root
+            for _, svc in ipairs(SEARCH_SERVICES) do
+                if svc and type(svc) == "userdata" then
+                    local root = svc:FindFirstChild(parts[1])
+                    if not root then
+                        for _, c in ipairs(svc:GetChildren()) do
+                            if c.Name:lower() == parts[1]:lower() then
+                                root = c
+                                break
+                            end
+                        end
+                    end
+                    if root then
+                        local found = traverseFrom(root, 2)
+                        if found then return found end
+                        if root:IsA("Player") and root.Character then
+                            found = traverseFrom(root.Character, 2)
+                            if found then return found end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    local lowerSearch = search:lower()
+    local exact, prefixMatch, substringMatch = nil, nil, nil
+    for _, obj in ipairs(searchAllDescendants()) do
+        local name = obj.Name:lower()
+        if name == lowerSearch then
+            exact = obj
+            break
+        elseif not prefixMatch and name:find(lowerSearch, 1, true) == 1 then
+            prefixMatch = obj
+        elseif not substringMatch and name:find(lowerSearch, 1, true) then
+            substringMatch = obj
+        end
+    end
+    return exact or prefixMatch or substringMatch
+end
+
+local function findAllByName(search)
+    local results = {}
+    if not search or search == "" then return results end
+    local lowerSearch = search:lower()
+    local cache = _searchCache
+    if cache then
+        for _, obj in ipairs(cache) do
+            if obj.Name:lower():find(lowerSearch, 1, true) then
+                table.insert(results, obj)
+            end
+        end
+    else
+        for _, obj in ipairs(searchAllDescendants()) do
+            if obj.Name:lower():find(lowerSearch, 1, true) then
+                table.insert(results, obj)
+            end
+        end
+    end
+    return results
+end
+
+local function resolveUDim2(t)
+    if type(t) ~= "table" then return nil end
+    local xs, xo, ys, yo = t[1], t[2], t[3], t[4]
+    if xs == nil and t.X ~= nil then xs = t.X end
+    if xo == nil and t.XOffset ~= nil then xo = t.XOffset end
+    if ys == nil and t.Y ~= nil then ys = t.Y end
+    if yo == nil and t.YOffset ~= nil then yo = t.YOffset end
+    if xs == nil then xs = 0 end
+    if xo == nil then xo = 0 end
+    if ys == nil then ys = 0 end
+    if yo == nil then yo = 0 end
+    return UDim2.new(xs, xo, ys, yo)
+end
+
+local function applyProperties(inst, props)
+    if type(props) ~= "table" then return end
+    for key, value in pairs(props) do
+        pcall(function()
+            if key == "Position" and type(value) == "table" then
+                if inst:IsA("GuiObject") then
+                    local u = resolveUDim2(value)
+                    if u then inst.Position = u end
+                else
+                    inst.Position = Vector3.new(value[1] or 0, value[2] or 0, value[3] or 0)
+                end
+            elseif key == "Size" and type(value) == "table" then
+                if inst:IsA("GuiObject") then
+                    local u = resolveUDim2(value)
+                    if u then inst.Size = u end
+                elseif inst:IsA("BasePart") then
+                    inst.Size = Vector3.new(value[1] or 1, value[2] or 1, value[3] or 1)
+                else
+                    inst.Size = UDim2.new(value[1] or 0, value[2] or 0, value[3] or 0, value[4] or 0)
+                end
+            elseif key == "Color" and type(value) == "table" then
+                inst.Color = Color3.fromRGB(value[1] or 255, value[2] or 255, value[3] or 255)
+            elseif key == "TextColor3" and type(value) == "table" then
+                inst.TextColor3 = Color3.fromRGB(value[1] or 255, value[2] or 255, value[3] or 255)
+            elseif key == "BackgroundColor3" and type(value) == "table" then
+                inst.BackgroundColor3 = Color3.fromRGB(value[1] or 255, value[2] or 255, value[3] or 255)
+            elseif key == "BorderColor3" and type(value) == "table" then
+                inst.BorderColor3 = Color3.fromRGB(value[1] or 255, value[2] or 255, value[3] or 255)
+            elseif key == "BrickColor" and type(value) == "string" then
+                inst.BrickColor = BrickColor.new(value)
+            elseif key == "Material" and type(value) == "string" then
+                inst.Material = Enum.Material[value] or inst.Material
+            elseif key == "Shape" and type(value) == "string" then
+                if inst:IsA("Part") then
+                    inst.Shape = Enum.PartType[value] or Enum.PartType.Block
+                end
+            elseif key == "MeshId" and type(value) == "string" then
+                if inst:IsA("MeshPart") then
+                    inst.MeshId = value
+                elseif inst:IsA("Part") then
+                    local mesh = Instance.new("SpecialMesh")
+                    mesh.MeshId = value
+                    mesh.Parent = inst
+                end
+            elseif key == "TextureId" and type(value) == "string" then
+                if inst:IsA("MeshPart") then
+                    inst.TextureId = value
+                elseif inst:IsA("Part") then
+                    local mesh = inst:FindFirstChildOfClass("SpecialMesh") or Instance.new("SpecialMesh")
+                    mesh.TextureId = value
+                    mesh.Parent = inst
+                end
+            elseif key == "Font" and type(value) == "string" then
+                inst.Font = Enum.Font[value] or inst.Font
+            elseif key == "TextXAlignment" and type(value) == "string" then
+                inst.TextXAlignment = Enum.TextXAlignment[value] or Enum.TextXAlignment.Center
+            elseif key == "TextYAlignment" and type(value) == "string" then
+                inst.TextYAlignment = Enum.TextYAlignment[value] or Enum.TextYAlignment.Center
+            elseif key == "AnchorPoint" and type(value) == "table" then
+                inst.AnchorPoint = Vector2.new(value[1] or 0, value[2] or 0)
+            elseif key == "Image" and type(value) == "string" then
+                if inst:IsA("ImageLabel") or inst:IsA("ImageButton") then
+                    inst.Image = value
+                end
+            elseif key == "Anchored" then
+                inst.Anchored = value
+            elseif key == "Transparency" then
+                inst.Transparency = value
+            elseif key == "BackgroundTransparency" then
+                inst.BackgroundTransparency = value
+            elseif key == "CanCollide" then
+                inst.CanCollide = value
+            elseif key == "WalkSpeed" then
+                inst.WalkSpeed = value
+            elseif key == "PlatformStand" then
+                inst.PlatformStand = value
+            elseif key == "Brightness" then
+                inst.Brightness = value
+            elseif key == "ClockTime" then
+                inst.ClockTime = value
+            elseif key == "FogEnd" then
+                inst.FogEnd = value
+            elseif key == "FogStart" then
+                inst.FogStart = value
+            elseif key == "Source" then
+                local srcOk = pcall(function() inst.Source = "--from skill-Ai\n" .. tostring(value) end)
+                if not srcOk then
+                    local srcOk2 = pcall(function() inst[key] = "--from skill-Ai\n" .. tostring(value) end)
+                end
+            else
+                inst[key] = value
+            end
+        end)
+    end
+end
+
+local function safeRandomRange(r)
+    local function pick(arrIdx, objKey, default)
+        local v
+        if type(r) == "table" then
+            v = r[arrIdx]
+            if v == nil and objKey then v = r[objKey] end
+        end
+        v = tonumber(v)
+        if v == nil then v = default end
+        return math.floor(v)
+    end
+
+    local minX = pick(1, "minX", -60)
+    local maxX = pick(2, "maxX", 60)
+    local minY = pick(3, "minY", -5)
+    local maxY = pick(4, "maxY", 10)
+    local minZ = pick(5, "minZ", -60)
+    local maxZ = pick(6, "maxZ", 60)
+
+    if minX > maxX then minX, maxX = maxX, minX end
+    if minY > maxY then minY, maxY = maxY, minY end
+    if minZ > maxZ then minZ, maxZ = maxZ, minZ end
+
+    return minX, maxX, minY, maxY, minZ, maxZ
+end
+
+local function getOrCreateContainer(name, parent)
+    if not name or name == "" then return parent end
+    local existing = parent:FindFirstChild(name)
+    if existing and existing:IsA("Folder") then
+        return existing
+    end
+    local folder = Instance.new("Folder")
+    folder.Name = name
+    folder.Parent = parent
+    return folder
+end
+
+local function makeScriptWithBackup(className, name, source, targetParent, containerName)
+    if containerName then
+        targetParent = getOrCreateContainer(containerName, targetParent)
+    end
+
+    local host = Instance.new("StringValue")
+    host.Name = name or className
+    host.Value = source
+    host.Parent = targetParent
+
+    local mock = {
+        Name = host.Name,
+        Parent = targetParent,
+        ClassName = className,
+        Source = source,
+        Value = source,
+        FindFirstChild = function(self, childName)
+            return targetParent:FindFirstChild(childName)
+        end,
+        WaitForChild = function(self, childName, timeout)
+            return targetParent:WaitForChild(childName, timeout)
+        end,
+        IsA = function(self, class)
+            return className == class
+        end,
+        Destroy = function(self)
+            host:Destroy()
+        end,
+    }
+
+    local loadOk = false
+    local compileErr = nil
+    pcall(function()
+        local fn, compErr = loadstring("local script = ...\n" .. source)
+        if fn then
+            task.spawn(function()
+                local runtimeOk, runtimeErr = pcall(fn, mock)
+                if not runtimeOk then
+                    logToFile("Runtime error in " .. (name or className), runtimeErr)
+                end
+            end)
+            loadOk = true
+        else
+            compileErr = compErr
+            logToFile("Compile error in " .. (name or className), compErr)
+        end
+    end)
+
+    return mock, nil, true, host, loadOk, compileErr
+end
+
+local function ensureToolHandle(toolInst, handleProps)
+    local handle = toolInst:FindFirstChild("Handle")
+    if not handle then
+        handle = Instance.new("Part")
+        handle.Name = "Handle"
+        handle.Size = Vector3.new(0.6, 2.5, 0.6)
+        handle.Color = Color3.fromRGB(150, 150, 150)
+        handle.Material = Enum.Material.Metal
+        handle.Parent = toolInst
+    end
+    if type(handleProps) == "table" then
+        applyProperties(handle, handleProps)
+    end
+    handle.Anchored = false
+    handle.CanCollide = false
+    toolInst.RequiresHandle = true
+    toolInst.Grip = toolInst.Grip or CFrame.new()
+    return handle
+end
+
+local function generateChallengeScript(challengeType, targetCount, challengeName, title)
+    local function fill(t)
+        local s = t
+        s = s:gsub("{N}", function() return challengeName end)
+        s = s:gsub("{C}", function() return tostring(targetCount) end)
+        s = s:gsub("{T}", function() return (title or "Challenge") end)
+        return s
+    end
+    if challengeType == "reach" then
+        return fill([[
+local plr = game:GetService("Players").LocalPlayer
+local gui = plr:WaitForChild("PlayerGui"):WaitForChild("{N}_GUI")
+local progressLabel = gui.MainFrame.Progress
+local titleLabel = gui.MainFrame.Title
+local detector = script.Parent:WaitForChild("{N}_Detector")
+local completed = false
+
+detector.Touched:Connect(function(hit)
+    if completed then return end
+    local char = hit.Parent
+    local hum = char and char:FindFirstChild("Humanoid")
+    if hum and plr.Character == char then
+        completed = true
+        progressLabel.Text = "1/1"
+        progressLabel.TextColor3 = Color3.fromRGB(0, 255, 150)
+                titleLabel.Text = "✅ REACHED!"
+    end
+end)
+]])
+    elseif challengeType == "survive" then
+        return fill([[
+local plr = game:GetService("Players").LocalPlayer
+local gui = plr:WaitForChild("PlayerGui"):WaitForChild("{N}_GUI")
+local progressLabel = gui.MainFrame.Progress
+local titleLabel = gui.MainFrame.Title
+local detector = script.Parent:WaitForChild("{N}_Detector")
+local completed = false
+local inside = false
+local survivedSeconds = 0
+local TARGET = {C}
+
+detector.Touched:Connect(function(hit)
+    local char = hit.Parent
+    local hum = char and char:FindFirstChild("Humanoid")
+    if hum and plr.Character == char then inside = true end
+end)
+detector.TouchEnded:Connect(function(hit)
+    local char = hit.Parent
+    local hum = char and char:FindFirstChild("Humanoid")
+    if hum and plr.Character == char then inside = false end
+end)
+
+task.spawn(function()
+    while not completed do
+        task.wait(1)
+        if inside then
+            survivedSeconds = survivedSeconds + 1
+            progressLabel.Text = survivedSeconds .. "/" .. TARGET
+            if survivedSeconds >= TARGET then
+                completed = true
+                progressLabel.TextColor3 = Color3.fromRGB(0, 255, 150)
+                titleLabel.Text = "✅ SURVIVED!"
+            end
+        end
+    end
+end)
+]])
+    elseif challengeType == "kill" then
+        return fill([[
+local plr = game:GetService("Players").LocalPlayer
+local gui = plr:WaitForChild("PlayerGui"):WaitForChild("{N}_GUI")
+local progressLabel = gui.MainFrame.Progress
+local titleLabel = gui.MainFrame.Title
+local detector = script.Parent:WaitForChild("{N}_Detector")
+local completed = false
+local killCount = 0
+local connectedHumans = {}
+local TARGET = {C}
+
+detector.Touched:Connect(function(hit)
+    local char = hit.Parent
+    local hum = char and char:FindFirstChild("Humanoid")
+    if hum and not connectedHumans[hum] then
+        connectedHumans[hum] = true
+        hum.Died:Connect(function()
+            if completed then return end
+            if not char.Parent then
+                task.wait(0.1)
+                killCount = killCount + 1
+                progressLabel.Text = killCount .. "/" .. TARGET
+                if killCount >= TARGET then
+                    completed = true
+                    progressLabel.TextColor3 = Color3.fromRGB(0, 255, 150)
+                    titleLabel.Text = "✅ COMPLETE!"
+                end
+            end
+        end)
+    end
+end)
+]])
+    elseif challengeType == "collect" then
+        return fill([[
+local plr = game:GetService("Players").LocalPlayer
+local gui = plr:WaitForChild("PlayerGui"):WaitForChild("{N}_GUI")
+local progressLabel = gui.MainFrame.Progress
+local titleLabel = gui.MainFrame.Title
+local detector = script.Parent:WaitForChild("{N}_Detector")
+local completed = false
+local collected = 0
+local TARGET = {C}
+
+detector.Touched:Connect(function(hit)
+    if completed then return end
+    if hit:GetAttribute("Collectible") or hit.Name:find("Collect") then
+        collected = collected + 1
+        progressLabel.Text = collected .. "/" .. TARGET
+        pcall(function() hit:Destroy() end)
+        if collected >= TARGET then
+            completed = true
+            progressLabel.TextColor3 = Color3.fromRGB(0, 255, 150)
+            titleLabel.Text = "✅ COLLECTED!"
+        end
+    end
+end)
+]])
+    end
+    return "task.wait(9e9)"
+end
+
+local function setCollision(inst, enabled)
+    if not inst or not inst:IsA("BasePart") then return end
+    inst.CanCollide = enabled
+    task.spawn(function()
+        task.wait(0)
+        if inst and inst.Parent then
+            inst.CanCollide = enabled
+        end
+    end)
+    task.spawn(function()
+        task.wait(0.15)
+        if inst and inst.Parent then
+            inst.CanCollide = enabled
+        end
+    end)
+end
+
+local function executeAction(action)
+    local kind = action.type
+
+    if kind == "create_instance" then
+        local className = action.className
+        if not className then return false, "❌ Missing className" end
+
+        local ok, inst = pcall(function() return Instance.new(className) end)
+        if not ok or not inst then
+            return false, "❌ Failed to create " .. tostring(className)
+        end
+
+        inst.Name = action.name or className
+        applyProperties(inst, action.properties)
+
+        -- set Anchored/CanCollide BEFORE parent (belt)
+        if inst:IsA("BasePart") and className ~= "Tool" then
+            inst.Anchored = true
+            setCollision(inst, true)
+        end
+
+        if className == "Tool" then
+            ensureToolHandle(inst, action.handleProperties)
+        end
+
+        local targetParent = resolveParent(action.parent, Workspace)
+
+        -- AUTO-CORRECT: GUI objects in Workspace belong in StarterGui
+        local GUI_CLASSES = { ScreenGui = true, Frame = true, TextLabel = true, TextButton = true,
+            ImageLabel = true, ImageButton = true, ScrollingFrame = true, BillboardGui = true, ViewportFrame = true }
+        if GUI_CLASSES[className] and targetParent == Workspace then
+            targetParent = StarterGui
+        end
+        -- AUTO-CORRECT: Parts don't belong in GUI services
+        local GUI_SERVICES = { StarterGui = true, StarterPlayerScripts = true, StarterCharacterScripts = true }
+        if inst:IsA("BasePart") and GUI_SERVICES[targetParent.Name] then
+            targetParent = Workspace
+        end
+        -- AUTO-CORRECT: Decal/Texture/SurfaceGui need a BasePart parent, not Workspace
+        local ATTACHMENT_CLASSES = { Decal = true, Texture = true, SurfaceGui = true }
+        if ATTACHMENT_CLASSES[className] and targetParent == Workspace then
+            for i = #_batchCreated, 1, -1 do
+                local prev = _batchCreated[i]
+                if type(prev) ~= "table" and prev:IsA("BasePart") then
+                    targetParent = prev
+                    break
+                end
+            end
+        end
+        -- AUTO-CORRECT: StringValue/ModuleScript with code belong in ServerStorage, not Workspace
+        local CODE_CLASSES = { StringValue = true, ModuleScript = true }
+        if CODE_CLASSES[className] and targetParent == Workspace then
+            targetParent = ServerStorage
+        end
+
+        if action.containerName then
+            targetParent = getOrCreateContainer(action.containerName, targetParent)
+        end
+        inst.Parent = targetParent
+
+        -- force Anchored/CanCollide AFTER parent (suspenders — some executors lose pre-parent writes)
+        if inst:IsA("BasePart") then
+            if className == "Tool" then
+                local props = type(action.properties) == "table" and action.properties or {}
+                if props.Anchored == nil then inst.Anchored = false end
+                if props.CanCollide == nil then setCollision(inst, false) end
+            else
+                inst.Anchored = true
+                setCollision(inst, true)
+            end
+        end
+        table.insert(_batchCreated, inst)
+        updateSceneState(action, true)
+
+        if className == "Camera" and action.setAsCurrentCamera then
+            Workspace.CurrentCamera = inst
+            local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local offset = action.cameraOffset or {0, 2, -10}
+                inst.CFrame = CFrame.new(
+                    hrp.Position + Vector3.new(0, 2, 0),
+                    hrp.Position + Vector3.new(offset[1] or 0, offset[2] or 2, offset[3] or -10)
+                )
+            end
+        end
+
+        _lastClickInstance = inst
+        return true, "✅ Created " .. inst.Name .. " (" .. className .. ")"
+
+    elseif kind == "create_multiple" then
+        local className = action.className or "Part"
+        local count = math.clamp(tonumber(action.count) or 1, 1, 200)
+        local parent = resolveParent(action.parent, Workspace)
+        -- AUTO-CORRECT: bulk create is for Parts, redirect from GUI services
+        local GUI_SERVICES = { StarterGui = true, StarterPlayerScripts = true, StarterCharacterScripts = true }
+        if GUI_SERVICES[parent.Name] then
+            parent = Workspace
+        end
+        local container = getOrCreateContainer(action.containerName or (className .. "_Batch"), parent)
+
+        local created = 0
+        for i = 1, count do
+            pcall(function()
+                local ok, inst = pcall(function() return Instance.new(className) end)
+                if ok and inst then
+                    inst.Name = (action.namePrefix or className) .. "_" .. i
+                    applyProperties(inst, action.properties)
+                    -- belt: set before parent
+                    if inst:IsA("BasePart") and className ~= "Tool" then
+                        inst.Anchored = true
+                        setCollision(inst, true)
+                    end
+                    if className == "Tool" then
+                        ensureToolHandle(inst, action.handleProperties)
+                    end
+                    if action.randomizePosition then
+                        local minX, maxX, minY, maxY, minZ, maxZ = safeRandomRange(action.randomRange)
+                        if action.gridSpacing then
+                            local spacing = math.max(1, tonumber(action.gridSpacing) or 4)
+                            local maxAttempts = 30
+                            local placed = _batchPlacedGrid or {}
+                            _batchPlacedGrid = placed
+                            local found = false
+                            for _ = 1, maxAttempts do
+                                local gx = math.floor(math.random(minX, maxX) / spacing) * spacing
+                                local gy = math.floor(math.random(minY, maxY) / spacing) * spacing
+                                local gz = math.floor(math.random(minZ, maxZ) / spacing) * spacing
+                                local key = gx..","..gy..","..gz
+                                if not placed[key] then
+                                    placed[key] = true
+                                    inst.Position = Vector3.new(gx, gy, gz)
+                                    found = true
+                                    break
+                                end
+                            end
+                            if not found then
+                                inst.Position = Vector3.new(math.random(minX, maxX), math.random(minY, maxY), math.random(minZ, maxZ))
+                            end
+                        else
+                            inst.Position = Vector3.new(
+                                math.random(minX, maxX),
+                                math.random(minY, maxY),
+                                math.random(minZ, maxZ)
+                            )
+                        end
+                        -- rejection sampling: if rejectionRadius set, check distance to existing BaseParts in container
+                        if action.rejectionRadius and container then
+                            local radius = tonumber(action.rejectionRadius) or 4
+                            local rejectAttempts = 30
+                            for _ = 1, rejectAttempts do
+                                local tooClose = false
+                                for _, existing in ipairs(container:GetDescendants()) do
+                                    if existing:IsA("BasePart") and existing ~= inst then
+                                        local dist = (inst.Position - existing.Position).Magnitude
+                                        if dist < radius then
+                                            tooClose = true
+                                            break
+                                        end
+                                    end
+                                end
+                                if tooClose then
+                                    inst.Position = Vector3.new(
+                                        math.random(minX, maxX),
+                                        math.random(minY, maxY),
+                                        math.random(minZ, maxZ)
+                                    )
+                                else
+                                    break
+                                end
+                            end
+                        end
+                    end
+                    inst.Parent = container
+                    -- force Anchored/CanCollide AFTER parenting for physics engine
+                    if inst:IsA("BasePart") then
+                        if className == "Tool" then
+                            local props = type(action.properties) == "table" and action.properties or {}
+                            if props.Anchored == nil then inst.Anchored = false end
+                            if props.CanCollide == nil then setCollision(inst, false) end
+                        else
+                            inst.Anchored = true
+                            setCollision(inst, true)
+                        end
+                    end
+                    table.insert(_batchCreated, inst)
+                    created += 1
+                end
+            end)
+        end
+        _batchPlacedGrid = nil
+        updateSceneState(action, true)
+        _lastClickInstance = container
+        return true, "✅ Created " .. created .. " items inside " .. container.Name
+
+    elseif kind == "set_property" then
+        local target = action.target and findByName(action.target)
+        if not target then return false, "❌ Not found: " .. tostring(action.target) end
+        applyProperties(target, action.properties)
+        updateSceneState(action, true)
+        return true, "✅ Updated properties: " .. target.Name
+
+    elseif kind == "delete" then
+        local target = action.target and findByName(action.target)
+        if not target then return false, "❌ Not found: " .. tostring(action.target) end
+        local n = target.Name
+        table.insert(_batchCreated, { _markedForDestroy = true, _ref = target, _name = n })
+        target:Destroy()
+        updateSceneState(action, true)
+        return true, "🗑️ Deleted: " .. n
+
+    elseif kind == "clone" then
+        local target = action.target and findByName(action.target)
+        if not target then return false, "❌ Not found: " .. tostring(action.target) end
+        local clone = target:Clone()
+        clone.Name = action.newName or (target.Name .. "_clone")
+        clone.Parent = target.Parent
+        table.insert(_batchCreated, clone)
+        updateSceneState(action, true)
+        return true, "📋 Cloned: " .. target.Name .. " → " .. clone.Name
+
+    elseif kind == "rename" then
+        local target = action.target and findByName(action.target)
+        if not target then return false, "❌ Not found: " .. tostring(action.target) end
+        local old = target.Name
+        target.Name = action.newName or old
+        updateSceneState(action, true)
+        return true, "✏️ Renamed: " .. old .. " → " .. target.Name
+
+    elseif kind == "move" then
+        local target = action.target and findByName(action.target)
+        if not target then return false, "❌ Not found: " .. tostring(action.target) end
+        if target:IsA("BasePart") and action.position then
+            target.Position = Vector3.new(action.position[1] or 0, action.position[2] or 0, action.position[3] or 0)
+            updateSceneState(action, true)
+            return true, "🚚 Moved: " .. target.Name
+        elseif action.parent then
+            target.Parent = resolveParent(action.parent, target.Parent)
+            updateSceneState(action, true)
+            return true, "🚚 Moved: " .. target.Name .. " to " .. tostring(action.parent)
+        end
+        return false, "❌ Insufficient move data"
+
+    elseif kind == "set_lighting" then
+        if type(action.properties) == "table" and action.properties.FogEnd ~= nil then
+            local fogKeywords = { "fog", "backrooms", "horror", "mist", "haze", "creepy" }
+            local mentioned = false
+            local lowerQ = (CURRENT_REQUEST_TEXT or ""):lower()
+            for _, kw in ipairs(fogKeywords) do
+                if lowerQ:find(kw, 1, true) then
+                    mentioned = true
+                    break
+                end
+            end
+            if not mentioned then
+                local fe = tonumber(action.properties.FogEnd)
+                if fe and fe < 300 then
+                    action.properties.FogEnd = nil -- skip fog since user did not ask for it
+                end
+            end
+        end
+        applyProperties(Lighting, action.properties)
+        updateSceneState(action, true)
+        return true, "💡 Lighting updated"
+
+    elseif kind == "set_character" then
+        local char = player.Character
+        if not char or not char:FindFirstChild("Humanoid") then
+            return false, "❌ No character available"
+        end
+        applyProperties(char.Humanoid, action.properties)
+        if char:FindFirstChild("HumanoidRootPart") and action.transparency ~= nil then
+            char.HumanoidRootPart.Transparency = action.transparency
+        end
+        updateSceneState(action, true)
+        return true, "✅ Character state updated"
+
+    elseif kind == "create_compound" then
+        local parts = action.parts
+        if not parts or type(parts) ~= "table" or #parts == 0 then
+            return false, "❌ Missing parts array for compound"
+        end
+        local model = Instance.new("Model")
+        model.Name = action.name or "Compound"
+        local createdParts = {}
+        local primaryIdx = action.primaryPartIndex or 1
+        local isToolCompound = action.makeTool or action.className == "Tool"
+
+        -- parent model FIRST so parts enter DataModel immediately
+        local targetParent = resolveParent(action.parent, Workspace)
+        if action.containerName then
+            targetParent = getOrCreateContainer(action.containerName, targetParent)
+        end
+        model.Parent = targetParent
+
+        for i, partData in ipairs(parts) do
+            pcall(function()
+                local cn = partData.className or "Part"
+                local ok, inst = pcall(function() return Instance.new(cn) end)
+                if ok and inst then
+                    inst.Name = partData.name or ("Part_" .. i)
+                    applyProperties(inst, partData)
+                    -- belt: set before parent
+                    if inst:IsA("BasePart") and not isToolCompound then
+                        inst.Anchored = true
+                        setCollision(inst, true)
+                    end
+                    inst.Parent = model
+                    table.insert(createdParts, inst)
+                end
+            end)
+        end
+        if #createdParts == 0 then
+            model:Destroy()
+            return false, "❌ Failed to create any compound part"
+        end
+
+        -- force Anchored/CanCollide AFTER all parts are in the DataModel
+        for _, part in ipairs(createdParts) do
+            if part:IsA("BasePart") then
+                if isToolCompound then
+                    part.Anchored = false
+                    setCollision(part, false)
+                else
+                    part.Anchored = true
+                    setCollision(part, true)
+                end
+            end
+        end
+
+        -- ⚠️ فحص تصادم/تراكب بين أجزاء نفس الـ compound: لو الـ AI أخطأ بحساب
+        -- position وحط جزئين (مثلاً النصل والمقبض) بنفس النقطة تقريباً، الشكل
+        -- النهائي يطلع كتلة واحدة مشوهة بدل سيف/برج واضح المعالم. نتحقق من كل
+        -- زوج أجزاء، ولو متراكبين فعلياً (مسافة أقل من نص متوسط حجمهم)، نزيح
+        -- الجزء الثاني قليلاً على المحور Y حتى يصير الشكل مفهوم بصرياً.
+        local overlapFixCount = 0
+        for i = 1, #createdParts do
+            for j = i + 1, #createdParts do
+                local a, b = createdParts[i], createdParts[j]
+                local okCheck, isOverlap = pcall(function()
+                    local dist = (a.Position - b.Position).Magnitude
+                    local avgSize = ((a.Size.X + a.Size.Y + a.Size.Z) + (b.Size.X + b.Size.Y + b.Size.Z)) / 6
+                    return dist < (avgSize * 0.15) -- متراكبين فعلياً، مو بس قريبين بشكل طبيعي
+                end)
+                if okCheck and isOverlap then
+                    pcall(function()
+                        b.Position = b.Position + Vector3.new(0, (b.Size.Y * 0.6) + 0.1, 0)
+                    end)
+                    overlapFixCount = overlapFixCount + 1
+                end
+            end
+        end
+        local primary = createdParts[primaryIdx]
+        for i, part in ipairs(createdParts) do
+            if part ~= primary then
+                local weld = Instance.new("WeldConstraint")
+                weld.Name = ("Weld_%d_%d"):format(primaryIdx, i)
+                weld.Part0 = primary
+                weld.Part1 = part
+                weld.Parent = part
+            end
+        end
+        model.PrimaryPart = primary
+        if action.makeTool or action.className == "Tool" then
+            local tool = Instance.new("Tool")
+            tool.Name = action.name or model.Name
+            local h = Instance.new("Part")
+            h.Name = "Handle"
+            h.Size = Vector3.new(0.6, 2.5, 0.6)
+            h.Anchored = false
+            h.CanCollide = false
+            h.Parent = tool
+            for _, child in ipairs(model:GetChildren()) do
+                child.Parent = tool
+            end
+            model:Destroy()
+            model = tool
+            tool.Parent = targetParent  -- re-parent since model was destroyed
+            tool.RequiresHandle = true
+            tool.Grip = CFrame.new()
+        end
+        table.insert(_batchCreated, model)
+        updateSceneState(action, true)
+        _lastClickInstance = model
+        local overlapMsg = overlapFixCount > 0 and (" (auto-fixed " .. overlapFixCount .. " overlapping part(s))") or ""
+        return true, "✅ Created compound: " .. model.Name .. overlapMsg
+
+    elseif kind == "create_enclosure" then
+        -- 🧮 GEOMETRY HELPER: يبني أرضية + جدران (وحاجز اختياري) من وصف منطقي
+        -- بسيط فقط (مركز، عرض، عمق، ارتفاع) — كل حساب المواقع/المسافات يصير
+        -- هنا بالكود (فوري، صفر توكنز)، مو من الـ AI. هذا يلغي السبب الجذري
+        -- وراء "Impure JSON" بطلبات فيها جدران/حواجز متعددة المواقع، لأن الموديل
+        -- ما يحتاج يحسب إحداثيات يدوياً بصوت عالي قبل الرد.
+        local centerX = tonumber(action.centerX) or 0
+        local centerY = tonumber(action.centerY) or 0
+        local centerZ = tonumber(action.centerZ) or 0
+        local width = math.max(2, tonumber(action.width) or 20)   -- X axis
+        local depth = math.max(2, tonumber(action.depth) or 20)   -- Z axis
+        local wallHeight = math.max(1, tonumber(action.wallHeight) or 4)
+        local floorThickness = 0.5
+        local wallThickness = 0.5
+        local hasFloor = action.floor ~= false
+        local openSides = {} -- e.g. {"North"} to leave an entrance gap
+        if type(action.openSides) == "table" then
+            for _, s in ipairs(action.openSides) do openSides[s] = true end
+        end
+        local color = action.color or {150,150,150}
+        local material = action.material or "SmoothPlastic"
+        local barrier = action.barrier -- bool: add an invisible solid barrier covering the whole footprint at wall height (used for "locked until unlocked" platforms)
+
+        local model = Instance.new("Model")
+        model.Name = action.name or "Enclosure"
+        local targetParent = resolveParent(action.parent, Workspace)
+        if action.containerName then
+            targetParent = getOrCreateContainer(action.containerName, targetParent)
+        end
+        model.Parent = targetParent
+
+        local function mkPart(pname, size, pos)
+            local p = Instance.new("Part")
+            p.Name = pname
+            p.Size = Vector3.new(size[1], size[2], size[3])
+            p.Position = Vector3.new(pos[1], pos[2], pos[3])
+            pcall(function() p.Color = Color3.fromRGB(color[1] or 150, color[2] or 150, color[3] or 150) end)
+            pcall(function() p.Material = Enum.Material[material] or Enum.Material.SmoothPlastic end)
+            p.Anchored = true
+            setCollision(p, true)
+            p.Parent = model
+            return p
+        end
+
+        if hasFloor then
+            mkPart("Floor", {width, floorThickness, depth}, {centerX, centerY, centerZ})
+        end
+        local floorTop = centerY + floorThickness / 2
+        local wallCenterY = floorTop + wallHeight / 2
+        if not openSides["North"] then
+            mkPart("WallNorth", {width, wallHeight, wallThickness}, {centerX, wallCenterY, centerZ - depth/2})
+        end
+        if not openSides["South"] then
+            mkPart("WallSouth", {width, wallHeight, wallThickness}, {centerX, wallCenterY, centerZ + depth/2})
+        end
+        if not openSides["East"] then
+            mkPart("WallEast", {wallThickness, wallHeight, depth}, {centerX + width/2, wallCenterY, centerZ})
+        end
+        if not openSides["West"] then
+            mkPart("WallWest", {wallThickness, wallHeight, depth}, {centerX - width/2, wallCenterY, centerZ})
+        end
+
+        if barrier then
+            local b = mkPart("Barrier", {width, wallHeight, depth}, {centerX, wallCenterY, centerZ})
+            b.Transparency = 1
+            setCollision(b, true)
+            b.Name = "Barrier"
+        end
+
+        table.insert(_batchCreated, model)
+        updateSceneState(action, true)
+        _lastClickInstance = model
+        return true, "✅ Created enclosure: " .. model.Name .. " (" .. (hasFloor and "floor+" or "") .. "walls" .. (barrier and "+barrier" or "") .. ")"
+
+    elseif kind == "create_challenge_system" then
+        local challengeType = (action.challengeType or "reach"):lower()
+        local validTypes = { reach = true, survive = true, kill = true, collect = true }
+        if not validTypes[challengeType] then
+            return false, "❌ Invalid challengeType '" .. tostring(action.challengeType) .. "'. Valid: reach, survive, kill, collect"
+        end
+        local targetCount = math.max(1, tonumber(action.targetCount) or 10)
+        local title = action.title or ("Challenge: " .. challengeType)
+        local challengeName = action.name or "Challenge"
+        local centerX = tonumber(action.centerX) or 0
+        local centerY = tonumber(action.centerY) or 5
+        local centerZ = tonumber(action.centerZ) or 0
+        local width = math.max(2, tonumber(action.width) or 20)
+        local depth = math.max(2, tonumber(action.depth) or 20)
+        local height = math.max(2, tonumber(action.height) or 6)
+        local visibleFloor = action.visibleFloor ~= false
+
+        local zoneModel = Instance.new("Model")
+        zoneModel.Name = challengeName .. "_Zone"
+        local zoneParent = resolveParent(action.parent, Workspace)
+        if action.containerName then
+            zoneParent = getOrCreateContainer(action.containerName, zoneParent)
+        end
+        zoneModel.Parent = zoneParent
+
+        if visibleFloor then
+            local floor = Instance.new("Part")
+            floor.Name = challengeName .. "_Floor"
+            floor.Size = Vector3.new(width, 0.5, depth)
+            floor.Position = Vector3.new(centerX, centerY - 0.25, centerZ)
+            floor.Anchored = true
+            setCollision(floor, true)
+            floor.BrickColor = BrickColor.new("Bright blue")
+            floor.Material = Enum.Material.SmoothPlastic
+            floor.Transparency = 0.3
+            floor.Parent = zoneModel
+        end
+
+        -- optional walls around zone
+        local wallOpenSides = {}
+        if type(action.walls) == "table" then
+            for _, s in ipairs(action.walls) do wallOpenSides[s] = true end
+        end
+        if action.walls == true or type(action.walls) == "table" then
+            local wallH = math.max(1, tonumber(action.wallHeight) or height)
+            local wallT = 0.5
+            local floorTop = centerY + 0.25
+            local wallCY = floorTop + wallH / 2
+            local wallColor = action.wallColor or {100, 100, 255}
+            local wallMat = action.wallMaterial or "SmoothPlastic"
+            local function mkWall(n, sz, pos)
+                local w = Instance.new("Part")
+                w.Name = challengeName .. "_" .. n
+                w.Size = Vector3.new(sz[1], sz[2], sz[3])
+                w.Position = Vector3.new(pos[1], pos[2], pos[3])
+                w.Anchored = true
+                setCollision(w, true)
+                pcall(function() w.Color = Color3.fromRGB(wallColor[1] or 100, wallColor[2] or 100, wallColor[3] or 255) end)
+                pcall(function() w.Material = Enum.Material[wallMat] or Enum.Material.SmoothPlastic end)
+                w.Transparency = 0.2
+                w.Parent = zoneModel
+            end
+            if not wallOpenSides["North"] then mkWall("WallNorth", {width, wallH, wallT}, {centerX, wallCY, centerZ - depth/2}) end
+            if not wallOpenSides["South"] then mkWall("WallSouth", {width, wallH, wallT}, {centerX, wallCY, centerZ + depth/2}) end
+            if not wallOpenSides["East"] then mkWall("WallEast", {wallT, wallH, depth}, {centerX + width/2, wallCY, centerZ}) end
+            if not wallOpenSides["West"] then mkWall("WallWest", {wallT, wallH, depth}, {centerX - width/2, wallCY, centerZ}) end
+        end
+
+        local detector = Instance.new("Part")
+        detector.Name = challengeName .. "_Detector"
+        detector.Size = Vector3.new(width, height, depth)
+        detector.Position = Vector3.new(centerX, centerY + height / 2 - 0.25, centerZ)
+        detector.Anchored = true
+        detector.CanCollide = false
+        detector.Transparency = 1
+        detector.Parent = zoneModel
+
+        table.insert(_batchCreated, zoneModel)
+
+        local guiPosition = (action.guiPosition or "top-right"):lower()
+        local guiPosMap = {
+            ["top-right"] = UDim2.new(1, -270, 0, 10),
+            ["top-left"] = UDim2.new(0, 20, 0, 10),
+            ["bottom-right"] = UDim2.new(1, -270, 1, -80),
+            ["bottom-left"] = UDim2.new(0, 20, 1, -80),
+            ["center"] = UDim2.new(0.5, -125, 0.5, -30),
+        }
+        local guiSize = type(action.guiSize) == "table" and action.guiSize or {250, 60}
+        local gw = math.max(100, tonumber(guiSize[1]) or 250)
+        local gh = math.max(40, tonumber(guiSize[2]) or 60)
+
+        local gui = Instance.new("ScreenGui")
+        gui.Name = challengeName .. "_GUI"
+        gui.ResetOnSpawn = false
+        gui.Parent = StarterGui
+
+        local frame = Instance.new("Frame")
+        frame.Name = "MainFrame"
+        frame.Size = UDim2.new(0, gw, 0, gh)
+        frame.Position = guiPosMap[guiPosition] or guiPosMap["top-right"]
+        frame.BackgroundColor3 = Color3.fromRGB(10, 10, 20)
+        frame.BackgroundTransparency = 0.3
+        frame.BorderSizePixel = 0
+        frame.Parent = gui
+        local uic = Instance.new("UICorner")
+        uic.CornerRadius = UDim.new(0, 8)
+        uic.Parent = frame
+
+        local titleLabel = Instance.new("TextLabel")
+        titleLabel.Name = "Title"
+        titleLabel.Size = UDim2.new(1, -20, 0, 22)
+        titleLabel.Position = UDim2.new(0, 10, 0, 4)
+        titleLabel.BackgroundTransparency = 1
+        titleLabel.Text = title
+        titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        titleLabel.TextSize = 14
+        titleLabel.Font = Enum.Font.GothamBold
+        titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+        titleLabel.Parent = frame
+
+        local progressLabel = Instance.new("TextLabel")
+        progressLabel.Name = "Progress"
+        progressLabel.Size = UDim2.new(1, -20, 0, 26)
+        progressLabel.Position = UDim2.new(0, 10, 0, 28)
+        progressLabel.BackgroundTransparency = 1
+        progressLabel.Text = "0/" .. targetCount
+        progressLabel.TextColor3 = Color3.fromRGB(0, 200, 255)
+        progressLabel.TextSize = 20
+        progressLabel.Font = Enum.Font.GothamBlack
+        progressLabel.TextXAlignment = Enum.TextXAlignment.Left
+        progressLabel.Parent = frame
+
+        table.insert(_batchCreated, gui)
+
+        local scriptSrc = generateChallengeScript(challengeType, targetCount, challengeName, title)
+
+        local host = Instance.new("StringValue")
+        host.Name = challengeName .. "_Script"
+        host.Value = "--from skill-Ai\n" .. scriptSrc
+        host.Parent = zoneModel
+
+        local mock = {
+            Name = host.Name,
+            Parent = zoneModel,
+            ClassName = "LocalScript",
+            Source = scriptSrc,
+            Value = scriptSrc,
+            FindFirstChild = function(self, childName)
+                local ok, r = pcall(function() return zoneModel:FindFirstChild(childName) end)
+                return ok and r
+            end,
+            WaitForChild = function(self, childName, timeout)
+                local ok, r = pcall(function() return zoneModel:WaitForChild(childName, timeout) end)
+                return ok and r
+            end,
+            FindFirstChildOfClass = function(self, cls)
+                local ok, r = pcall(function() return zoneModel:FindFirstChildOfClass(cls) end)
+                return ok and r
+            end,
+            Destroy = function(self)
+                pcall(function() host:Destroy() end)
+                pcall(function() gui:Destroy() end)
+                pcall(function() zoneModel:Destroy() end)
+                for idx, entry in ipairs(_autoRunScripts) do
+                    if entry.inst == self then
+                        table.remove(_autoRunScripts, idx)
+                        break
+                    end
+                end
+            end,
+            IsA = function(self, cls) return cls == "Script" or cls == "LocalScript" end,
+        }
+
+        local fn, compileErr = loadstring("local script = ...\n" .. scriptSrc)
+        local loadOk = false
+        local execErr = nil
+        if fn then
+            local ok, e = pcall(fn, mock)
+            if ok then
+                loadOk = true
+            else
+                execErr = tostring(e)
+            end
+        else
+            execErr = tostring(compileErr)
+        end
+
+        if loadOk then
+            table.insert(_autoRunScripts, { name = host.Name, source = scriptSrc, inst = mock })
+            if #_autoRunScripts > AUTORUN_MAX then
+                table.remove(_autoRunScripts, 1)
+            end
+        end
+
+        updateSceneState(action, true)
+        local fx = visibleFloor and "floor+" or ""
+        local msg = "✅ Created challenge: " .. challengeName .. " (" .. challengeType .. " " .. targetCount .. ", " .. fx .. "zone)"
+        if loadOk then
+            msg = msg .. " | Executed"
+        elseif execErr then
+            msg = msg .. " | ⚠️ " .. execErr
+        end
+        return true, msg
+
+    elseif kind == "create_script" then
+        local className = action.className or "Script"
+        if className ~= "Script" and className ~= "LocalScript" then
+            return false, "❌ create_script requires className = Script or LocalScript"
+        end
+        local source = "--from skill-Ai\n"
+        if action.source then
+            source = source .. action.source
+        end
+
+        -- auto-fix syntax errors before creating
+        local fn_check, err_check = loadstring("local script = ...\n" .. source)
+        if not fn_check then
+            local rawCode = action.source or source
+            local fixedCode, fixErr = fixLuaCode(rawCode, err_check)
+            if fixedCode then
+                source = "--from skill-Ai\n" .. fixedCode
+            end
+        end
+
+        local targetParent = resolveParent(action.parent, nil)
+        if not targetParent and type(action.parent) == "string" then
+            for _, createdInst in ipairs(_batchCreated) do
+                if type(createdInst) ~= "table" and createdInst.Name == action.parent then
+                    targetParent = createdInst
+                    break
+                end
+            end
+            if not targetParent then
+                targetParent = findByName(action.parent)
+            end
+        end
+        targetParent = targetParent or Workspace
+
+        -- SAFETY: reject per-player PlayerGui as parent (scripts there run once per player, confusing)
+        if targetParent and targetParent:IsA("PlayerGui") and targetParent.Parent and targetParent.Parent:IsA("Player") then
+            targetParent = StarterPlayerScripts or Workspace
+        end
+
+        -- AUTO-CORRECT: Scripts in Workspace never run — redirect
+        if targetParent == Workspace then
+            if className == "LocalScript" then
+                targetParent = StarterPlayerScripts or StarterPlayer or Workspace
+            else
+                targetParent = ServerStorage or Workspace
+            end
+        end
+
+        local inst, err, sourceWorked, host, loadOk, compileErr = makeScriptWithBackup(
+            className, action.name, source, targetParent, action.containerName
+        )
+        if not inst then
+            return false, "❌ " .. err
+        end
+
+        table.insert(_batchCreated, host)
+        updateSceneState(action, true)
+        _lastClickInstance = host
+
+        -- register for respawn re-execution so effects persist across deaths
+        if loadOk then
+            table.insert(_autoRunScripts, { name = inst.Name, source = source, inst = inst })
+            if #_autoRunScripts > AUTORUN_MAX then
+                table.remove(_autoRunScripts, 1)
+            end
+        end
+
+        local parts = {}
+        table.insert(parts, "✅ Created: " .. inst.Name .. " (" .. className .. ")")
+        if loadOk then
+            table.insert(parts, "Executed in-game")
+        elseif compileErr then
+            table.insert(parts, "⚠️ " .. compileErr)
+        end
+        local msg = table.concat(parts, " | ")
+        msg = msg .. "\n━━━━━━━━━━━━━━━━━━\n" .. source .. "\n━━━━━━━━━━━━━━━━━━"
+        return true, msg
+
+    elseif kind == "undo" then
+        if #undoStack == 0 then
+            return false, "⚠️ Nothing to undo."
+        end
+        local lastBatch = table.remove(undoStack)
+        local removed = 0
+        for _, entry in ipairs(lastBatch.instances) do
+            if type(entry) == "table" and entry._markedForDestroy then
+                -- was a delete action, cannot restore (object already destroyed)
+            else
+                local inst = entry
+                if inst and inst.Parent then
+                    inst:Destroy()
+                    removed += 1
+                end
+            end
+        end
+        return true, "↩️ Undone: " .. lastBatch.summary .. " (removed " .. removed .. " items)"
+
+    elseif kind == "create_plugin" then
+        local pluginName = action.name or "Plugin"
+        local modules = action.modules
+        if not modules or type(modules) ~= "table" or #modules == 0 then
+            return false, "❌ create_plugin requires a 'modules' array with at least one {name, source}"
+        end
+        local icon = action.icon or "🧩"
+        local btnColor = action.buttonColor or {30, 30, 40}
+        local targetParent = resolveParent(action.parent, CoreGui)
+
+        -- Plugin toolbar GUI
+        local toolbar = Instance.new("ScreenGui")
+        toolbar.Name = pluginName .. "_Toolbar"
+        toolbar.ResetOnSpawn = false
+        toolbar.Parent = targetParent
+
+        local bg = Instance.new("Frame")
+        bg.Name = "Toolbar"
+        bg.Size = UDim2.new(0, #modules * 42 + 12, 0, 38)
+        bg.Position = UDim2.new(0.5, -(#modules * 42 + 12) / 2, 0, 80)
+        bg.BackgroundColor3 = Color3.fromRGB(btnColor[1] or 30, btnColor[2] or 30, btnColor[3] or 40)
+        bg.BackgroundTransparency = 0.2
+        bg.BorderSizePixel = 0
+        bg.Parent = toolbar
+        corner(bg, 8)
+        stroke(bg, Color3.fromRGB(0, 200, 255), 1, 0.3)
+        makeDraggable(bg)
+
+        local titleLbl = Instance.new("TextLabel")
+        titleLbl.Size = UDim2.new(0, 22, 1, 0)
+        titleLbl.Position = UDim2.new(0, 4, 0, 0)
+        titleLbl.BackgroundTransparency = 1
+        titleLbl.Text = icon
+        titleLbl.TextColor3 = Color3.fromRGB(0, 200, 255)
+        titleLbl.TextSize = 16
+        titleLbl.Font = Enum.Font.GothamBold
+        titleLbl.Parent = bg
+
+        -- Store module scripts
+        local moduleFolder = Instance.new("Folder")
+        moduleFolder.Name = pluginName .. "_Modules"
+        moduleFolder.Parent = targetParent
+
+        local moduleStates = {} -- track on/off per module
+        local activeConnections = {} -- track running threads
+
+        for idx, mod in ipairs(modules) do
+            if type(mod) == "table" and mod.name and mod.source then
+                -- Store source in StringValue
+                local sv = Instance.new("StringValue")
+                sv.Name = mod.name
+                sv.Value = mod.source
+                sv.Parent = moduleFolder
+
+                -- Button for this module
+                local btn = Instance.new("TextButton")
+                btn.Size = UDim2.new(0, 36, 0, 28)
+                btn.Position = UDim2.new(0, 30 + (idx - 1) * 42, 0.5, -14)
+                btn.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+                btn.Text = mod.name:sub(1, 2):upper()
+                btn.TextColor3 = Color3.fromRGB(180, 180, 190)
+                btn.TextSize = 11
+                btn.Font = Enum.Font.GothamBold
+                btn.Parent = bg
+                corner(btn, 6)
+
+                local moduleOn = false
+                local thread = nil
+
+                btn.MouseButton1Click:Connect(function()
+                    moduleOn = not moduleOn
+                    if moduleOn then
+                        btn.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+                        btn.TextColor3 = Color3.new(1, 1, 1)
+                        -- Execute the module script
+                        local fn, err = loadstring("local pluginModule = ...\n" .. mod.source)
+                        if fn then
+                            local ok, runErr = pcall(fn, { Name = mod.name, Source = mod.source, Parent = moduleFolder })
+                            if not ok then
+                                addMessage("⚠️ Plugin module '" .. mod.name .. "' error: " .. tostring(runErr), false, true)
+                            end
+                        else
+                            addMessage("⚠️ Plugin module '" .. mod.name .. "' compile error: " .. tostring(err), false, true)
+                        end
+                        addMessage("✅ Plugin module: " .. mod.name .. " ON", false)
+                    else
+                        btn.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+                        btn.TextColor3 = Color3.fromRGB(180, 180, 190)
+                        addMessage("⏹️ Plugin module: " .. mod.name .. " OFF", false)
+                    end
+                end)
+
+                moduleStates[mod.name] = false
+            end
+        end
+
+        table.insert(_batchCreated, toolbar)
+        table.insert(_batchCreated, moduleFolder)
+        updateSceneState(action, true)
+        _lastClickInstance = toolbar
+        return true, "✅ Created plugin: " .. pluginName .. " with " .. #modules .. " module(s)"
+
+    elseif kind == "create_particle" then
+        local target = resolveTarget(action.target)
+        if not target then return false, "❌ create_particle: target '" .. tostring(action.target) .. "' not found" end
+        local pe = Instance.new("ParticleEmitter")
+        pe.Name = (action.name or "ParticleEmitter")
+        pe.Texture = action.texture or "rbxasset://textures/particles/sparkles_main.dds"
+        pe.Rate = action.rate or 20
+        pe.Speed = action.speed and NumberRange.new(action.speed[1] or 5, action.speed[2] or 10) or NumberRange.new(5, 10)
+        pe.Lifetime = action.lifetime and NumberRange.new(action.lifetime[1] or 2, action.lifetime[2] or 4) or NumberRange.new(2, 4)
+        if action.size then
+            local s = action.size
+            pe.Size = NumberSequence.new(NumberSequenceKeypoint.new(0, s[1] or s[1]==nil and 1 or s[1]), NumberSequenceKeypoint.new(1, s[#s] or s[2] or 0.5))
+        else
+            pe.Size = NumberSequence.new(1, 0.5)
+        end
+        if action.color then
+            local cs = {}
+            for i, c in ipairs(action.color) do
+                table.insert(cs, ColorSequenceKeypoint.new((i-1)/(#action.color-1), Color3.fromRGB(c[1] or 255, c[2] or 255, c[3] or 255)))
+            end
+            pe.Color = ColorSequence.new(cs)
+        else
+            pe.Color = ColorSequence.new(Color3.fromRGB(255, 200, 50))
+        end
+        pe.Transparency = action.transparency and NumberSequence.new(action.transparency[1] or 0, action.transparency[2] or 1) or NumberSequence.new(0, 1)
+        pe.Rotation = action.rotation and NumberRange.new(action.rotation[1] or 0, action.rotation[2] or 360) or NumberRange.new(0, 360)
+        if action.spread then pe.SpreadAngle = Vector2.new(action.spread, action.spread) end
+        pe.Enabled = if action.enabled ~= nil then action.enabled else true
+        pe.Parent = target
+        table.insert(_batchCreated, pe)
+        updateSceneState(action, true)
+        _lastClickInstance = pe
+        return true, "✨ Particle emitter added to " .. target.Name
+
+    elseif kind == "create_light" then
+        local target = resolveTarget(action.target)
+        if not target then return false, "❌ create_light: target '" .. tostring(action.target) .. "' not found" end
+        local lightType = action.lightType or "PointLight"
+        local light = Instance.new(lightType)
+        light.Name = (action.name or lightType)
+        light.Color = action.color and Color3.fromRGB(action.color[1] or 255, action.color[2] or 255, action.color[3] or 255) or Color3.new(1, 1, 1)
+        light.Brightness = action.brightness or (lightType == "SpotLight" and 2 or 1)
+        if light:IsA("PointLight") or light:IsA("SpotLight") then
+            light.Range = action.range or 16
+        end
+        if light:IsA("SpotLight") then
+            light.Angle = action.angle or 90
+            light.Face = action.Face and Enum.NormalId[action.Face] or Enum.NormalId.Front
+        end
+        if light:IsA("SurfaceLight") then
+            light.Face = action.Face and Enum.NormalId[action.Face] or Enum.NormalId.Front
+            light.Range = action.range or 16
+        end
+        if action.enabled ~= nil then light.Enabled = action.enabled end
+        light.Parent = target
+        table.insert(_batchCreated, light)
+        updateSceneState(action, true)
+        _lastClickInstance = light
+        return true, "💡 " .. lightType .. " added to " .. target.Name
+
+    elseif kind == "create_sound" then
+        local soundId = action.soundId
+        if not soundId or soundId == "" then return false, "❌ create_sound requires soundId" end
+        local parent
+        if action.target then
+            parent = resolveTarget(action.target)
+            if not parent then return false, "❌ create_sound: target '" .. tostring(action.target) .. "' not found" end
+        else
+            parent = resolveParent(action.parent, Workspace)
+        end
+        if not parent then parent = Workspace end
+        local sound = Instance.new("Sound")
+        sound.Name = action.name or "Sound"
+        sound.SoundId = soundId
+        sound.Volume = action.volume or 0.5
+        sound.Pitch = action.pitch or 1
+        sound.Looped = action.loops or false
+        if action.startPaused then sound.Playing = false else sound.Playing = true end
+        sound.Parent = parent
+        table.insert(_batchCreated, sound)
+        updateSceneState(action, true)
+        _lastClickInstance = sound
+        return true, "🔊 Sound created: " .. soundId
+
+    elseif kind == "create_tween" then
+        local target = resolveTarget(action.target)
+        if not target then return false, "❌ create_tween: target '" .. tostring(action.target) .. "' not found" end
+        local props = action.properties
+        if not props or next(props) == nil then return false, "❌ create_tween requires a 'properties' table" end
+        local duration = action.duration or 1
+        local style = action.style or "Quad"
+        local direction = action.direction or "Out"
+        local tsi = TweenInfo.new(duration, Enum.EasingStyle[style] or Enum.EasingStyle.Quad,
+            Enum.EasingDirection[direction] or Enum.EasingDirection.Out, action.repeatCount or 0,
+            action.reverses or false)
+        local tweenData = {}
+        for k, v in pairs(props) do
+            if type(v) == "table" and #v == 3 then
+                if k:lower():find("color") then
+                    pcall(function() tweenData[k] = Color3.fromRGB(v[1] or 255, v[2] or 255, v[3] or 255) end)
+                else
+                    tweenData[k] = Vector3.new(v[1] or 0, v[2] or 0, v[3] or 0)
+                end
+            else
+                tweenData[k] = v
+            end
+        end
+        local tween = game:GetService("TweenService"):Create(target, tsi, tweenData)
+        tween:Play()
+        table.insert(_batchCreated, tween)
+        updateSceneState(action, true)
+        _lastClickInstance = target
+        return true, "🎬 Tween started on " .. target.Name .. " (" .. duration .. "s, " .. style .. direction .. ")"
+
+    elseif kind == "create_animation" then
+        local animType = action.animationType or "asset"
+        if animType == "asset" then
+            local targetHum = resolveTarget(action.humanoid or action.target)
+            if not targetHum then return false, "❌ create_animation: target humanoid '" .. tostring(action.humanoid or action.target) .. "' not found" end
+            local assetId = action.assetId
+            if not assetId or assetId == "" then return false, "❌ create_animation: assetId required for 'asset' type" end
+            local anim = Instance.new("Animation")
+            anim.Name = action.name or "Animation"
+            anim.AnimationId = assetId
+            local parent = resolveParent(action.parent, targetHum.Parent)
+            anim.Parent = parent or targetHum.Parent
+            local animator = targetHum:FindFirstChildOfClass("Animator")
+            if not animator then animator = Instance.new("Animator"); animator.Parent = targetHum end
+            local track = animator:LoadAnimation(anim)
+            track:Play()
+            if action.loop then track:AdjustSpeed(action.speed or 1)
+                track.Looped = true end
+            table.insert(_batchCreated, anim)
+            updateSceneState(action, true)
+            _lastClickInstance = anim
+            return true, "🎭 Animation loaded & played on " .. targetHum.Name
+        elseif animType == "keyframe" then
+            local targetHum = resolveTarget(action.humanoid or action.target)
+            if not targetHum then return false, "❌ create_animation: target humanoid '" .. tostring(action.humanoid or action.target) .. "' not found" end
+            local frames = action.frames
+            if not frames or type(frames) ~= "table" or #frames == 0 then
+                return false, "❌ create_animation: 'frames' array required for keyframe type"
+            end
+            local anim = Instance.new("Animation")
+            anim.Name = action.name or "KeyframeAnimation"
+            local parent = resolveParent(action.parent, targetHum.Parent)
+            anim.Parent = parent or targetHum.Parent
+            local animator = targetHum:FindFirstChildOfClass("Animator")
+            if not animator then animator = Instance.new("Animator"); animator.Parent = targetHum end
+            -- Build keyframe sequence via a generated script
+            local kfSource = "local plr = game:GetService('Players').LocalPlayer\nlocal char = plr.Character\nif not char then return end\nlocal hum = char:WaitForChild('Humanoid')\nlocal animator = hum:FindFirstChildOfClass('Animator') or Instance.new('Animator')\nif not animator.Parent then animator.Parent = hum end\nlocal anim = Instance.new('Animation')\nanim.AnimationId = 'rbxasset://animations/anim_slowrun.rbxm'\n-- keyframe animation not fully supported via JSON yet; using run animation as fallback\nlocal track = animator:LoadAnimation(anim)\ntrack:Play()\nif " .. tostring(action.loop or false) .. " then track.Looped = true end"
+            local kfScript = Instance.new("LocalScript")
+            kfScript.Name = (action.name or "KeyframeAnim") .. "_Loader"
+            kfScript.Parent = parent or targetHum.Parent
+            kfScript.Source = kfSource
+            table.insert(_batchCreated, kfScript)
+            updateSceneState(action, true)
+            _lastClickInstance = kfScript
+            return true, "🎭 Keyframe animation created (" .. #frames .. " frames)"
+        else
+            return false, "❌ Unknown animationType: " .. tostring(animType)
+        end
+
+    elseif kind == "create_texture" then
+        local target = resolveTarget(action.target)
+        if not target then return false, "❌ create_texture: target '" .. tostring(action.target) .. "' not found" end
+        local texType = action.textureType or "Decal"
+        local tex = Instance.new(texType)
+        tex.Name = action.name or texType
+        tex.Texture = action.textureId or "rbxasset://textures/trans.png"
+        if action.face then tex.Face = Enum.NormalId[action.face] end
+        if action.color then tex.Color3 = Color3.fromRGB(action.color[1] or 255, action.color[2] or 255, action.color[3] or 255) end
+        if action.transparency then tex.Transparency = action.transparency end
+        if tex:IsA("Texture") then
+            if action.studsPerTileU then tex.StudsPerTileU = action.studsPerTileU end
+            if action.studsPerTileV then tex.StudsPerTileV = action.studsPerTileV end
+        end
+        tex.Parent = target
+        table.insert(_batchCreated, tex)
+        updateSceneState(action, true)
+        _lastClickInstance = tex
+        return true, "🎨 " .. texType .. " applied to " .. target.Name
+
+    elseif kind == "create_npc" then
+        local npcName = action.name or "NPC"
+        local pos = action.position
+        if not pos or type(pos) ~= "table" or #pos < 3 then
+            return false, "❌ create_npc requires position:[x,y,z]"
+        end
+        local npcColor = action.color or {180, 120, 80}
+        local ws = action.walkspeed or 16
+        local hp = action.health or 100
+        local scale = action.resize or 1
+        local npcFolder = Instance.new("Folder")
+        npcFolder.Name = npcName
+        npcFolder.Parent = resolveParent(action.parent, Workspace)
+        -- Create NPC parts (R6 model)
+        local torso = Instance.new("Part")
+        torso.Name = "Torso"; torso.Size = Vector3.new(2, 2, 1); torso.Position = Vector3.new(pos[1] or 0, (pos[2] or 3) + 1.5, pos[3] or 0)
+        torso.Anchored = false; torso.CanCollide = true; torso.BrickColor = BrickColor.new(Color3.fromRGB(npcColor[1] or 180, npcColor[2] or 120, npcColor[3] or 80))
+        torso.Parent = npcFolder
+        local head = Instance.new("Part")
+        head.Name = "Head"; head.Size = Vector3.new(1, 1, 1) * scale; head.Shape = Enum.PartType.Ball; head.Position = Vector3.new(pos[1] or 0, (pos[2] or 3) + 3, pos[3] or 0)
+        head.Anchored = false; head.CanCollide = true; head.BrickColor = BrickColor.new(Color3.fromRGB(255, 200, 150))
+        head.Parent = npcFolder
+        local larm = Instance.new("Part")
+        larm.Name = "Left Arm"; larm.Size = Vector3.new(1, 2, 1); larm.Position = Vector3.new((pos[1] or 0) - 1.5, (pos[2] or 3) + 1.5, pos[3] or 0)
+        larm.Anchored = false; larm.CanCollide = true; larm.BrickColor = torso.BrickColor; larm.Parent = npcFolder
+        local rarm = Instance.new("Part")
+        rarm.Name = "Right Arm"; rarm.Size = Vector3.new(1, 2, 1); rarm.Position = Vector3.new((pos[1] or 0) + 1.5, (pos[2] or 3) + 1.5, pos[3] or 0)
+        rarm.Anchored = false; rarm.CanCollide = true; rarm.BrickColor = torso.BrickColor; rarm.Parent = npcFolder
+        local lleg = Instance.new("Part")
+        lleg.Name = "Left Leg"; lleg.Size = Vector3.new(1, 2, 1); lleg.Position = Vector3.new((pos[1] or 0) - 0.5, (pos[2] or 3) - 0.5, pos[3] or 0)
+        lleg.Anchored = false; lleg.CanCollide = true; lleg.BrickColor = BrickColor.new(Color3.fromRGB(30, 30, 120)); lleg.Parent = npcFolder
+        local rleg = Instance.new("Part")
+        rleg.Name = "Right Leg"; rleg.Size = Vector3.new(1, 2, 1); rleg.Position = Vector3.new((pos[1] or 0) + 0.5, (pos[2] or 3) - 0.5, pos[3] or 0)
+        rleg.Anchored = false; rleg.CanCollide = true; rleg.BrickColor = lleg.BrickColor; rleg.Parent = npcFolder
+        -- Weld joints
+        local function weld(p0, p1, name)
+            local w = Instance.new("Weld"); w.Name = name; w.Part0 = p0; w.Part1 = p1
+            w.C0 = p0.CFrame:inverse() * p1.CFrame; w.Parent = p0
+        end
+        weld(torso, head, "Neck"); weld(torso, larm, "Left Shoulder"); weld(torso, rarm, "Right Shoulder")
+        weld(torso, lleg, "Left Hip"); weld(torso, rleg, "Right Hip")
+        -- Humanoid
+        local hum = Instance.new("Humanoid")
+        hum.Name = "Humanoid"; hum.MaxHealth = hp; hum.Health = hp; hum.WalkSpeed = ws; hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+        hum.Parent = npcFolder
+        -- HumanoidRootPart
+        local root = Instance.new("Part")
+        root.Name = "HumanoidRootPart"; root.Size = Vector3.new(2, 2, 1); root.Shape = Enum.PartType.Cylinder
+        root.Position = Vector3.new(pos[1] or 0, (pos[2] or 3) + 0.5, pos[3] or 0)
+        root.Anchored = true; root.Transparency = 1; root.CanCollide = false; root.Parent = npcFolder
+        weld(torso, root, "RootJoint")
+        -- Head Billboard (name tag)
+        local bb = Instance.new("BillboardGui")
+        bb.Name = "NameTag"; bb.Size = UDim2.new(0, 60, 0, 20); bb.StudsOffset = Vector3.new(0, 2.5, 0); bb.AlwaysOnTop = true; bb.Parent = head
+        local nl = Instance.new("TextLabel")
+        nl.Size = UDim2.new(1, 0, 1, 0); nl.BackgroundTransparency = 1; nl.Text = npcName; nl.TextColor3 = Color3.new(1, 1, 1)
+        nl.TextSize = 14; nl.Font = Enum.Font.GothamBold; nl.TextStrokeTransparency = 0.5; nl.Parent = bb
+        table.insert(_batchCreated, npcFolder)
+        updateSceneState(action, true)
+        _lastClickInstance = npcFolder
+        return true, "🧑‍🦱 NPC created: " .. npcName .. " at " .. tostring(pos[1]) .. "," .. tostring(pos[2]) .. "," .. tostring(pos[3])
+
+    elseif kind == "load_model" then
+        local assetId = action.assetId
+        if not assetId or assetId == "" then return false, "❌ load_model requires 'assetId' (rbxassetid://...)" end
+        local InsertService = game:GetService("InsertService")
+        local parent = resolveParent(action.parent, Workspace)
+        local modelName = action.name or "LoadedModel"
+        local pos = action.position
+        local loaded = nil
+        local ok, result = pcall(function()
+            local id = assetId:match("rbxassetid://(%d+)") or assetId:match("(%d+)")
+            if id then
+                local m = InsertService:LoadAsset(tonumber(id))
+                if m then loaded = m end
+            end
+        end)
+        if not ok or not loaded then
+            -- Fallback: create a placeholder
+            local fb = Instance.new("Part")
+            fb.Name = modelName .. "_Placeholder"
+            fb.Size = Vector3.new(4, 4, 4)
+            fb.Anchored = true; fb.CanCollide = true
+            fb.Color = Color3.fromRGB(200, 100, 100)
+            if pos then fb.Position = Vector3.new(pos[1] or 0, pos[2] or 5, pos[3] or 0) end
+            fb.Parent = parent
+            table.insert(_batchCreated, fb)
+            _lastClickInstance = fb
+            updateSceneState(action, true)
+            return true, "⚠️ Model " .. assetId .. " couldn't load (not found or restricted). Created placeholder part instead."
+        end
+        loaded.Name = modelName
+        if loaded.Parent then loaded.Parent = nil end
+        loaded.Parent = parent
+        if pos then
+            local rootPart = loaded:FindFirstChild("HumanoidRootPart") or loaded:FindFirstChildWhichIsA("BasePart")
+            if rootPart then rootPart.CFrame = CFrame.new(Vector3.new(pos[1] or 0, pos[2] or 5, pos[3] or 0)) end
+        end
+        if action.makeTool then
+            loaded:FindFirstChildWhichIsA("Part").Anchored = false
+        end
+        table.insert(_batchCreated, loaded)
+        updateSceneState(action, true)
+        _lastClickInstance = loaded
+        return true, "📦 Model loaded: " .. modelName .. " (" .. assetId .. ")"
+
+    else
+        return false, "❌ Unknown action type: " .. tostring(kind)
+    end
+end
+
+local SYSTEM_PROMPT = [[
+You are Skill-AI v1.3 — Roblox master builder. Build ANY game: tower defense, FPS, RPG, obby, racing, survival, tycoon, adventure, battle royale. NPCs, animations, textures, GUIs, plugins, guns, HP, save/load, multiplayer, leaderboards, shops, pets, waves, upgrades, boss fights — all in ONE response. Output ONLY valid JSON.
+
+=== RULES ===
+- ONLY valid JSON. No text/markdown/backticks. No reasoning. Output JSON immediately.
+- NO Lua in JSON: use [255,0,0] NOT Color3.fromRGB/Color3.new. Use [5,5,5] NOT Vector3.new. Use [0.5,0,0.2,0] NOT UDim2.new.
+- "className":"Part" NOT "Block"/"Ball"/"Cylinder" — use "Shape":"Box" for shape.
+- Prefix [EASY]=simple(1-3 parts,minimal scripts) [NORMAL]=moderate [HARD]=full game with complete working Lua code, no placeholders, no TODOs.
+- Format: {"actions":[...],"reply":"message"}. All actions in one array, executed sequentially.
+
+=== ACTIONS (use these) ===
+1. create_instance: {type,className,name,parent,containerName?,properties?,handleProperties?}
+2. create_compound: {type,className:"Model",name,parent,parts:[{className,size,position,color,material,shape?}],makeTool?}
+3. create_script: {type,className:"Script"|"LocalScript",name,parent,source}
+4. create_multiple: {type,className,count,containerName,parent,properties?,rejectionRadius?}
+5. create_enclosure: {type,name,parent,containerName?,centerX?,centerY?,centerZ?,width?,depth?,wallHeight?,floor?,openSides?,color?,material?,barrier?}
+6. create_challenge_system: {type,name,parent,containerName?,challengeType,targetCount,title?,centerX?,centerY?,centerZ?,width?,depth?,height?,visibleFloor?,walls?,wallHeight?,wallColor?,wallMaterial?,guiPosition?,guiSize?}
+7-14: set_property, delete, clone, rename, move, set_lighting, set_character, undo
+15. create_plugin: {type,name,modules:[{name,source}],icon?,buttonColor?,parent?}
+16. create_particle: {type,target,texture?,rate?,speed?,lifetime?,size?,color?,transparency?,rotation?,spread?,enabled?}
+17. create_light: {type,lightType:"PointLight"|"SpotLight"|"SurfaceLight",target,color?,brightness?,range?,angle?,enabled?}
+18. create_sound: {type,soundId:"rbxassetid://...",target?,parent?,name?,volume?,pitch?,loops?,startPaused?}
+19. create_tween: {type,target,properties:{...},duration?,style?,direction?,repeatCount?,reverses?}
+20. create_animation: {type,animationType:"keyframe"|"asset",target?,humanoid?,parent?,name?,assetId?,frames?,loop?,speed?}
+21. create_texture: {type,textureType:"Decal"|"Texture",target,textureId:"rbxassetid://...",face?,color?,transparency?,studsPerTileU?,studsPerTileV?}
+22. create_npc: {type,name,position,color?,walkspeed?,health?,resize?,parent?}
+23. load_model: {type,assetId:"rbxassetid://...",name?,parent?,position?,makeTool?}
+
+=== BUILD RULES ===
+- PARENTING: GUI→StarterGui, Parts→Workspace, Scripts→ServerStorage/Lighting, LocalScripts→StarterPlayerScripts
+- NEVER parent GUI to Workspace. NEVER parent Parts to StarterGui/StarterPlayerScripts. NEVER parent Scripts to Workspace.
+- When a script controls a GUI, parent the script INSIDE the ScreenGui or to StarterPlayerScripts, NOT Workspace.
+- Textures/Decals: use `target` (the part), NOT `parent`. Decal.Parent = the part, not Workspace.
+- Parents: Workspace,StarterGui,StarterPlayerScripts,StarterCharacterScripts,Lighting,ServerStorage,ReplicatedStorage,CoreGui,StarterPack
+- Parts: Block,Ball,Cylinder,Wedge,CornerWedge. Materials: Plastic,Metal,Wood,Glass,Neon,Granite,Marble,Cement.
+- ANCHOR static=true. Only Tools=false. CanCollide=true auto. Stack Y+5 per level.
+- Colors: RGB [255,0,0] or BrickColor string. Sizes: doors 4x7x1, platforms 10x0.5x10, walls 0.5x8x6.
+- GUI circles: Frame+UICorner(CornerRadius=UDim.new(1,0)).
+- Scripts: NEVER "workspace.X" — use :WaitForChild(). nil-guard. NEVER SourceBackup. Parts FIRST, scripts SECOND. Respawn-safe (auto re-run).
+- Reply: MUST include full script source code. Numbered plan for complex builds.
+- Game types: TD=path+spawn+towers+waves+currency+upgrades. FPS=guns+damage+HP+ammo+respawn. Sim=zone+collect+currency+shop+save. Race=track+vehicle+checkpoint+timer+leaderboard.
+- Enclosure ex: {"type":"create_enclosure","name":"Platform","parent":"Workspace","centerX":0,"centerY":8,"centerZ":0,"width":10,"depth":10,"wallHeight":6}
+- Challenge ex: {"type":"create_challenge_system","name":"KillChallenge","parent":"Workspace","challengeType":"kill","targetCount":10,"centerX":0,"centerY":0,"centerZ":0,"width":30,"depth":30,"height":8}
+- HARD mode: complete working Lua in every script — every function, event, line. No placeholders or TODOs.
+]]
+
+local REASONING_PATTERNS = {
+    "^Let me%s", "^I['']?ll%s", "^I think%s", "^First,?%s",
+    "^The user%s", "^Okay,?%s", "^So,?%s", "^Alright,?%s",
+    "^Here['']?s%s", "^This is%s", "^I need%s", "^I should%s",
+    "^I will%s", "^We need%s", "^We should%s", "^We can%s",
 }
-Converted["_UIGradient3"].Rotation = 68
-Converted["_UIGradient3"].Parent = Converted["_AddCustomModule"]
 
-Converted["_UIScale2"].Parent = Converted["_AddCustomModule"]
+local function stripReasoning(text)
+    local lines = {}
+    for line in text:gmatch("[^\n]+") do
+        local stripped = line
+        for _, pat in ipairs(REASONING_PATTERNS) do
+            stripped = stripped:gsub(pat, "")
+        end
+        if #stripped > 0 then
+            table.insert(lines, stripped)
+        end
+    end
+    return table.concat(lines, "\n")
+end
 
-Converted["_TextLabel2"].Font = Enum.Font.Gotham
-Converted["_TextLabel2"].Text = "Add a module"
-Converted["_TextLabel2"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel2"].TextScaled = true
-Converted["_TextLabel2"].TextSize = 14
-Converted["_TextLabel2"].TextWrapped = true
-Converted["_TextLabel2"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_TextLabel2"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel2"].BackgroundTransparency = 1
-Converted["_TextLabel2"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel2"].BorderSizePixel = 0
-Converted["_TextLabel2"].Position = UDim2.new(0.352256238, 0, 0.133915231, 0)
-Converted["_TextLabel2"].Size = UDim2.new(0.619047642, 0, 0.125920027, 0)
-Converted["_TextLabel2"].Parent = Converted["_AddCustomModule"]
+-- Fix Lua expressions inside JSON (e.g. Vector3.new(1,2,3) → [1,2,3])
+local function fixLuaInJson(str)
+    -- Color3.fromRGB(255,0,0) → [255,0,0]
+    str = str:gsub("Color3%.fromRGB%s*%((%d+%s*,%s*%d+%s*,%s*%d+)%)", function(inner)
+        return "[" .. inner .. "]"
+    end)
+    -- Color3.new(0.5,0,0) → [128,0,0]
+    str = str:gsub("Color3%.new%s*%(([%d%.]+%s*,%s*[%d%.]+%s*,%s*[%d%.]+)%)", function(inner)
+        local r, g, b = inner:match("([%d%.]+)%s*,%s*([%d%.]+)%s*,%s*([%d%.]+)")
+        if r and g and b then
+            r = math.floor((tonumber(r) or 0) * 255)
+            g = math.floor((tonumber(g) or 0) * 255)
+            b = math.floor((tonumber(b) or 0) * 255)
+            return "[" .. r .. "," .. g .. "," .. b .. "]"
+        end
+        return "[" .. inner .. "]"
+    end)
+    -- Vector3.new(1,2,3) or Vector3.new(-1,2,0) → [1,2,3]
+    str = str:gsub("Vector[23]%.new%s*%(([%d%.%-]+%s*,%s*[%d%.%-]+%s*,%s*[%d%.%-]+)%)", function(inner)
+        return "[" .. inner .. "]"
+    end)
+    -- UDim2.new(0.5,0,0.2,0) → [0.5,0,0.2,0]
+    str = str:gsub("UDim2%.new%s*%(([%d%.%-]+%s*,%s*[%d%.%-]+%s*,%s*[%d%.%-]+%s*,%s*[%d%.%-]+)%)", function(inner)
+        return "[" .. inner .. "]"
+    end)
+    -- NumberRange.new(1,10) → [1,10]
+    str = str:gsub("NumberRange%.new%s*%(([%d%.]+%s*,%s*[%d%.]+)%)", function(inner)
+        return "[" .. inner .. "]"
+    end)
+    -- NumberSequence.new(1, 0.5) → {"__NumberSequence":[1,0.5]}
+    str = str:gsub("NumberSequence%.new%s*%(([%d%.]+%s*,%s*[%d%.]+)%)", function(inner)
+        return '{"__NumberSequence":[' .. inner .. ']}'
+    end)
+    -- BrickColor.new("Bright red") → "Bright red"
+    str = str:gsub('BrickColor%.new%s*%("[^"]+")', function(inner)
+        return inner
+    end)
+    -- Normalize class names
+    str = str:gsub('"className"%s*:%s*"Block"', '"className":"Part"')
+    str = str:gsub('"className"%s*:%s*"Ball"', '"className":"Part"')
+    str = str:gsub('"className"%s*:%s*"Cylinder"', '"className":"Part"')
+    -- Normalize "shape" to "Shape"
+    str = str:gsub('"shape"%s*:%s*"Box"', '"Shape":"Box"')
+    str = str:gsub('"shape"%s*:%s*"Block"', '"Shape":"Block"')
+    str = str:gsub('"shape"%s*:%s*"Ball"', '"Shape":"Ball"')
+    return str
+end
 
-Converted["_TextBox1"].ClearTextOnFocus = false
-Converted["_TextBox1"].Font = Enum.Font.Gotham
-Converted["_TextBox1"].PlaceholderText = "Custom module link"
-Converted["_TextBox1"].Text = ""
-Converted["_TextBox1"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextBox1"].TextScaled = true
-Converted["_TextBox1"].TextSize = 14
-Converted["_TextBox1"].TextWrapped = true
-Converted["_TextBox1"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_TextBox1"].BackgroundColor3 = Color3.fromRGB(22.000000588595867, 22.000000588595867, 22.000000588595867)
-Converted["_TextBox1"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextBox1"].BorderSizePixel = 0
-Converted["_TextBox1"].Position = UDim2.new(0.499648541, 0, 0.500059664, 0)
-Converted["_TextBox1"].Size = UDim2.new(0.804988742, 0, 0.544776142, 0)
-Converted["_TextBox1"].Parent = Converted["_AddCustomModule"]
+local function tryExtractJson(text)
+    if type(text) ~= "string" or text == "" then return nil end
+    local cleaned = stripReasoning(text)
+    cleaned = cleaned:gsub("```json", ""):gsub("```lua", ""):gsub("```", ""):gsub("^%s+", ""):gsub("%s+$", "")
+    cleaned = cleaned:gsub("^[%s\n\r]+", ""):gsub("[%s\n\r]+$", "")
+    -- strip invisible / control chars (except \t \n \r) that break JSONDecode
+    cleaned = cleaned:gsub("[%c]", function(c)
+        if c == "\t" or c == "\n" or c == "\r" then return c end
+        return ""
+    end)
 
-Converted["_UICorner11"].Parent = Converted["_TextBox1"]
+    -- Convert Lua expressions inside JSON to proper JSON
+    cleaned = fixLuaInJson(cleaned)
 
-Converted["_UIPadding8"].PaddingBottom = UDim.new(0, 10)
-Converted["_UIPadding8"].PaddingLeft = UDim.new(0, 10)
-Converted["_UIPadding8"].PaddingRight = UDim.new(0, 10)
-Converted["_UIPadding8"].PaddingTop = UDim.new(0, 10)
-Converted["_UIPadding8"].Parent = Converted["_TextBox1"]
+    -- If no "actions" wrapper but has a single action object, wrap it
+    if not cleaned:find('"actions"', 1, true) and cleaned:match('"type"%s*:') then
+        cleaned = '{"actions":[' .. cleaned .. '],"reply":"Built."}'
+    end
 
-Converted["_TextLabel3"].Font = Enum.Font.GothamBold
-Converted["_TextLabel3"].Text = "ONLY ADD MODULES YOU TRUST!"
-Converted["_TextLabel3"].TextColor3 = Color3.fromRGB(255, 0, 0)
-Converted["_TextLabel3"].TextScaled = true
-Converted["_TextLabel3"].TextSize = 14
-Converted["_TextLabel3"].TextWrapped = true
-Converted["_TextLabel3"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_TextLabel3"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel3"].BackgroundTransparency = 1
-Converted["_TextLabel3"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel3"].BorderSizePixel = 0
-Converted["_TextLabel3"].Position = UDim2.new(0.499648541, 0, 0.833542168, 0)
-Converted["_TextLabel3"].Size = UDim2.new(0.619047642, 0, 0.0550245307, 0)
-Converted["_TextLabel3"].Parent = Converted["_AddCustomModule"]
+    local function tryDecode(str)
+        local ok, res = pcall(function() return HttpService:JSONDecode(str) end)
+        if ok and type(res) == "table" then return res end
+        return nil
+    end
 
-Converted["_Add"].Font = Enum.Font.Gotham
-Converted["_Add"].Text = "Add"
-Converted["_Add"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Add"].TextScaled = true
-Converted["_Add"].TextSize = 14
-Converted["_Add"].TextWrapped = true
-Converted["_Add"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_Add"].BackgroundColor3 = Color3.fromRGB(50.00000461935997, 50.00000461935997, 50.00000461935997)
-Converted["_Add"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Add"].BorderSizePixel = 0
-Converted["_Add"].Position = UDim2.new(0.108492024, 0, 0.927298486, 0)
-Converted["_Add"].Size = UDim2.new(0.163265288, 0, 0.0858208984, 0)
-Converted["_Add"].Name = "Add"
-Converted["_Add"].Parent = Converted["_AddCustomModule"]
+    -- try direct
+    local plan = tryDecode(cleaned)
+    if plan then return plan end
 
-Converted["_UICorner12"].Parent = Converted["_Add"]
+    -- try extracting from known start patterns
+    for _, prefix in ipairs({'{"actions"', '{"steps"', '{"reply"', '{"type"'}) do
+        local s = cleaned:find(prefix, 1, true)
+        if s then
+            local e = cleaned:reverse():find("}")
+            if e then
+                local realEnd = #cleaned - e + 1
+                if realEnd > s then
+                    local sub = cleaned:sub(s, realEnd)
+                    plan = tryDecode(sub)
+                    if plan then return plan end
+                end
+            end
+        end
+    end
 
-Converted["_UIPadding9"].PaddingBottom = UDim.new(0, 5)
-Converted["_UIPadding9"].PaddingLeft = UDim.new(0, 5)
-Converted["_UIPadding9"].PaddingRight = UDim.new(0, 5)
-Converted["_UIPadding9"].PaddingTop = UDim.new(0, 5)
-Converted["_UIPadding9"].Parent = Converted["_Add"]
+    -- first { to last }
+    local s = cleaned:find("{")
+    local e = cleaned:reverse():find("}")
+    if s and e then
+        local realEnd = #cleaned - e + 1
+        if realEnd > s then
+            local sub = cleaned:sub(s, realEnd)
+            plan = tryDecode(sub)
+            if plan then return plan end
+            -- maybe truncated — try adding closing braces
+            local extras = { "}", "}]}", "}]}}", "} }" }
+            for _, extra in ipairs(extras) do
+                local fixed = sub .. extra
+                plan = tryDecode(fixed)
+                if plan then return plan end
+            end
+        end
+    end
 
-Converted["_UIStroke3"].ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-Converted["_UIStroke3"].Color = Color3.fromRGB(255, 255, 255)
-Converted["_UIStroke3"].Parent = Converted["_Add"]
+    return nil
+end
 
-Converted["_Cancel"].Font = Enum.Font.Gotham
-Converted["_Cancel"].Text = "Cancel"
-Converted["_Cancel"].TextColor3 = Color3.fromRGB(255, 0, 0)
-Converted["_Cancel"].TextScaled = true
-Converted["_Cancel"].TextSize = 14
-Converted["_Cancel"].TextWrapped = true
-Converted["_Cancel"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_Cancel"].BackgroundColor3 = Color3.fromRGB(50.00000461935997, 50.00000461935997, 50.00000461935997)
-Converted["_Cancel"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Cancel"].BorderSizePixel = 0
-Converted["_Cancel"].Position = UDim2.new(0.899875283, 0, 0.931029797, 0)
-Converted["_Cancel"].Size = UDim2.new(0.163265288, 0, 0.0858208984, 0)
-Converted["_Cancel"].Name = "Cancel"
-Converted["_Cancel"].Parent = Converted["_AddCustomModule"]
+local function buildSceneTree()
+    local lines = {}
+    local limit = 120
+    local count = 0
 
-Converted["_UICorner13"].Parent = Converted["_Cancel"]
+    -- tracked containers from this session
+    local hasContainers = false
+    for key, ss in pairs(sceneState) do
+        local names = {}
+        if ss.createdNames then
+            for n, _ in pairs(ss.createdNames) do
+                table.insert(names, n)
+            end
+        end
+        if #names > 0 then
+            table.insert(lines, "  " .. key .. " (" .. (ss.className or "?") .. ", " .. ss.count .. " total): " .. table.concat(names, ", "))
+            hasContainers = true
+        end
+    end
+    if hasContainers then
+        table.insert(lines, 1, "--- this session ---")
+        table.insert(lines, 2, "")
+    end
 
-Converted["_UIPadding10"].PaddingBottom = UDim.new(0, 5)
-Converted["_UIPadding10"].PaddingLeft = UDim.new(0, 5)
-Converted["_UIPadding10"].PaddingRight = UDim.new(0, 5)
-Converted["_UIPadding10"].PaddingTop = UDim.new(0, 5)
-Converted["_UIPadding10"].Parent = Converted["_Cancel"]
+    -- live scene tree
+    local servicesToScan = {
+        Workspace = Workspace,
+        StarterPack = StarterPack,
+        Lighting = Lighting,
+        ServerStorage = ServerStorage,
+        ReplicatedStorage = ReplicatedStorage,
+        StarterGui = StarterGui,
+        StarterCharacterScripts = StarterCharacterScripts,
+        StarterPlayerScripts = StarterPlayerScripts,
+    }
 
-Converted["_UIStroke4"].ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-Converted["_UIStroke4"].Color = Color3.fromRGB(255, 0, 0)
-Converted["_UIStroke4"].Parent = Converted["_Cancel"]
+    local function shortClass(cn)
+        local map = { Part = "Part", MeshPart = "Mesh", Model = "Model", Folder = "Folder",
+            Script = "Script", LocalScript = "LScript", StringValue = "StrVal",
+            ScreenGui = "Gui", Frame = "Frame", TextLabel = "Label", TextButton = "Btn",
+            ImageLabel = "Img", ScrollingFrame = "ScrFrame", ViewportFrame = "VpFrame" }
+        return map[cn] or cn
+    end
 
-Converted["_themedColor1"].Value = "backgroundColorCSQ"
-Converted["_themedColor1"].Name = "themedColor"
-Converted["_themedColor1"].Parent = Converted["_AddCustomModule"]
+    for svcName, svc in pairs(servicesToScan) do
+        if svc and type(svc) == "userdata" then
+            local children = svc:GetChildren()
+            if #children > 0 then
+                table.insert(lines, "")
+                table.insert(lines, svcName .. ":")
+                for i, child in ipairs(children) do
+                    if count >= limit then break end
+                    local stem = (i == #children) and "    " or "│   "
+                    local fork = (i == #children) and "└── " or "├── "
+                    local loc = child:IsA("BasePart") and string.format(" @%.0f,%.0f,%.0f", child.CFrame.X, child.CFrame.Y, child.CFrame.Z) or ""
+                    table.insert(lines, fork .. child.Name .. loc .. " (" .. shortClass(child.ClassName) .. ")")
+                    count += 1
+                    if (child:IsA("Model") or child:IsA("Folder")) and #child:GetChildren() > 0 then
+                        local gcs = child:GetChildren()
+                        for j, gc in ipairs(gcs) do
+                            if count >= limit then break end
+                            local gfork = (j == #gcs) and "└── " or "├── "
+                            local gloc = gc:IsA("BasePart") and string.format(" @%.0f,%.0f,%.0f", gc.CFrame.X, gc.CFrame.Y, gc.CFrame.Z) or ""
+                            table.insert(lines, stem .. gfork .. gc.Name .. gloc .. " (" .. shortClass(gc.ClassName) .. ")")
+                            count += 1
+                        end
+                    end
+                end
+            end
+        end
+    end
 
-Converted["_Menu"].AnchorPoint = Vector2.new(0.5, 0)
-Converted["_Menu"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Menu"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Menu"].BorderSizePixel = 0
-Converted["_Menu"].Position = UDim2.new(0.5, 0, 0.0500000007, 0)
-Converted["_Menu"].Size = UDim2.new(0, 441, 0, 268)
-Converted["_Menu"].Name = "Menu"
-Converted["_Menu"].Parent = Converted["_YARHM"]
+    if #lines == 0 then return "" end
+    return "=== SCENE ===\n" .. table.concat(lines, "\n") .. "\n=== END SCENE ==="
+end
 
-Converted["_UICorner14"].CornerRadius = UDim.new(0, 16)
-Converted["_UICorner14"].Parent = Converted["_Menu"]
+local _lastValidationErrors = nil
 
-Converted["_UIStroke5"].Color = Color3.fromRGB(255, 255, 255)
-Converted["_UIStroke5"].Thickness = 2
-Converted["_UIStroke5"].Parent = Converted["_Menu"]
-
-Converted["_UIGradient4"].Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(53.00000064074993, 53.00000064074993, 53.00000064074993)),
-	ColorSequenceKeypoint.new(0.15224914252758026, Color3.fromRGB(50.69031357765198, 50.69031357765198, 50.69031357765198)),
-	ColorSequenceKeypoint.new(0.4723183512687683, Color3.fromRGB(255, 0, 4.000000236555934)),
-	ColorSequenceKeypoint.new(0.7577854990959167, Color3.fromRGB(50.13314567506313, 50.13314567506313, 50.13314567506313)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(48.000000938773155, 48.000000938773155, 48.000000938773155))
+local VALIDATION_SKIP_REFS = {
+    humanoid = true, handle = true, torso = true, head = true,
+    ["left arm"] = true, ["right arm"] = true, ["left leg"] = true, ["right leg"] = true,
+    playergui = true, backpack = true, leaderstats = true, configuration = true,
+    uppertorso = true, lowertorso = true, lefthand = true, righthand = true,
+    leftfoot = true, rightfoot = true,
 }
-Converted["_UIGradient4"].Rotation = 180
-Converted["_UIGradient4"].Parent = Converted["_UIStroke5"]
 
-Converted["_HubCredits"].Font = Enum.Font.GothamBold
-Converted["_HubCredits"].Text = "made and open sourced by imperial"
-Converted["_HubCredits"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_HubCredits"].TextScaled = true
-Converted["_HubCredits"].TextSize = 14
-Converted["_HubCredits"].TextTransparency = 0.699999988079071
-Converted["_HubCredits"].TextWrapped = true
-Converted["_HubCredits"].TextXAlignment = Enum.TextXAlignment.Right
-Converted["_HubCredits"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_HubCredits"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_HubCredits"].BackgroundTransparency = 1
-Converted["_HubCredits"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_HubCredits"].BorderSizePixel = 0
-Converted["_HubCredits"].Position = UDim2.new(0.785926819, 0, 0.160157606, 0)
-Converted["_HubCredits"].Size = UDim2.new(0.316320807, 0, 0.0585099049, 0)
-Converted["_HubCredits"].Visible = false
-Converted["_HubCredits"].Name = "HubCredits"
-Converted["_HubCredits"].Parent = Converted["_Menu"]
-
-Converted["_HubDesc"].Font = Enum.Font.GothamBold
-Converted["_HubDesc"].Text = "yet another random hub menu"
-Converted["_HubDesc"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_HubDesc"].TextSize = 14
-Converted["_HubDesc"].TextWrapped = true
-Converted["_HubDesc"].TextXAlignment = Enum.TextXAlignment.Right
-Converted["_HubDesc"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_HubDesc"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_HubDesc"].BackgroundTransparency = 1
-Converted["_HubDesc"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_HubDesc"].BorderSizePixel = 0
-Converted["_HubDesc"].Position = UDim2.new(0.708829343, 0, 0.116141364, 0)
-Converted["_HubDesc"].Size = UDim2.new(0.470515788, 0, 0.082417585, 0)
-Converted["_HubDesc"].Name = "HubDesc"
-Converted["_HubDesc"].Parent = Converted["_Menu"]
-
-Converted["_HubName"].Font = Enum.Font.GothamBold
-Converted["_HubName"].RichText = true
-Converted["_HubName"].Text = "YARHM "
-Converted["_HubName"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_HubName"].TextScaled = true
-Converted["_HubName"].TextSize = 14
-Converted["_HubName"].TextWrapped = true
-Converted["_HubName"].TextXAlignment = Enum.TextXAlignment.Left
-Converted["_HubName"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_HubName"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_HubName"].BackgroundTransparency = 1
-Converted["_HubName"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_HubName"].BorderSizePixel = 0
-Converted["_HubName"].Position = UDim2.new(0.186153606, 0, 0.112410031, 0)
-Converted["_HubName"].Size = UDim2.new(0.259631485, 0, 0.0824175924, 0)
-Converted["_HubName"].Name = "HubName"
-Converted["_HubName"].Parent = Converted["_Menu"]
-
-Converted["_CanvasGroup"].GroupTransparency = 1
-Converted["_CanvasGroup"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_CanvasGroup"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_CanvasGroup"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_CanvasGroup"].BorderSizePixel = 0
-Converted["_CanvasGroup"].Interactable = false
-Converted["_CanvasGroup"].Position = UDim2.new(0.5, 0, 0.5, 0)
-Converted["_CanvasGroup"].Size = UDim2.new(1, 0, 1, 0)
-Converted["_CanvasGroup"].Visible = false
-Converted["_CanvasGroup"].ZIndex = 999999998
-Converted["_CanvasGroup"].Parent = Converted["_Menu"]
-
-Converted["_UICorner15"].CornerRadius = UDim.new(0, 16)
-Converted["_UICorner15"].Parent = Converted["_CanvasGroup"]
-
-Converted["_ImageLabel"].Image = "rbxassetid://17864987433"
--- Converted["_ImageLabel"].ImageContent = Content{SourceType=Uri, Uri=rbxassetid://17864987433}
-Converted["_ImageLabel"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_ImageLabel"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_ImageLabel"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_ImageLabel"].BorderSizePixel = 0
-Converted["_ImageLabel"].Position = UDim2.new(0.5, 0, 0.5, 0)
-Converted["_ImageLabel"].Size = UDim2.new(0, 50, 0, 50)
-Converted["_ImageLabel"].Visible = false
-Converted["_ImageLabel"].ZIndex = 3
-Converted["_ImageLabel"].Parent = Converted["_CanvasGroup"]
-
-Converted["_Opener"].Font = Enum.Font.SourceSans
-Converted["_Opener"].Text = ""
-Converted["_Opener"].TextColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Opener"].TextSize = 14
-Converted["_Opener"].AutoButtonColor = false
-Converted["_Opener"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Opener"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Opener"].BorderSizePixel = 0
-Converted["_Opener"].Size = UDim2.new(1, 0, 1, 0)
-Converted["_Opener"].Name = "Opener"
-Converted["_Opener"].Parent = Converted["_CanvasGroup"]
-
-Converted["_TextLabel4"].Font = Enum.Font.GothamBold
-Converted["_TextLabel4"].Text = "Yet Another Random Hub Menu"
-Converted["_TextLabel4"].TextColor3 = Color3.fromRGB(255, 69.00000348687172, 67.00000360608101)
-Converted["_TextLabel4"].TextScaled = true
-Converted["_TextLabel4"].TextSize = 14
-Converted["_TextLabel4"].TextWrapped = true
-Converted["_TextLabel4"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel4"].BackgroundTransparency = 1
-Converted["_TextLabel4"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel4"].BorderSizePixel = 0
-Converted["_TextLabel4"].Position = UDim2.new(0.204081595, 0, 0.447761208, 0)
-Converted["_TextLabel4"].Size = UDim2.new(0, 260, 0, 27)
-Converted["_TextLabel4"].ZIndex = 3
-Converted["_TextLabel4"].Parent = Converted["_CanvasGroup"]
-
-Converted["_CloseArea"].Text = ""
-Converted["_CloseArea"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_CloseArea"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_CloseArea"].BackgroundTransparency = 1
-Converted["_CloseArea"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_CloseArea"].BorderSizePixel = 0
-Converted["_CloseArea"].Position = UDim2.new(0.5, 0, 0.00295135868, 0)
-Converted["_CloseArea"].Size = UDim2.new(0.326999992, 0, 0.184, 0)
-Converted["_CloseArea"].Name = "CloseArea"
-Converted["_CloseArea"].Parent = Converted["_Menu"]
-
-Converted["_Frame1"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_Frame1"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Frame1"].BackgroundTransparency = 0.6499999761581421
-Converted["_Frame1"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Frame1"].BorderSizePixel = 0
-Converted["_Frame1"].Position = UDim2.new(0.5, 0, 0.699999988, 0)
-Converted["_Frame1"].Size = UDim2.new(0.699999988, 0, 0.100000001, 0)
-Converted["_Frame1"].Parent = Converted["_CloseArea"]
-
-Converted["_UICorner16"].CornerRadius = UDim.new(0, 9999)
-Converted["_UICorner16"].Parent = Converted["_Frame1"]
-
-Converted["_themedColor2"].Value = "accentColor"
-Converted["_themedColor2"].Name = "themedColor"
-Converted["_themedColor2"].Parent = Converted["_Frame1"]
-
-Converted["_TextLabel5"].Font = Enum.Font.Gotham
-Converted["_TextLabel5"].Text = "Tap here to minimize."
-Converted["_TextLabel5"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel5"].TextSize = 15
-Converted["_TextLabel5"].TextWrapped = true
-Converted["_TextLabel5"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_TextLabel5"].BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel5"].BackgroundTransparency = 0.4000000059604645
-Converted["_TextLabel5"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel5"].BorderSizePixel = 0
-Converted["_TextLabel5"].Position = UDim2.new(0.5, 0, 0.680000007, 0)
-Converted["_TextLabel5"].Size = UDim2.new(1.39999998, 0, 0.740999997, 0)
-Converted["_TextLabel5"].Parent = Converted["_CloseArea"]
-
-Converted["_UICorner17"].Parent = Converted["_TextLabel5"]
-
-Converted["_AllowForSpring"].Name = "AllowForSpring"
-Converted["_AllowForSpring"].Parent = Converted["_CloseArea"]
-
-Converted["_themedColor3"].Value = "backgroundColorCSQ"
-Converted["_themedColor3"].Name = "themedColor"
-Converted["_themedColor3"].Parent = Converted["_Menu"]
-
-Converted["_UIGradient5"].Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(36.00000165402889, 36.00000165402889, 36.00000165402889)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(68.00000354647636, 68.00000354647636, 68.00000354647636))
-}
-Converted["_UIGradient5"].Offset = Vector2.new(0, 0.5)
-Converted["_UIGradient5"].Rotation = 68
-Converted["_UIGradient5"].Parent = Converted["_Menu"]
-
-Converted["_Area"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_Area"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Area"].BackgroundTransparency = 1
-Converted["_Area"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Area"].BorderSizePixel = 0
-Converted["_Area"].Position = UDim2.new(0.659600496, 0, 0.60637325, 0)
-Converted["_Area"].Size = UDim2.new(0.643815279, 0, 0.783582091, 0)
-Converted["_Area"].Name = "Area"
-Converted["_Area"].Parent = Converted["_Menu"]
-
-Converted["_Area1"].AutomaticCanvasSize = Enum.AutomaticSize.Y
-Converted["_Area1"].CanvasSize = UDim2.new(0, 0, 0, 0)
-Converted["_Area1"].ScrollBarThickness = 0
-Converted["_Area1"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_Area1"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Area1"].BackgroundTransparency = 1
-Converted["_Area1"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Area1"].BorderSizePixel = 0
-Converted["_Area1"].Position = UDim2.new(0.5, 0, 0.5, 0)
-Converted["_Area1"].Selectable = false
-Converted["_Area1"].Size = UDim2.new(1, 0, 1, 0)
-Converted["_Area1"].Name = "Area"
-Converted["_Area1"].Parent = Converted["_Area"]
-
-Converted["_TextLabel6"].Font = Enum.Font.GothamBold
-Converted["_TextLabel6"].Text = "3 years of keyless! ðŸŽ‰"
-Converted["_TextLabel6"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel6"].TextSize = 14
-Converted["_TextLabel6"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_TextLabel6"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel6"].BackgroundTransparency = 1
-Converted["_TextLabel6"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel6"].BorderSizePixel = 0
-Converted["_TextLabel6"].Position = UDim2.new(0.4923051, 0, 0.46438089, 0)
-Converted["_TextLabel6"].Size = UDim2.new(0, 200, 0, 50)
-Converted["_TextLabel6"].Parent = Converted["_Area1"]
-
-Converted["_TextLabel7"].Font = Enum.Font.GothamBold
-Converted["_TextLabel7"].Text = "YARHM"
-Converted["_TextLabel7"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel7"].TextScaled = true
-Converted["_TextLabel7"].TextSize = 14
-Converted["_TextLabel7"].TextWrapped = true
-Converted["_TextLabel7"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_TextLabel7"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel7"].BackgroundTransparency = 1
-Converted["_TextLabel7"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel7"].BorderSizePixel = 0
-Converted["_TextLabel7"].Position = UDim2.new(0.491272807, 0, 0.363785654, 0)
-Converted["_TextLabel7"].Size = UDim2.new(0, 135, 0, 33)
-Converted["_TextLabel7"].Parent = Converted["_Area1"]
-
-Converted["_UICorner18"].Parent = Converted["_Area"]
-
-Converted["_List"].AnchorPoint = Vector2.new(0, 0.5)
-Converted["_List"].BackgroundColor3 = Color3.fromRGB(22.000000588595867, 22.000000588595867, 22.000000588595867)
-Converted["_List"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_List"].BorderSizePixel = 0
-Converted["_List"].Position = UDim2.new(0, 0, 0.606999993, 0)
-Converted["_List"].Size = UDim2.new(0.315405339, 0, 0.785387993, 0)
-Converted["_List"].Name = "List"
-Converted["_List"].Parent = Converted["_Menu"]
-
-Converted["_UICorner19"].CornerRadius = UDim.new(0, 16)
-Converted["_UICorner19"].Parent = Converted["_List"]
-
-Converted["_ScrollingFrame1"].AutomaticCanvasSize = Enum.AutomaticSize.Y
-Converted["_ScrollingFrame1"].CanvasSize = UDim2.new(0, 0, 0, 0)
-Converted["_ScrollingFrame1"].ScrollBarThickness = 2
-Converted["_ScrollingFrame1"].VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Left
-Converted["_ScrollingFrame1"].Active = true
-Converted["_ScrollingFrame1"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_ScrollingFrame1"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_ScrollingFrame1"].BackgroundTransparency = 1
-Converted["_ScrollingFrame1"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_ScrollingFrame1"].BorderSizePixel = 0
-Converted["_ScrollingFrame1"].Position = UDim2.new(0.478333294, 0, 0.408619136, 0)
-Converted["_ScrollingFrame1"].Size = UDim2.new(1, 0, 0.795258284, 0)
-Converted["_ScrollingFrame1"].Parent = Converted["_List"]
-
-Converted["_UIListLayout4"].Padding = UDim.new(0, 3)
-Converted["_UIListLayout4"].HorizontalAlignment = Enum.HorizontalAlignment.Center
-Converted["_UIListLayout4"].SortOrder = Enum.SortOrder.LayoutOrder
-Converted["_UIListLayout4"].Parent = Converted["_ScrollingFrame1"]
-
-Converted["_UIPadding11"].PaddingLeft = UDim.new(0, 4)
-Converted["_UIPadding11"].Parent = Converted["_ScrollingFrame1"]
-
-Converted["_UIPadding12"].PaddingBottom = UDim.new(0, 10)
-Converted["_UIPadding12"].PaddingLeft = UDim.new(0, 10)
-Converted["_UIPadding12"].PaddingRight = UDim.new(0, 10)
-Converted["_UIPadding12"].PaddingTop = UDim.new(0, 10)
-Converted["_UIPadding12"].Parent = Converted["_List"]
-
-Converted["_UIStroke6"].Color = Color3.fromRGB(255, 255, 255)
-Converted["_UIStroke6"].Thickness = 0
-Converted["_UIStroke6"].Parent = Converted["_List"]
-
-Converted["_UIGradient6"].Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(111.00000098347664, 111.00000098347664, 111.00000098347664)),
-	ColorSequenceKeypoint.new(0.6401384472846985, Color3.fromRGB(114.23875719308853, 114.23875719308853, 114.23875719308853)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255))
-}
-Converted["_UIGradient6"].Rotation = -44
-Converted["_UIGradient6"].Parent = Converted["_UIStroke6"]
-
-Converted["_AddCustomModule1"].Font = Enum.Font.Gotham
-Converted["_AddCustomModule1"].Text = "+"
-Converted["_AddCustomModule1"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_AddCustomModule1"].TextScaled = true
-Converted["_AddCustomModule1"].TextSize = 14
-Converted["_AddCustomModule1"].TextWrapped = true
-Converted["_AddCustomModule1"].AnchorPoint = Vector2.new(1, 1)
-Converted["_AddCustomModule1"].BackgroundColor3 = Color3.fromRGB(50.00000461935997, 50.00000461935997, 50.00000461935997)
-Converted["_AddCustomModule1"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_AddCustomModule1"].BorderSizePixel = 0
-Converted["_AddCustomModule1"].Position = UDim2.new(1, 0, 1, 0)
-Converted["_AddCustomModule1"].Size = UDim2.new(0.215681866, 0, 0.142528668, 0)
-Converted["_AddCustomModule1"].Visible = false
-Converted["_AddCustomModule1"].Name = "AddCustomModule"
-Converted["_AddCustomModule1"].Parent = Converted["_List"]
-
-Converted["_UICorner20"].Parent = Converted["_AddCustomModule1"]
-
-Converted["_UIPadding13"].PaddingLeft = UDim.new(0, 1)
-Converted["_UIPadding13"].Parent = Converted["_AddCustomModule1"]
-
-Converted["_UIStroke7"].ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-Converted["_UIStroke7"].Color = Color3.fromRGB(255, 255, 255)
-Converted["_UIStroke7"].Parent = Converted["_AddCustomModule1"]
-
-Converted["_themedColor4"].Value = "secondaryColor"
-Converted["_themedColor4"].Name = "themedColor"
-Converted["_themedColor4"].Parent = Converted["_UIStroke7"]
-
-Converted["_themedColor5"].Value = "primaryColor"
-Converted["_themedColor5"].Name = "themedColor"
-Converted["_themedColor5"].Parent = Converted["_AddCustomModule1"]
-
-Converted["_themedColor6"].Value = "primaryColor"
-Converted["_themedColor6"].Name = "themedColor"
-Converted["_themedColor6"].Parent = Converted["_List"]
-
-Converted["_UIScale3"].Parent = Converted["_Menu"]
-
-Converted["_Stub"].BackgroundColor3 = Color3.fromRGB(22.000000588595867, 22.000000588595867, 22.000000588595867)
-Converted["_Stub"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Stub"].BorderSizePixel = 0
-Converted["_Stub"].Position = UDim2.new(0, 0, 0.214000002, 0)
-Converted["_Stub"].Size = UDim2.new(0.0340136066, 0, 0.055970151, 0)
-Converted["_Stub"].ZIndex = -9999
-Converted["_Stub"].Name = "Stub"
-Converted["_Stub"].Parent = Converted["_Menu"]
-
-Converted["_themedColor7"].Value = "primaryColor"
-Converted["_themedColor7"].Name = "themedColor"
-Converted["_themedColor7"].Parent = Converted["_Stub"]
-
-Converted["_Stub1"].AnchorPoint = Vector2.new(1, 1)
-Converted["_Stub1"].BackgroundColor3 = Color3.fromRGB(22.000000588595867, 22.000000588595867, 22.000000588595867)
-Converted["_Stub1"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Stub1"].BorderSizePixel = 0
-Converted["_Stub1"].Position = UDim2.new(0.315192729, 0, 1, 0)
-Converted["_Stub1"].Size = UDim2.new(0.0453514755, 0, 0.074626863, 0)
-Converted["_Stub1"].ZIndex = -9999
-Converted["_Stub1"].Name = "Stub"
-Converted["_Stub1"].Parent = Converted["_Menu"]
-
-Converted["_themedColor8"].Value = "primaryColor"
-Converted["_themedColor8"].Name = "themedColor"
-Converted["_themedColor8"].Parent = Converted["_Stub1"]
-
-Converted["_Toggle"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Toggle"].BackgroundTransparency = 1
-Converted["_Toggle"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Toggle"].BorderSizePixel = 0
-Converted["_Toggle"].Size = UDim2.new(1, 0, 0, 35)
-Converted["_Toggle"].Visible = false
-Converted["_Toggle"].Name = "Toggle"
-Converted["_Toggle"].Parent = Converted["_YARHM"]
-
-Converted["_TextLabel8"].Font = Enum.Font.Unknown
-Converted["_TextLabel8"].Text = "Loop walkspeed and FOV"
-Converted["_TextLabel8"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel8"].TextScaled = true
-Converted["_TextLabel8"].TextSize = 14
-Converted["_TextLabel8"].TextWrapped = true
-Converted["_TextLabel8"].TextXAlignment = Enum.TextXAlignment.Left
-Converted["_TextLabel8"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel8"].BackgroundTransparency = 1
-Converted["_TextLabel8"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel8"].BorderSizePixel = 0
-Converted["_TextLabel8"].Size = UDim2.new(0.699999988, 0, 0, 25)
-Converted["_TextLabel8"].Parent = Converted["_Toggle"]
-
-Converted["_UIListLayout5"].Padding = UDim.new(0, 25)
-Converted["_UIListLayout5"].FillDirection = Enum.FillDirection.Horizontal
-Converted["_UIListLayout5"].HorizontalAlignment = Enum.HorizontalAlignment.Center
-Converted["_UIListLayout5"].SortOrder = Enum.SortOrder.LayoutOrder
-Converted["_UIListLayout5"].VerticalAlignment = Enum.VerticalAlignment.Center
-Converted["_UIListLayout5"].Parent = Converted["_Toggle"]
-
-Converted["_Frame2"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Frame2"].BackgroundTransparency = 1
-Converted["_Frame2"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Frame2"].BorderSizePixel = 0
-Converted["_Frame2"].Size = UDim2.new(0.200000003, 0, 1, 0)
-Converted["_Frame2"].Parent = Converted["_Toggle"]
-
-Converted["_Frame3"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_Frame3"].BackgroundColor3 = Color3.fromRGB(46.000001057982445, 46.000001057982445, 46.000001057982445)
-Converted["_Frame3"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Frame3"].BorderSizePixel = 0
-Converted["_Frame3"].Position = UDim2.new(0.5, 0, 0.5, 0)
-Converted["_Frame3"].Size = UDim2.new(0, 89, 1, 0)
-Converted["_Frame3"].Parent = Converted["_Frame2"]
-
-Converted["_UICorner21"].CornerRadius = UDim.new(1, 0)
-Converted["_UICorner21"].Parent = Converted["_Frame3"]
-
-Converted["_Toggler"].Font = Enum.Font.SourceSans
-Converted["_Toggler"].Text = ""
-Converted["_Toggler"].TextColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Toggler"].TextSize = 14
-Converted["_Toggler"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_Toggler"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Toggler"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Toggler"].BorderSizePixel = 0
-Converted["_Toggler"].Position = UDim2.new(0.300000012, 0, 0.5, 0)
-Converted["_Toggler"].Size = UDim2.new(0.449438214, 0, 0.800000012, 0)
-Converted["_Toggler"].Name = "Toggler"
-Converted["_Toggler"].Parent = Converted["_Frame3"]
-
-Converted["_UICorner22"].CornerRadius = UDim.new(1, 0)
-Converted["_UICorner22"].Parent = Converted["_Toggler"]
-
-Converted["_ImageLabel1"].Image = "rbxassetid://10002373478"
-Converted["_ImageLabel1"].ImageColor3 = Color3.fromRGB(255, 0, 4.000000236555934)
--- Converted["_ImageLabel1"].ImageContent = Content{SourceType=Uri, Uri=rbxassetid://10002373478}
-Converted["_ImageLabel1"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_ImageLabel1"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_ImageLabel1"].BackgroundTransparency = 1
-Converted["_ImageLabel1"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_ImageLabel1"].BorderSizePixel = 0
-Converted["_ImageLabel1"].Position = UDim2.new(0.5, 0, 0.5, 0)
-Converted["_ImageLabel1"].Size = UDim2.new(0, 20, 0, 20)
-Converted["_ImageLabel1"].Parent = Converted["_Toggler"]
-
-Converted["_UIPadding14"].PaddingRight = UDim.new(0.0700000003, 0)
-Converted["_UIPadding14"].Parent = Converted["_Toggle"]
-
-Converted["_Modules"].Name = "Modules"
-Converted["_Modules"].Parent = Converted["_YARHM"]
-
-Converted["_NotificationSample"].AnchorPoint = Vector2.new(0.5, 0)
-Converted["_NotificationSample"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_NotificationSample"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_NotificationSample"].BorderSizePixel = 0
-Converted["_NotificationSample"].ClipsDescendants = true
-Converted["_NotificationSample"].Position = UDim2.new(0.5, 0, 0, 10)
-Converted["_NotificationSample"].Size = UDim2.new(0, 400, 0, 50)
-Converted["_NotificationSample"].Visible = false
-Converted["_NotificationSample"].ZIndex = 5
-Converted["_NotificationSample"].Name = "NotificationSample"
-Converted["_NotificationSample"].Parent = Converted["_YARHM"]
-
-Converted["_UICorner23"].CornerRadius = UDim.new(0, 10)
-Converted["_UICorner23"].Parent = Converted["_NotificationSample"]
-
-Converted["_UIStroke8"].Color = Color3.fromRGB(255, 255, 255)
-Converted["_UIStroke8"].Thickness = 1.600000023841858
-Converted["_UIStroke8"].Parent = Converted["_NotificationSample"]
-
-Converted["_UIGradient7"].Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(46.000001057982445, 46.000001057982445, 46.000001057982445)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(12.000000234693289, 12.000000234693289, 12.000000234693289))
-}
-Converted["_UIGradient7"].Parent = Converted["_NotificationSample"]
-
-Converted["_ImageLabel2"].Image = "rbxassetid://11780939099"
--- Converted["_ImageLabel2"].ImageContent = Content{SourceType=Uri, Uri=rbxassetid://11780939099}
-Converted["_ImageLabel2"].ScaleType = Enum.ScaleType.Fit
-Converted["_ImageLabel2"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_ImageLabel2"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_ImageLabel2"].BackgroundTransparency = 1
-Converted["_ImageLabel2"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_ImageLabel2"].BorderSizePixel = 0
-Converted["_ImageLabel2"].Position = UDim2.new(0.100000001, 0, 0.5, 0)
-Converted["_ImageLabel2"].Size = UDim2.new(0.0799999982, 0, 0.639999986, 0)
-Converted["_ImageLabel2"].Parent = Converted["_NotificationSample"]
-
-Converted["_TextLabel9"].Font = Enum.Font.Gotham
-Converted["_TextLabel9"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel9"].TextScaled = true
-Converted["_TextLabel9"].TextSize = 14
-Converted["_TextLabel9"].TextWrapped = true
-Converted["_TextLabel9"].TextXAlignment = Enum.TextXAlignment.Left
-Converted["_TextLabel9"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_TextLabel9"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel9"].BackgroundTransparency = 1
-Converted["_TextLabel9"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel9"].BorderSizePixel = 0
-Converted["_TextLabel9"].Position = UDim2.new(0.5, 0, 0.5, 0)
-Converted["_TextLabel9"].Size = UDim2.new(0.600000024, 0, 0.600000024, 0)
-Converted["_TextLabel9"].Parent = Converted["_NotificationSample"]
-
-Converted["_UITextSizeConstraint"].MaxTextSize = 30
-Converted["_UITextSizeConstraint"].Parent = Converted["_TextLabel9"]
-
-Converted["_Close"].Image = "rbxassetid://10002373478"
--- Converted["_Close"].ImageContent = Content{SourceType=Uri, Uri=rbxassetid://10002373478}
-Converted["_Close"].ScaleType = Enum.ScaleType.Fit
-Converted["_Close"].Active = false
-Converted["_Close"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_Close"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Close"].BackgroundTransparency = 1
-Converted["_Close"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Close"].BorderSizePixel = 0
-Converted["_Close"].Position = UDim2.new(0.899999976, 0, 0.5, 0)
-Converted["_Close"].Selectable = false
-Converted["_Close"].Size = UDim2.new(0.0799999982, 0, 0.639999986, 0)
-Converted["_Close"].Name = "Close"
-Converted["_Close"].Parent = Converted["_NotificationSample"]
-
-Converted["_UICorner24"].Parent = Converted["_Close"]
-
-Converted["_UIStroke9"].Color = Color3.fromRGB(255, 255, 255)
-Converted["_UIStroke9"].Parent = Converted["_Close"]
-
-Converted["_UIScale4"].Scale = 0.800000011920929
-Converted["_UIScale4"].Parent = Converted["_NotificationSample"]
-
-Converted["_themedColor9"].Value = "backgroundColorCSQ"
-Converted["_themedColor9"].Name = "themedColor"
-Converted["_themedColor9"].Parent = Converted["_NotificationSample"]
-
-Converted["_Dialog"].AnchorPoint = Vector2.new(0.5, 1)
-Converted["_Dialog"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Dialog"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Dialog"].BorderSizePixel = 0
-Converted["_Dialog"].Position = UDim2.new(0.499000013, 0, 0.984000027, 0)
-Converted["_Dialog"].Size = UDim2.new(0, 313, 0, 147)
-Converted["_Dialog"].Visible = false
-Converted["_Dialog"].ZIndex = 5
-Converted["_Dialog"].Name = "Dialog"
-Converted["_Dialog"].Parent = Converted["_YARHM"]
-
-Converted["_UICorner25"].Parent = Converted["_Dialog"]
-
-Converted["_UIGradient8"].Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(36.00000165402889, 36.00000165402889, 36.00000165402889)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(68.00000354647636, 68.00000354647636, 68.00000354647636))
-}
-Converted["_UIGradient8"].Rotation = -133
-Converted["_UIGradient8"].Parent = Converted["_Dialog"]
-
-Converted["_UIPadding15"].PaddingBottom = UDim.new(0, 15)
-Converted["_UIPadding15"].PaddingLeft = UDim.new(0, 15)
-Converted["_UIPadding15"].PaddingRight = UDim.new(0, 15)
-Converted["_UIPadding15"].PaddingTop = UDim.new(0, 15)
-Converted["_UIPadding15"].Parent = Converted["_Dialog"]
-
-Converted["_UIStroke10"].Color = Color3.fromRGB(255, 255, 255)
-Converted["_UIStroke10"].Thickness = 2
-Converted["_UIStroke10"].Parent = Converted["_Dialog"]
-
-Converted["_UIGradient9"].Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(111.00000098347664, 111.00000098347664, 111.00000098347664)),
-	ColorSequenceKeypoint.new(0.6401384472846985, Color3.fromRGB(114.23875719308853, 114.23875719308853, 114.23875719308853)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255))
-}
-Converted["_UIGradient9"].Rotation = -107
-Converted["_UIGradient9"].Parent = Converted["_UIStroke10"]
-
-Converted["_DialogTitle"].Font = Enum.Font.Unknown
-Converted["_DialogTitle"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_DialogTitle"].TextScaled = true
-Converted["_DialogTitle"].TextSize = 14
-Converted["_DialogTitle"].TextWrapped = true
-Converted["_DialogTitle"].TextXAlignment = Enum.TextXAlignment.Right
-Converted["_DialogTitle"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_DialogTitle"].BackgroundTransparency = 1
-Converted["_DialogTitle"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_DialogTitle"].BorderSizePixel = 0
-Converted["_DialogTitle"].Size = UDim2.new(0.997416437, 0, 0.16459392, 0)
-Converted["_DialogTitle"].Name = "DialogTitle"
-Converted["_DialogTitle"].Parent = Converted["_Dialog"]
-
-Converted["_UIListLayout6"].Padding = UDim.new(0, 3)
-Converted["_UIListLayout6"].SortOrder = Enum.SortOrder.LayoutOrder
-Converted["_UIListLayout6"].Parent = Converted["_Dialog"]
-
-Converted["_DialogDesc"].Font = Enum.Font.Unknown
-Converted["_DialogDesc"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_DialogDesc"].TextScaled = true
-Converted["_DialogDesc"].TextSize = 14
-Converted["_DialogDesc"].TextWrapped = true
-Converted["_DialogDesc"].TextXAlignment = Enum.TextXAlignment.Left
-Converted["_DialogDesc"].TextYAlignment = Enum.TextYAlignment.Top
-Converted["_DialogDesc"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_DialogDesc"].BackgroundTransparency = 1
-Converted["_DialogDesc"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_DialogDesc"].BorderSizePixel = 0
-Converted["_DialogDesc"].Position = UDim2.new(0, 0, 0.187079012, 0)
-Converted["_DialogDesc"].Size = UDim2.new(0.997416437, 0, 0.604575336, 0)
-Converted["_DialogDesc"].Name = "DialogDesc"
-Converted["_DialogDesc"].Parent = Converted["_Dialog"]
-
-Converted["_UITextSizeConstraint1"].MaxTextSize = 20
-Converted["_UITextSizeConstraint1"].MinTextSize = 5
-Converted["_UITextSizeConstraint1"].Parent = Converted["_DialogDesc"]
-
-Converted["_Options"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Options"].BackgroundTransparency = 1
-Converted["_Options"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Options"].BorderSizePixel = 0
-Converted["_Options"].Position = UDim2.new(0, 0, 0.82045126, 0)
-Converted["_Options"].Size = UDim2.new(0.997436285, 0, 0.241758227, 0)
-Converted["_Options"].Name = "Options"
-Converted["_Options"].Parent = Converted["_Dialog"]
-
-Converted["_UIListLayout7"].Padding = UDim.new(0, 10)
-Converted["_UIListLayout7"].FillDirection = Enum.FillDirection.Horizontal
-Converted["_UIListLayout7"].HorizontalAlignment = Enum.HorizontalAlignment.Center
-Converted["_UIListLayout7"].SortOrder = Enum.SortOrder.LayoutOrder
-Converted["_UIListLayout7"].Parent = Converted["_Options"]
-
-Converted["_OptionPlaceholder"].Font = Enum.Font.GothamBold
-Converted["_OptionPlaceholder"].RichText = true
-Converted["_OptionPlaceholder"].Text = "aaaaaaaaaaa"
-Converted["_OptionPlaceholder"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_OptionPlaceholder"].TextScaled = true
-Converted["_OptionPlaceholder"].TextSize = 100
-Converted["_OptionPlaceholder"].TextWrapped = true
-Converted["_OptionPlaceholder"].BackgroundColor3 = Color3.fromRGB(36.00000165402889, 36.00000165402889, 36.00000165402889)
-Converted["_OptionPlaceholder"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_OptionPlaceholder"].BorderSizePixel = 0
-Converted["_OptionPlaceholder"].Size = UDim2.new(0.532000005, -5, 1.00899994, 0)
-Converted["_OptionPlaceholder"].Visible = false
-Converted["_OptionPlaceholder"].Name = "OptionPlaceholder"
-Converted["_OptionPlaceholder"].Parent = Converted["_Options"]
-
-Converted["_UIPadding16"].PaddingBottom = UDim.new(0, 1)
-Converted["_UIPadding16"].PaddingLeft = UDim.new(0, 15)
-Converted["_UIPadding16"].PaddingRight = UDim.new(0, 15)
-Converted["_UIPadding16"].PaddingTop = UDim.new(0, 1)
-Converted["_UIPadding16"].Parent = Converted["_OptionPlaceholder"]
-
-Converted["_UICorner26"].Parent = Converted["_OptionPlaceholder"]
-
-Converted["_UIStroke11"].ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-Converted["_UIStroke11"].Color = Color3.fromRGB(255, 255, 255)
-Converted["_UIStroke11"].Thickness = 2
-Converted["_UIStroke11"].Parent = Converted["_OptionPlaceholder"]
-
-Converted["_UIGradient10"].Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(111.00000098347664, 111.00000098347664, 111.00000098347664)),
-	ColorSequenceKeypoint.new(0.6401384472846985, Color3.fromRGB(114.23875719308853, 114.23875719308853, 114.23875719308853)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255))
-}
-Converted["_UIGradient10"].Rotation = -107
-Converted["_UIGradient10"].Parent = Converted["_UIStroke11"]
-
-Converted["_themedColor10"].Value = "primaryColor"
-Converted["_themedColor10"].Name = "themedColor"
-Converted["_themedColor10"].Parent = Converted["_OptionPlaceholder"]
-
-Converted["_OnSelect"].Name = "OnSelect"
-Converted["_OnSelect"].Parent = Converted["_Dialog"]
-
-Converted["_UIScale5"].Parent = Converted["_Dialog"]
-
-Converted["_themedColor11"].Value = "backgroundColorCSQ"
-Converted["_themedColor11"].Name = "themedColor"
-Converted["_themedColor11"].Parent = Converted["_Dialog"]
-
-Converted["_Range"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Range"].BackgroundTransparency = 1
-Converted["_Range"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Range"].BorderSizePixel = 0
-Converted["_Range"].Size = UDim2.new(1, 0, 0, 35)
-Converted["_Range"].Visible = false
-Converted["_Range"].Name = "Range"
-Converted["_Range"].Parent = Converted["_YARHM"]
-
-Converted["_TextLabel10"].Font = Enum.Font.Unknown
-Converted["_TextLabel10"].Text = "something something idk lol"
-Converted["_TextLabel10"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel10"].TextScaled = true
-Converted["_TextLabel10"].TextSize = 58
-Converted["_TextLabel10"].TextWrapped = true
-Converted["_TextLabel10"].TextXAlignment = Enum.TextXAlignment.Left
-Converted["_TextLabel10"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel10"].BackgroundTransparency = 1
-Converted["_TextLabel10"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel10"].BorderSizePixel = 0
-Converted["_TextLabel10"].Position = UDim2.new(-0.0633024424, 0, 0.685714304, 0)
-Converted["_TextLabel10"].Size = UDim2.new(0, 125, 0, 25)
-Converted["_TextLabel10"].Parent = Converted["_Range"]
-
-Converted["_UIListLayout8"].HorizontalFlex = Enum.UIFlexAlignment.Fill
-Converted["_UIListLayout8"].Padding = UDim.new(0, 15)
-Converted["_UIListLayout8"].VerticalFlex = Enum.UIFlexAlignment.SpaceAround
-Converted["_UIListLayout8"].FillDirection = Enum.FillDirection.Horizontal
-Converted["_UIListLayout8"].HorizontalAlignment = Enum.HorizontalAlignment.Center
-Converted["_UIListLayout8"].SortOrder = Enum.SortOrder.LayoutOrder
-Converted["_UIListLayout8"].VerticalAlignment = Enum.VerticalAlignment.Center
-Converted["_UIListLayout8"].Parent = Converted["_Range"]
-
-Converted["_UIPadding17"].Parent = Converted["_Range"]
-
-Converted["_Frame4"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Frame4"].BackgroundTransparency = 1
-Converted["_Frame4"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Frame4"].BorderSizePixel = 0
-Converted["_Frame4"].Size = UDim2.new(0.400000006, 0, 1, 0)
-Converted["_Frame4"].Parent = Converted["_Range"]
-
-Converted["_UIPadding18"].PaddingBottom = UDim.new(0, 7)
-Converted["_UIPadding18"].PaddingLeft = UDim.new(0, 7)
-Converted["_UIPadding18"].PaddingRight = UDim.new(0, 7)
-Converted["_UIPadding18"].PaddingTop = UDim.new(0, 7)
-Converted["_UIPadding18"].Parent = Converted["_Frame4"]
-
-Converted["_UICorner27"].Parent = Converted["_Frame4"]
-
-Converted["_Track"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_Track"].BackgroundColor3 = Color3.fromRGB(22.000000588595867, 22.000000588595867, 22.000000588595867)
-Converted["_Track"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Track"].BorderSizePixel = 0
-Converted["_Track"].Position = UDim2.new(0.5, 0, 0.5, 0)
-Converted["_Track"].Size = UDim2.new(1, 0, 1.20000005, 0)
-Converted["_Track"].Name = "Track"
-Converted["_Track"].Parent = Converted["_Frame4"]
-
-Converted["_UICorner28"].CornerRadius = UDim.new(0, 6)
-Converted["_UICorner28"].Parent = Converted["_Track"]
-
-Converted["_Ball"].Font = Enum.Font.SourceSans
-Converted["_Ball"].Text = ""
-Converted["_Ball"].TextColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Ball"].TextSize = 14
-Converted["_Ball"].AnchorPoint = Vector2.new(0, 0.5)
-Converted["_Ball"].BackgroundColor3 = Color3.fromRGB(197.0000034570694, 0, 0)
-Converted["_Ball"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Ball"].BorderSizePixel = 0
-Converted["_Ball"].Interactable = false
-Converted["_Ball"].Position = UDim2.new(1.32920917e-07, 0, 0.5, 0)
-Converted["_Ball"].Size = UDim2.new(0.0599999987, 0, 1, 0)
-Converted["_Ball"].Name = "Ball"
-Converted["_Ball"].Parent = Converted["_Track"]
-
-Converted["_BallProgress"].Font = Enum.Font.GothamBold
-Converted["_BallProgress"].Text = "0"
-Converted["_BallProgress"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_BallProgress"].TextScaled = true
-Converted["_BallProgress"].TextSize = 14
-Converted["_BallProgress"].TextTransparency = 1
-Converted["_BallProgress"].TextWrapped = true
-Converted["_BallProgress"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_BallProgress"].BackgroundTransparency = 1
-Converted["_BallProgress"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_BallProgress"].BorderSizePixel = 0
-Converted["_BallProgress"].Size = UDim2.new(1, 0, 1, 0)
-Converted["_BallProgress"].Name = "BallProgress"
-Converted["_BallProgress"].Parent = Converted["_Ball"]
-
-Converted["_UIPadding19"].PaddingBottom = UDim.new(0, 2)
-Converted["_UIPadding19"].PaddingTop = UDim.new(0, 1)
-Converted["_UIPadding19"].Parent = Converted["_Ball"]
-
-Converted["_themedColor12"].Value = "accentColor"
-Converted["_themedColor12"].Name = "themedColor"
-Converted["_themedColor12"].Parent = Converted["_Ball"]
-
-Converted["_UICorner29"].CornerRadius = UDim.new(1, 0)
-Converted["_UICorner29"].Parent = Converted["_Ball"]
-
-Converted["_UIPadding20"].PaddingBottom = UDim.new(0, 6)
-Converted["_UIPadding20"].PaddingLeft = UDim.new(0, 6)
-Converted["_UIPadding20"].PaddingRight = UDim.new(0, 6)
-Converted["_UIPadding20"].PaddingTop = UDim.new(0, 6)
-Converted["_UIPadding20"].Parent = Converted["_Track"]
-
-Converted["_TrackProgress"].Font = Enum.Font.GothamBold
-Converted["_TrackProgress"].Text = "0"
-Converted["_TrackProgress"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TrackProgress"].TextScaled = true
-Converted["_TrackProgress"].TextSize = 14
-Converted["_TrackProgress"].TextTransparency = 1
-Converted["_TrackProgress"].TextWrapped = true
-Converted["_TrackProgress"].TextXAlignment = Enum.TextXAlignment.Right
-Converted["_TrackProgress"].AnchorPoint = Vector2.new(1, 0.5)
-Converted["_TrackProgress"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TrackProgress"].BackgroundTransparency = 1
-Converted["_TrackProgress"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TrackProgress"].BorderSizePixel = 0
-Converted["_TrackProgress"].Position = UDim2.new(1, 0, 0.5, 0)
-Converted["_TrackProgress"].Size = UDim2.new(0, 35, 1, 0)
-Converted["_TrackProgress"].Name = "TrackProgress"
-Converted["_TrackProgress"].Parent = Converted["_Track"]
-
-Converted["_themedColor13"].Value = "primaryColor"
-Converted["_themedColor13"].Name = "themedColor"
-Converted["_themedColor13"].Parent = Converted["_Track"]
-
-Converted["_UISizeConstraint"].Parent = Converted["_Frame4"]
-
-Converted["_FloatingButtonSetting"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_FloatingButtonSetting"].BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_FloatingButtonSetting"].BackgroundTransparency = 0.5
-Converted["_FloatingButtonSetting"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_FloatingButtonSetting"].BorderSizePixel = 0
-Converted["_FloatingButtonSetting"].Position = UDim2.new(0.5, 0, 0.5, 0)
-Converted["_FloatingButtonSetting"].Size = UDim2.new(1, 0, 1, 0)
-Converted["_FloatingButtonSetting"].Visible = false
-Converted["_FloatingButtonSetting"].ZIndex = 10
-Converted["_FloatingButtonSetting"].Name = "FloatingButtonSetting"
-Converted["_FloatingButtonSetting"].Parent = Converted["_YARHM"]
-
-Converted["_ControlBarContainer"].AnchorPoint = Vector2.new(0.5, 1)
-Converted["_ControlBarContainer"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_ControlBarContainer"].BackgroundTransparency = 1
-Converted["_ControlBarContainer"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_ControlBarContainer"].BorderSizePixel = 0
-Converted["_ControlBarContainer"].Position = UDim2.new(0.5, 0, 1, -50)
-Converted["_ControlBarContainer"].Size = UDim2.new(1, 0, 0, 40)
-Converted["_ControlBarContainer"].Name = "ControlBarContainer"
-Converted["_ControlBarContainer"].Parent = Converted["_FloatingButtonSetting"]
-
-Converted["_ControlBar"].AnchorPoint = Vector2.new(0.5, 1)
-Converted["_ControlBar"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_ControlBar"].BackgroundTransparency = 1
-Converted["_ControlBar"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_ControlBar"].BorderSizePixel = 0
-Converted["_ControlBar"].Position = UDim2.new(0.5, 0, 1, -30)
-Converted["_ControlBar"].Size = UDim2.new(1, 0, 0, 40)
-Converted["_ControlBar"].Name = "ControlBar"
-Converted["_ControlBar"].Parent = Converted["_ControlBarContainer"]
-
-Converted["_UIListLayout9"].Padding = UDim.new(0, 5)
-Converted["_UIListLayout9"].FillDirection = Enum.FillDirection.Horizontal
-Converted["_UIListLayout9"].HorizontalAlignment = Enum.HorizontalAlignment.Center
-Converted["_UIListLayout9"].SortOrder = Enum.SortOrder.LayoutOrder
-Converted["_UIListLayout9"].Parent = Converted["_ControlBar"]
-
-Converted["_Visibility"].Font = Enum.Font.Gotham
-Converted["_Visibility"].Text = "Toggle visibility"
-Converted["_Visibility"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Visibility"].TextScaled = true
-Converted["_Visibility"].TextSize = 14
-Converted["_Visibility"].TextWrapped = true
-Converted["_Visibility"].BackgroundColor3 = Color3.fromRGB(46.000001057982445, 46.000001057982445, 46.000001057982445)
-Converted["_Visibility"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Visibility"].BorderSizePixel = 0
-Converted["_Visibility"].Size = UDim2.new(0, 200, 1, 0)
-Converted["_Visibility"].Name = "Visibility"
-Converted["_Visibility"].Parent = Converted["_ControlBar"]
-
-Converted["_UICorner30"].CornerRadius = UDim.new(0, 16)
-Converted["_UICorner30"].Parent = Converted["_Visibility"]
-
-Converted["_UIPadding21"].PaddingBottom = UDim.new(0, 7)
-Converted["_UIPadding21"].PaddingLeft = UDim.new(0, 7)
-Converted["_UIPadding21"].PaddingRight = UDim.new(0, 7)
-Converted["_UIPadding21"].PaddingTop = UDim.new(0, 7)
-Converted["_UIPadding21"].Parent = Converted["_Visibility"]
-
-Converted["_Event"].Parent = Converted["_Visibility"]
-
-Converted["_themedColor14"].Value = "primaryColor"
-Converted["_themedColor14"].Name = "themedColor"
-Converted["_themedColor14"].Parent = Converted["_Visibility"]
-
-Converted["_Lock1"].Font = Enum.Font.Gotham
-Converted["_Lock1"].Text = "Toggle lock"
-Converted["_Lock1"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Lock1"].TextScaled = true
-Converted["_Lock1"].TextSize = 14
-Converted["_Lock1"].TextWrapped = true
-Converted["_Lock1"].BackgroundColor3 = Color3.fromRGB(46.000001057982445, 46.000001057982445, 46.000001057982445)
-Converted["_Lock1"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Lock1"].BorderSizePixel = 0
-Converted["_Lock1"].Size = UDim2.new(0, 200, 1, 0)
-Converted["_Lock1"].Name = "Lock"
-Converted["_Lock1"].Parent = Converted["_ControlBar"]
-
-Converted["_UICorner31"].CornerRadius = UDim.new(0, 16)
-Converted["_UICorner31"].Parent = Converted["_Lock1"]
-
-Converted["_UIPadding22"].PaddingBottom = UDim.new(0, 7)
-Converted["_UIPadding22"].PaddingLeft = UDim.new(0, 7)
-Converted["_UIPadding22"].PaddingRight = UDim.new(0, 7)
-Converted["_UIPadding22"].PaddingTop = UDim.new(0, 7)
-Converted["_UIPadding22"].Parent = Converted["_Lock1"]
-
-Converted["_Event1"].Parent = Converted["_Lock1"]
-
-Converted["_themedColor15"].Value = "primaryColor"
-Converted["_themedColor15"].Name = "themedColor"
-Converted["_themedColor15"].Parent = Converted["_Lock1"]
-
-Converted["_Exit"].Font = Enum.Font.GothamBold
-Converted["_Exit"].Text = "X"
-Converted["_Exit"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Exit"].TextScaled = true
-Converted["_Exit"].TextSize = 14
-Converted["_Exit"].TextWrapped = true
-Converted["_Exit"].BackgroundColor3 = Color3.fromRGB(46.000001057982445, 0, 0)
-Converted["_Exit"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Exit"].BorderSizePixel = 0
-Converted["_Exit"].Size = UDim2.new(1, 0, 1, 0)
-Converted["_Exit"].Name = "Exit"
-Converted["_Exit"].Parent = Converted["_ControlBar"]
-
-Converted["_UICorner32"].CornerRadius = UDim.new(0, 16)
-Converted["_UICorner32"].Parent = Converted["_Exit"]
-
-Converted["_UIPadding23"].PaddingBottom = UDim.new(0, 7)
-Converted["_UIPadding23"].PaddingLeft = UDim.new(0, 7)
-Converted["_UIPadding23"].PaddingRight = UDim.new(0, 7)
-Converted["_UIPadding23"].PaddingTop = UDim.new(0, 7)
-Converted["_UIPadding23"].Parent = Converted["_Exit"]
-
-Converted["_UIAspectRatioConstraint"].Parent = Converted["_Exit"]
-
-Converted["_themedColor16"].Value = "secondaryColor"
-Converted["_themedColor16"].Name = "themedColor"
-Converted["_themedColor16"].Parent = Converted["_Exit"]
-
-Converted["_UIListLayout10"].Padding = UDim.new(0, 5)
-Converted["_UIListLayout10"].HorizontalAlignment = Enum.HorizontalAlignment.Center
-Converted["_UIListLayout10"].SortOrder = Enum.SortOrder.LayoutOrder
-Converted["_UIListLayout10"].Parent = Converted["_ControlBarContainer"]
-
-Converted["_Tip"].Font = Enum.Font.GothamBold
-Converted["_Tip"].Text = "Drag the button around to resize!"
-Converted["_Tip"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Tip"].TextScaled = true
-Converted["_Tip"].TextSize = 14
-Converted["_Tip"].TextWrapped = true
-Converted["_Tip"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_Tip"].BackgroundTransparency = 1
-Converted["_Tip"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Tip"].BorderSizePixel = 0
-Converted["_Tip"].Size = UDim2.new(1, 0, 0, 10)
-Converted["_Tip"].Name = "Tip"
-Converted["_Tip"].Parent = Converted["_ControlBarContainer"]
-
-Converted["_UIStroke12"].Parent = Converted["_Tip"]
-
-Converted["_UIScale6"].Parent = Converted["_ControlBarContainer"]
-
-Converted["_FloatingButtons"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_FloatingButtons"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_FloatingButtons"].BackgroundTransparency = 1
-Converted["_FloatingButtons"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_FloatingButtons"].BorderSizePixel = 0
-Converted["_FloatingButtons"].Position = UDim2.new(0.5, 0, 0.5, 0)
-Converted["_FloatingButtons"].Size = UDim2.new(1, 0, 1, 0)
-Converted["_FloatingButtons"].ZIndex = 3
-Converted["_FloatingButtons"].Name = "FloatingButtons"
-Converted["_FloatingButtons"].Parent = Converted["_FloatingButtonSetting"]
-
-Converted["_FloatingButtons1"].AnchorPoint = Vector2.new(0.5, 0.5)
-Converted["_FloatingButtons1"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_FloatingButtons1"].BackgroundTransparency = 1
-Converted["_FloatingButtons1"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_FloatingButtons1"].BorderSizePixel = 0
-Converted["_FloatingButtons1"].Position = UDim2.new(0.5, 0, 0.5, 0)
-Converted["_FloatingButtons1"].Size = UDim2.new(1, 0, 1, 0)
-Converted["_FloatingButtons1"].ZIndex = 3
-Converted["_FloatingButtons1"].Name = "FloatingButtons"
-Converted["_FloatingButtons1"].Parent = Converted["_YARHM"]
-
--- Routine Module Scripts:
-
-local routine_module_scripts = {}
-
-do -- Routine Module: StarterGui.YARHM.FUNCTIONS
-    local script = Instance.new("ModuleScript")
-    script.Name = "FUNCTIONS"
-    script.Parent = Converted["_YARHM"]
-    local function module_script()
-
-		local FUNCTIONSmodule = {}
-		FUNCTIONSmodule.__v = "1.21"
-		
-		local ts = game:GetService("TweenService")
-		local https = game:GetService("HttpService")
-		
-		
-			
-			
-		function DraggableObjectf()
-			local function a(b,c)local d=c.AbsoluteSize;local e=c.AbsolutePosition;local f=b.X.Scale*d.X+b.X.Offset;local g=b.Y.Scale*d.Y+b.Y.Offset;local h=math.clamp(f,0,d.X)local i=math.clamp(g,0,d.Y)local j=UDim2.new(b.X.Scale,h-b.X.Scale*d.X,b.Y.Scale,i-b.Y.Scale*d.Y)return j end;local k=UDim2.new;local l=game:GetService("UserInputService")local m=game:GetService("TweenService")local n={}n.__index=n;function n.new(o,p,q,r)local self={}self.Object=o;self.ToMove=p;self.Smooth=q;self.CallbackOnly=r;self.CanBeDragged=false;self.DragStarted=nil;self.DragEnded=nil;self.Dragged=nil;self.Dragging=false;self.LastPosition=nil;self.Velocity=Vector2.new(0,0)setmetatable(self,n)return self end;function n:Enable()self.CanBeDragged=true;local s=self.Object;local t=self.ToMove;local u=nil;local v=nil;local w=nil;local x=false;local function y(z)local A=z.Position-v;local B=UDim2.new(w.X.Scale,w.X.Offset+A.X,w.Y.Scale,w.Y.Offset+A.Y)if self.CallbackOnly then else B=a(B,self.Object:FindFirstAncestorWhichIsA("ScreenGui"))if(self.Smooth==nil or self.Smooth==true)and self.Smooth~=false then m:Create(t and t or s,TweenInfo.new(0.5,Enum.EasingStyle.Cubic,Enum.EasingDirection.Out),{Position=B}):Play()else local C=t and t or s;C.Position=B end end;return B end;self.InputBegan=s.InputBegan:Connect(function(z)if z.UserInputType==Enum.UserInputType.MouseButton1 or z.UserInputType==Enum.UserInputType.Touch then x=true;local D;D=z.Changed:Connect(function()if z.UserInputState==Enum.UserInputState.End and(self.Dragging or x)then self.Dragging=false;D:Disconnect()if self.DragEnded and not x then self.DragEnded(self.Velocity)end;x=false end end)end end)self.InputChanged=s.InputChanged:Connect(function(z)if z.UserInputType==Enum.UserInputType.MouseMovement or z.UserInputType==Enum.UserInputType.Touch then u=z end end)self.InputChanged2=l.InputChanged:Connect(function(z)if s.Parent==nil then self:Disable()return end;if x then x=false;if self.DragStarted then self.DragStarted()end;self.Dragging=true;v=z.Position;if t then w=t.Position else w=s.Position end;self.LastPosition=z.Position end;if z==u and self.Dragging then local B=y(z)self.Velocity=z.Position-self.LastPosition;self.LastPosition=z.Position;if self.Dragged then self.Dragged(B)end end end)end;function n:Disable()self.CanBeDragged=false;self.InputBegan:Disconnect()self.InputChanged:Disconnect()self.InputChanged2:Disconnect()if self.Dragging then self.Dragging=false;if self.DragEnded then self.DragEnded(self.Velocity)end end end;return n	
-		end
-		local DraggableObject = DraggableObjectf()
-		
-		function ClickAndHoldf()
-			local a={}a.__index=a;local b=game:GetService("UserInputService")function a.new(c,d)local self=setmetatable({},a)self.textButton=c;self.holdTime=d or 0.5;self.holdTask=nil;self.initialPosition=nil;self.Holded=Instance.new("BindableEvent")local function e(f,g)return math.sqrt((g.X-f.X)^2+(g.Y-f.Y)^2)end;self.textButton.MouseButton1Down:Connect(function(h,i)self.initialPosition=Vector2.new(h,i)self.holdTask=task.spawn(function()task.wait(self.holdTime)if self.holdTask then self.Holded:Fire()end end)end)b.InputChanged:Connect(function(j)if j.UserInputType==Enum.UserInputType.MouseMovement or j.UserInputType==Enum.UserInputType.Touch then if self.holdTask and self.initialPosition then local k=j.Position;local l=e(self.initialPosition,k)if l>10 then coroutine.close(self.holdTask)self.holdTask=nil end end end end)b.InputEnded:Connect(function(j)if j.UserInputType==Enum.UserInputType.MouseButton1 or j.UserInputType==Enum.UserInputType.Touch then if self.holdTask then coroutine.close(self.holdTask)self.holdTask=nil end;self.initialPosition=nil end end)return self end;return a
-		end
-		local ClickAndHold = ClickAndHoldf()
-		function PointSavef()
-			local _=false local function d(...)if _ then print("[PointSave DEBUG]:",...)end end getgenv()._FOLDERS=getgenv()._FOLDERS or{} getgenv()._FILES=getgenv()._FILES or{} isfolder=isfolder or function(_)d("Checking if folder exists:",_) return getgenv()._FOLDERS[_]~=nil end makefolder=makefolder or function(_)d("Creating folder:",_) getgenv()._FOLDERS[_]={} return getgenv()._FOLDERS[_]end isfile=isfile or function(_)d("Checking if file exists:",_) return getgenv()._FILES[_]~=nil end writefile=writefile or function(a,_)d("Writing file:",a,"with content:",_) getgenv()._FILES[a]=_ return getgenv()._FILES[a]end readfile=readfile or function(_)d("Reading file:",_) return getgenv()._FILES[_]end delfile=delfile or function(_)d("Deleting file:",_) getgenv()._FILES[_]=nil end listfiles=listfiles or function(c)d("Listing files in folder:",c) local _=getgenv()._FOLDERS[c] if _ then local a={} for b,_ in pairs(getgenv()._FILES)do if b:sub(1,#c+1)==c.."/"then local _=b:sub(#c+2) d("Found file in folder:",_) table.insert(a,_)end end return a end d("Folder does not exist:",c) return{}end local b={} b.__index=b local c="PointSaveData" local function _()if not isfolder(c)then d("Base folder not found, creating:",c) makefolder(c)else d("Base folder already exists:",c)end end function b.new(a)d("Initializing new PointSave instance for namespace:",a) _() local _=setmetatable({},b) _.namespace=a _.folderPath=c.."/"..a if not isfolder(_.folderPath)then d("Namespace folder does not exist, creating:",_.folderPath) makefolder(_.folderPath)else d("Namespace folder already exists:",_.folderPath)end return _ end function b:set(b,a)local _=self.folderPath.."/"..b..".txt" d("Setting value for key:",b,"->",a) writefile(_,tostring(a))end function b:get(a)local _=self.folderPath.."/"..a..".txt" d("Getting value for key:",a) if isfile(_)then local _=readfile(_) d("Found value for key:",a,"->",_) return _ end d("Key not found:",a) return nil end function b:remove(a)local _=self.folderPath.."/"..a..".txt" d("Removing key:",a) if isfile(_)then delfile(_) d("Removed file for key:",a)else d("File for key does not exist:",a)end end function b:clear()d("Clearing all keys in namespace:",self.namespace) local _=listfiles(self.folderPath) for _,_ in ipairs(_)do local _=self.folderPath.."/".._ if isfile(_)then d("Deleting file:",_) delfile(_)end end end function b.deleteNamespace(a)local b=c.."/"..a d("Deleting namespace:",a) local _=listfiles(b) for _,_ in ipairs(_)do local _=b.."/".._ if isfile(_)then d("Deleting file from namespace:",_) delfile(_)end end getgenv()._FOLDERS[b]=nil d("Deleted folder for namespace:",a)end function b.listNamespaces()d("Listing all namespaces") _() local b={} for a,_ in pairs(getgenv()._FOLDERS)do if a:sub(1,#c+1)==c.."/"then local _=a:sub(#c+2) d("Found namespace:",_) table.insert(b,_)end end return b end return b
-		end
-		local PointSave = PointSavef()
-		function SBTf()
-			-- Spring-based tweening module
-			-- Implementation by YARHM Team, respective credits towards the original creators for spring physics
-		
-			local a=function()local a=function()local a={}local function b(c,d,e,f,g,h)local i=d*d-4*e/c;local j=-0.5;local k=d+math.sqrt(i)local l=d-math.sqrt(i)local m,n=j*k,j*l;local o,p=(n*f-g)/(n-m),(m*f-g)/(m-n)local q=h/e;return{Offset=function(r)return o*math.exp(m*r)+p*math.exp(n*r)+q end,Velocity=function(r)return o*m*math.exp(m*r)+p*n*math.exp(n*r)end,Acceleration=function(r)return o*m*m*math.exp(m*r)+p*n*n*math.exp(n*r)end}end;local function s(c,d,e,f,g,h)local i=-d/2;local j,k=f,g-i*f;local l=h/e;return{Offset=function(m)return math.exp(i*m)*(j+k*m)+l end,Velocity=function(m)return math.exp(i*m)*(k*i*m+j*i+k)end,Acceleration=function(m)return i*math.exp(i*m)*(k*i*m+j*i+2*k)end}end;local function t(c,d,e,f,g,h)local i=d*d-4*e/c;local j=-d/2;local k=math.sqrt(-i)local l,m=f,(g-j*f)/k;local n=h/e;return{Offset=function(o)return math.exp(j*o)*(l*math.cos(k*o)+m*math.sin(k*o))+n end,Velocity=function(o)return-math.exp(j*o)*((l*k-m*j)*math.sin(k*o)+(-m*k-l*j)*math.cos(k*o))end,Acceleration=function(o)return-math.exp(j*o)*((m*k*k+2*l*j*k-m*j*j)*math.sin(k*o)+(l*k*k-2*m*j*k-l*j*j)*math.cos(k*o))end}end;function a.F(c)local d,e,f=c.InitialOffset,c.InitialVelocity,c.ExternalForce;local g,h,i=c.Mass,c.Damping,c.Constant;local j=h*h-4*i/g;if j>0 then return b(g,h,i,d,e,f)elseif j==0 then return s(g,h,i,d,e,f)else return t(g,h,i,d,e,f)end end;return a end;local c=a()local d=math.sqrt;local e=math.pi;local f={OFFSET="Offset",VELOCITY="Velocity",ACCELERATION="Acceleration",GOAL="Goal",FREQUENCY="Frequency"}local g=""local h=""local i={}local j={}j.__index=function(k,l)local m={[f.OFFSET]=function()local m=tick()-k.StartTick;local n=k.F;local o=n.Offset(m)return o end,[f.VELOCITY]=function()local m=tick()-k.StartTick;local n=k.F;local o=n.Velocity(m)return o end,[f.ACCELERATION]=function()local m=tick()-k.StartTick;local n=k.F;local o=n.Acceleration(m)return o end,[f.GOAL]=function()local m=k.ExternalForce;local n=k.Constant;return m/n end,[f.FREQUENCY]=function()local m=k.Damping;local n=k.Constant;local o=k.Mass;return d(-m*m+4*n/o)/(2*e)end}local n=rawget(k,l)if n~=nil then return n end;local o=m[l]if o~=nil then return o()end;return j[l]end;j.__tostring=function(k)local l=tick()-k.StartTick;local m=k.F;local n=k.AdvancedObjectStringEnabled;local o;if not n then o=string.format(g,m.Offset(l),m.Velocity(l),m.Acceleration(l))else o=string.format(h,k.Mass,k.Damping,k.Constant,k.Goal,k.Frequency,k.InitialOffset,k.InitialVelocity,k.ExternalForce,k.StartTick,m.Offset(l),m.Velocity(l),m.Acceleration(l))end;return o end;function i.fromDurationAndBounce(k,l)local m=1;local n=(2*math.pi/k)^2*m;local o=2*l*math.sqrt(m*n)return{m,o,n}end;function i.new(k,l,m,n,o,p)assert(k>0,"Mass for spring system cannot be less than or equal to 0")assert(m>0,"Spring constant for spring system cannot be less than or equal to 0")n=n or 0;o=o or 0;p=p or 0;local q=p*m;local r={Mass=k,Damping=l,Constant=m,InitialOffset=n-p,InitialVelocity=o,ExternalForce=q,AdvancedObjectStringEnabled=false,StartTick=0}setmetatable(r,j)r:Reset()return r end;function i.fromFrequency(k,l,m,n,o,p)assert(k>0,"Mass for spring system cannot be less than or equal to 0")assert(m>0,"Spring frequency for spring system cannot be less than or equal to 0")local q=0.25*k*(4*e*e*m*m+l*l)n=n or 0;o=o or 0;p=p or 0;local r=p*q;local u={Mass=k,Damping=l,Constant=q,InitialOffset=n-p,InitialVelocity=o,ExternalForce=r,AdvancedObjectStringEnabled=false,StartTick=0}setmetatable(u,j)u:Reset()return u end;function j.Reset(k)k.F=c.F(k)k.StartTick=tick()end;function j.SetExternalForce(k,l)k.ExternalForce=l;k.InitialOffset=k.Offset-l/k.Constant;k.InitialVelocity=k.Velocity;k:Reset()end;function j.SetGoal(k,l)k.ExternalForce=l*k.Constant;k.InitialOffset=k.Offset-l;k.InitialVelocity=k.Velocity;k:Reset()end;function j.SetFrequency(k,l)k.Constant=0.25*k.Mass*(4*e*e*l*l+k.Damping*k.Damping)k.InitialOffset=k.Offset;k.InitialVelocity=k.Velocity;k:Reset()end;function j.SnapToCriticalDamping(k)k.Damping=2*d(k.Constant/k.Mass)k.InitialOffset=k.Offset;k.InitialVelocity=k.Velocity;k:Reset()end;function j.SetOffset(k,l,m)k.InitialOffset=l-k.Goal;k.InitialVelocity=m and 0 or k.Velocity;k:Reset()end;function j.AddOffset(k,l)k.InitialOffset=k.Offset+l;k.InitialVelocity=k.Velocity;k:Reset()end;function j.SetVelocity(k,l)k.InitialOffset=k.Offset;k.InitialVelocity=l;k:Reset()end;function j.AddVelocity(k,l)k.InitialOffset=k.Offset;k.InitialVelocity=k.Velocity+l;k:Reset()end;function j.Print(k)local l=tostring(k)print(l)end;return i end;local c=a()local d=game:GetService"RunService"local e={}e.__index=e;function e.fromDurationAndBounce(f,g)local h=1;local i=(2*math.pi/f)^2*h;local j=2*(1-g)*math.sqrt(h*i)return{h,j,i}end;local f={number=function(f,g,h,i,j)local k=c.new(h,i,j,f[g],0,f[g])return{springType="number",springSet={k},updateFunc=function()f[g]=k.Offset end,setGoal=function(l)k:SetGoal(l)end}end,UDim2=function(f,g,h,i,j)local k=c.new(h,i,j,f[g].X.Offset,0,f[g].X.Offset)local l=c.new(h,i,j,f[g].X.Scale,0,f[g].X.Scale)local m=c.new(h,i,j,f[g].Y.Offset,0,f[g].Y.Offset)local n=c.new(h,i,j,f[g].Y.Scale,0,f[g].Y.Scale)return{springType="UDim2",springSet={XOffset=k,XScale=l,YOffset=m,YScale=n},updateFunc=function()f[g]=UDim2.new(l.Offset,k.Offset,n.Offset,m.Offset)end,setGoal=function(o)k:SetGoal(o.X.Offset)l:SetGoal(o.X.Scale)m:SetGoal(o.Y.Offset)n:SetGoal(o.Y.Scale)end}end,Vector2=function(f,g,h,i,j)local k=c.new(h,i,j,f[g].X,0,f[g].X)local l=c.new(h,i,j,f[g].Y,0,f[g].Y)return{springType="Vector2",springSet={X=k,Y=l},updateFunc=function()f[g]=Vector2.new(k.Offset,l.Offset)end,setGoal=function(m)k:SetGoal(m.X)l:SetGoal(m.Y)end}end,Vector3=function(f,g,h,i,j)local k=c.new(h,i,j,f[g].X,0,f[g].X)local l=c.new(h,i,j,f[g].Y,0,f[g].Y)local m=c.new(h,i,j,f[g].Z,0,f[g].Z)return{springType="Vector3",springSet={k,l,m},updateFunc=function()f[g]=Vector3.new(k.Offset,l.Offset,m.Offset)end,setGoal=function(n)k:SetTarget(n.X)l:SetTarget(n.Y)m:SetTarget(n.Z)end}end}function e.new(g,h,i,j,k)assert(g[h],"Property does not exist on object")local l=typeof(g[h])local m=f[l]if m then local n=setmetatable({},e)n.obj=g;n.propertyName=h;n.updater=nil;local o=m(g,h,i,j,k)n.springType=o.springType;n.springSet=o.springSet;n.updateFunc=o.updateFunc;n.setGoal=o.setGoal;return n else error("Type not supported: "..l)end end;function e.Start(g)if g.updater then return end;for h,i in pairs(g.springSet)do i:Reset()end;g.updater=d.RenderStepped:Connect(function(h)g.updateFunc()end)end;function e.Stop(g)if g.updater then g.updater:Disconnect()g.updater=nil end end;function e.SetGoal(g,h)g.setGoal(h)end;function e.SetParameters(g,h,i,j)for k,l in pairs(g.springSet)do l.Mass=h;l.Stiffness=i;l.Damping=j;l:Reset()end end;return e
-		end
-		local SBT = SBTf()
-		
-		
-		
-		local YARHMPointSave = PointSave.new("YARHM")
-		
-		local States = {}
-		local toggleStates = {}
-		local rangeValueStates = {}
-		local AREA = script.Parent.Menu.Area.Area
-		local AREACONTAINER = script.Parent.Menu.Area
-		
-		local AREAModuleSelected = nil
-		
-		local fBSF = script.Parent.FloatingButtonSetting
-		
-		local function calculateWidth(n)
-			if n <= 3 then
-				return 30
-			else
-				local base = 30
-				local additional = math.floor((n - 3) / 3) * 30
-				return base + additional
-			end
-		end
-		local function udim2Serializer(value)
-			if typeof(value) == "UDim2" then
-				return string.format("%g,%g,%g,%g", value.X.Scale, value.X.Offset, value.Y.Scale, value.Y.Offset)
-			elseif typeof(value) == "string" then
-				local xScale, xOffset, yScale, yOffset = string.match(value, "([^,]+),([^,]+),([^,]+),([^,]+)")
-				assert(xScale and xOffset and yScale and yOffset, "Invalid UDim2 string format")
-				return UDim2.new(tonumber(xScale), tonumber(xOffset), tonumber(yScale), tonumber(yOffset))
-			end
-		end
-		local function lrp(a,b,t)
-			return a + (b - a) * t
-		end
-		function roundNumber(num, numDecimalPlaces)
-			return tonumber(string.format("%." .. numDecimalPlaces .. "f", num))
-		end
-		
-		FUNCTIONSmodule.theme = {
-			font = Enum.Font.Montserrat,
-			textColor = Color3.fromRGB(255, 255, 255),
-			accentColor = Color3.fromRGB(197, 0, 0),
-			primaryColor = Color3.fromRGB(22, 22, 22),
-			secondaryColor = Color3.fromRGB(12, 12, 12),
-		
-			backgroundColorCSQ = ColorSequence.new(Color3.fromRGB(36, 36, 36), Color3.fromRGB(68, 68, 68)),	
-			strokeColorCSQ = ColorSequence.new{
-				ColorSequenceKeypoint.new(0, Color3.fromRGB(53.00000064074993, 53.00000064074993, 53.00000064074993)),
-				ColorSequenceKeypoint.new(0.15224914252758026, Color3.fromRGB(50.69031357765198, 50.69031357765198, 50.69031357765198)),
-				ColorSequenceKeypoint.new(0.4723183512687683, Color3.fromRGB(255, 0, 4.000000236555934)),
-				ColorSequenceKeypoint.new(0.7577854990959167, Color3.fromRGB(50.13314567506313, 50.13314567506313, 50.13314567506313)),
-				ColorSequenceKeypoint.new(1, Color3.fromRGB(48.000000938773155, 48.000000938773155, 48.000000938773155))
-			},
-		}
-		
-		function FUNCTIONSmodule.getTheme()
-			if getgenv then
-				return getgenv().YARHM_THEME or FUNCTIONSmodule.theme
-			else
-				return FUNCTIONSmodule.theme
-			end
-		end
-		function FUNCTIONSmodule.setTheme(t)
-			FUNCTIONSmodule.theme = t
-			if getgenv then getgenv().YARHM_THEME = t end
-		end
-		
-		local floatingButtonObjects = {}
-		local floatingButtonInvisibility = {}
-		local floatingButtonDraggers = {}
-		local floatingButtonKeybinds = {}
-		local floatingButtonConnections = {}
-		
-		local fBSFResizeDragger = nil
-		getgenv().fBSFButton = nil
-		getgenv().fBSFRealButton = nil
-		getgenv().fBSF_ButtonDragger = nil
-		
-		local selected = Instance.new("ObjectValue")
-		
-		selected.Parent = script.Parent
-		selected.Name = "Selected"
-		
-		local icons = {
-			info = "rbxassetid://11780939099",
-			x = "rbxassetid://10002373478",
-			cross = "rbxassetid://10002373478",
-			check = "rbxassetid://11604833061"
-		}
-		
-		
-		incomingNotif = false
-		
-		function FUNCTIONSmodule.to_base64(data)
-			local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-			return ((data:gsub('.', function(x) 
-				local r,b='',x:byte()
-				for i=8,1,-1 do r=r..(b%2^i-b%2^(i-1)>0 and '1' or '0') end
-				return r;
-			end)..'0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
-				if (#x < 6) then return '' end
-				local c=0
-				for i=1,6 do c=c+(x:sub(i,i)=='1' and 2^(6-i) or 0) end
-				return b:sub(c+1,c+1)
-			end)..({ '', '==', '=' })[#data%3+1])
-		end
-		
-		function FUNCTIONSmodule.from_base64(data)
-			local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-			data = string.gsub(data, '[^'..b..'=]', '')
-			return (data:gsub('.', function(x)
-				if (x == '=') then return '' end
-				local r,f='',(b:find(x)-1)
-				for i=6,1,-1 do r=r..(f%2^i-f%2^(i-1)>0 and '1' or '0') end
-				return r;
-			end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
-				if (#x ~= 8) then return '' end
-				local c=0
-				for i=1,8 do c=c+(x:sub(i,i)=='1' and 2^(8-i) or 0) end
-				return string.char(c)
-			end))
-		end
-		
-		function FUNCTIONSmodule.notification(s, color, icon)
-			incomingNotif = true
-			task.spawn(function()
-				s = tostring(s)
-				local notif = script.Parent.NotificationSample:Clone()
-				notif.Parent = script.Parent
-				notif.Position = UDim2.fromScale(0.5, -0.1)
-				notif.UIScale.Scale = 0.5
-				notif.Visible = true
-				notif.Name = s
-		
-				if color and typeof(icon) == "Color3" then
-					notif.UIStroke.Color = color
-					notif.ImageLabel.ImageColor3 = color
-				end
-		
-				if icon then
-					if icons[icon] then notif.ImageLabel.Image = icons[icon] else
-						if tonumber(icon) then
-							notif.ImageLabel.Image = "rbxassetid://" .. tonumber(icon)
-						else
-							notif.ImageLabel.Image = icon
-						end
-					end
-				end
-		
-				notif.TextLabel.MaxVisibleGraphemes = 0
-				notif.TextLabel.Text = s
-				notif:SetAttribute("close", false)
-				ts:Create(notif, TweenInfo.new(0.7, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-					Position = UDim2.new(0.5, 0, 0, 10)
-				}):Play()
-		
-				ts:Create(notif.UIScale, TweenInfo.new(0.8, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-					Scale = 0.8
-				}):Play()
-		
-				ts:Create(notif.TextLabel, TweenInfo.new(0.7, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-					MaxVisibleGraphemes = #s
-				}):Play()
-		
-				notif.Close.MouseButton1Click:Connect(function()
-					notif:SetAttribute("close", true)
-				end)
-		
-				task.wait()
-				incomingNotif = false
-				local lastclock = os.clock()
-				repeat task.wait() until os.clock()-lastclock > 5 or incomingNotif or notif:GetAttribute("close")
-		
-				local finish = ts:Create(notif, TweenInfo.new(0.3, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-					Position = UDim2.fromScale(0.5, -0.1)
-				})
-				finish:Play()
-				finish.Completed:Connect(function()
-					notif:Destroy()
-				end)
-			end)
-		end
-		
-		local lockMode = false
-		function FUNCTIONSmodule.lockModeSet(s)
-			lockMode = s
-		end
-		
-		function FUNCTIONSmodule.closeFinetuneFB()
-			for _, b in ipairs(script.Parent.FloatingButtons:GetChildren()) do
-				if b:IsA("TextButton") and b:FindFirstChildWhichIsA("UIScale") then
-					local buttonScale = b:FindFirstChildWhichIsA("UIScale")
-					ts:Create(buttonScale, TweenInfo.new(0.3), {
-						Scale = 1
-					}):Play()
-				end
-			end
-		
-			local buttonScale = getgenv().fBSFButton:FindFirstChildWhichIsA("UIScale") or Instance.new("UIScale", getgenv().fBSFButton)
-			ts:Create(buttonScale, TweenInfo.new(0.3), {
-				Scale = 0
-			}):Play()
-			ts:Create(fBSF, TweenInfo.new(0.3), {
-				BackgroundTransparency = 1
-			}):Play()
-			local done = ts:Create(fBSF.ControlBarContainer.UIScale, TweenInfo.new(0.3), {
-				Scale = 0
-			})
-			done:Play()
-			done.Completed:Wait()
-			--for _, b in ipairs(script.Parent.FloatingButtons:GetChildren()) do
-			--	if b:FindFirstChildWhichIsA("UIScale") then
-			--		b:FindFirstChildWhichIsA("UIScale"):Destroy()
-			--	end
-			--end
-			getgenv().fBSFButton:Destroy()
-			fBSF.Visible = false
-		
-			getgenv().fBSFButton = nil
-			getgenv().fBSFRealButton = nil
-			getgenv().fBSF_ButtonDragger = nil
-		end
-		
-		function FUNCTIONSmodule.finetuneFloatingButton(button: TextButton, dragger)
-			if getgenv().fBSFRealButton then return end
-			getgenv().fBSFRealButton = button
-			for _, b in ipairs(script.Parent.FloatingButtons:GetChildren()) do
-				if b:IsA("TextButton") and b:FindFirstChildWhichIsA("UIScale") then
-					local buttonScale = b:FindFirstChildWhichIsA("UIScale")
-					ts:Create(buttonScale, TweenInfo.new(0.3), {
-						Scale = 0
-					}):Play()
-				end
-			end
-		
-			local finetuningButton = button:Clone()
-			getgenv().fBSFButton = finetuningButton
-			finetuningButton.Parent = fBSF
-			finetuningButton.Name = "fBSFButton"
-			finetuningButton.AnchorPoint = Vector2.new(0, 0)
-			finetuningButton.Position = UDim2.fromOffset(button.AbsolutePosition.X, button.AbsolutePosition.Y + game:GetService("GuiService"):GetGuiInset().Y)
-		
-			fBSFResizeDragger = DraggableObject.new(finetuningButton, nil, nil, true)
-		
-			getgenv().fBSF_ButtonDragger = dragger
-			local startingSize = finetuningButton.Size
-			fBSFResizeDragger.DragStarted = function()
-				startingSize = finetuningButton.Size
-			end
-			fBSFResizeDragger.Dragged = function(pos)
-				local newSize =  UDim2.fromOffset(math.clamp(startingSize.X.Offset + pos.X.Offset, 30, 500), math.clamp(startingSize.Y.Offset + pos.Y.Offset, 10, 350))
-				ts:Create(finetuningButton, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					Size = newSize
-				}):Play()
-				button.Size = newSize
-				YARHMPointSave:set(string.gsub(button.Name, "_", ""), udim2Serializer(button.Position) .. "|" .. udim2Serializer(button.Size) .. "|" .. tostring(button.Visible) .. "|" .. tostring(dragger.CanBeDragged))
-			end
-			fBSFResizeDragger:Enable()
-		
-			fBSF.ControlBarContainer.UIScale.Scale = 0
-			fBSF.BackgroundTransparency = 1
-			fBSF.Visible = true
-			ts:Create(fBSF, TweenInfo.new(0.3), {
-				BackgroundTransparency = 0.5
-			}):Play()
-			ts:Create(fBSF.ControlBarContainer.UIScale, TweenInfo.new(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-				Scale = 1
-			}):Play()
-			ts:Create(finetuningButton, TweenInfo.new(1, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = UDim2.fromScale(0.5, 0.5)
-			}):Play()
-		
-			if finetuningButton.BackgroundTransparency == 1 then
-				finetuningButton.Lock.TextTransparency = 0
-				ts:Create(finetuningButton, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.InOut), {
-					BackgroundTransparency = 0.5,
-					TextTransparency = 0.5
-				}):Play()
-				ts:Create(finetuningButton.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.InOut), {
-					Transparency = 0.5
-				}):Play()
-			end
-		
-			
-		end
-		
-		function FUNCTIONSmodule.ftToggleLock()
-			if getgenv().fBSF_ButtonDragger.CanBeDragged then
-				getgenv().fBSF_ButtonDragger:Disable()
-				getgenv().fBSFRealButton.Lock.UIScale.Scale = 1
-				ts:Create(getgenv().fBSFButton.Lock.UIScale, TweenInfo.new(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-					Scale = 1
-				}):Play()
-			else
-				getgenv().fBSF_ButtonDragger:Enable()
-				getgenv().fBSFRealButton.Lock.UIScale.Scale = 0
-				ts:Create(getgenv().fBSFButton.Lock.UIScale, TweenInfo.new(0.3), {
-					Scale = 0
-				}):Play()
-			end
-			YARHMPointSave:set(string.gsub(getgenv().fBSFRealButton.Name, "_", ""), udim2Serializer(getgenv().fBSFRealButton.Position) .. "|" .. udim2Serializer(getgenv().fBSFRealButton.Size) .. "|" .. tostring(getgenv().fBSFRealButton.Visible) .. "|" .. tostring(getgenv().fBSF_ButtonDragger.CanBeDragged))
-		end
-		
-		function FUNCTIONSmodule.ftToggleVisibility()
-			if getgenv().fBSFButton.BackgroundTransparency == 0 then
-				getgenv().fBSFRealButton.BackgroundTransparency = 1
-				getgenv().fBSFRealButton.TextTransparency = 1
-				getgenv().fBSFRealButton.UIStroke.Transparency = 1
-				getgenv().fBSFRealButton.Lock.TextTransparency = 1
-		
-				ts:Create(getgenv().fBSFButton, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.InOut), {
-					BackgroundTransparency = 0.5,
-					TextTransparency = 0.5
-				}):Play()
-				ts:Create(getgenv().fBSFButton.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.InOut), {
-					Transparency = 0.5
-				}):Play()
-			else
-				getgenv().fBSFRealButton.BackgroundTransparency = 0
-				getgenv().fBSFRealButton.TextTransparency = 0
-				getgenv().fBSFRealButton.UIStroke.Transparency = 0
-				getgenv().fBSFRealButton.Lock.TextTransparency = 0
-		
-				ts:Create(getgenv().fBSFButton, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.InOut), {
-					BackgroundTransparency = 0,
-					TextTransparency = 0
-				}):Play()
-				ts:Create(getgenv().fBSFButton.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.InOut), {
-					Transparency = 0
-				}):Play()
-			end
-			YARHMPointSave:set(string.gsub(getgenv().fBSFRealButton.Name, "_", ""), udim2Serializer(getgenv().fBSFRealButton.Position) .. "|" .. udim2Serializer(getgenv().fBSFRealButton.Size) .. "|" .. tostring(getgenv().fBSFRealButton.Visible) .. "|" .. tostring(getgenv().fBSF_ButtonDragger.CanBeDragged))
-		end
-		
-		function FUNCTIONSmodule.createFloatingButton(item,button,buttonname,fromload)
-			if not getgenv().YARHM.FloatingButtons:FindFirstChild(string.gsub(buttonname, "_", "")) then
-				
-				
-				local UserInputService = game:GetService("UserInputService")
-				if not fromload then
-					YARHMPointSave:set(string.gsub(buttonname, "_", ""), udim2Serializer(UDim2.fromOffset(125, 90)) .. "|" .. udim2Serializer(UDim2.fromOffset(200,50)) .. "|true|true")
-				end
-		
-				local newFloatingButton = getgenv().YARHM.FloatingButton:Clone()
-				newFloatingButton.Parent = getgenv().YARHM.FloatingButtons
-				
-				newFloatingButton.Name = string.gsub(buttonname, "_", "")
-				newFloatingButton.Text = string.gsub(buttonname, "_", " ")
-				
-				newFloatingButton.BackgroundColor3 = FUNCTIONSmodule.getTheme().primaryColor
-				local themedColor = Instance.new("StringValue", newFloatingButton)
-				themedColor.Name = "themedColor"
-				themedColor.Value = "primaryColor"
-				newFloatingButton.Visible = true
-				
-				newFloatingButton.Font = Enum.Font.Montserrat
-		
-				table.insert(floatingButtonObjects, newFloatingButton)
-				local floatingButtonObjectSelf = floatingButtonObjects[#floatingButtonObjects]
-		
-				newFloatingButton.MouseButton1Click:Connect(function()
-					if typeof(item["Args"][2]) == "function" then
-						item["Args"][2](button)
-					else
-						item["Args"][2][buttonname](button)
-					end
-				end)
-				
-				local ripple
-				
-				newFloatingButton.MouseButton1Down:Connect(function(x, y)
-					ts:Create(newFloatingButton.UIScale, TweenInfo.new(0.1), {
-						Scale = 0.95
-					}):Play()
-					
-					
-					ripple = newFloatingButton.Ripple:Clone()
-					ripple.BackgroundColor3 = FUNCTIONSmodule.getTheme().textColor
-					ripple.Parent = newFloatingButton
-					ripple.Position = UDim2.fromOffset(x - newFloatingButton.AbsolutePosition.X, (y - newFloatingButton.AbsolutePosition.Y) - game:GetService("GuiService"):GetGuiInset().Y)
-					ts:Create(ripple, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-						BackgroundTransparency = 0.6,
-						Size = UDim2.fromOffset(50, 50)
-					}):Play()
-				end)
-				
-				
-				local function closeRipple()
-					if not getgenv().fBSFRealButton then
-						ts:Create(newFloatingButton.UIScale, TweenInfo.new(0.1), {
-							Scale = 1
-						}):Play()
-					end
-		
-					if ripple then
-						task.spawn(function()
-							local rippleToRemove = ripple
-							local fade = ts:Create(rippleToRemove, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-								BackgroundTransparency = 1,
-								Size = UDim2.fromOffset(150, 150)
-							})
-							fade:Play()
-							fade.Completed:Once(function()
-								rippleToRemove:Destroy()
-							end)
-						end)
-					end
-				end
-				UserInputService.InputEnded:Connect(function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
-						closeRipple()
-					end
-				end)
-				
-				local shouldBeDraggable = true
-				if not fromload then
-					newFloatingButton.Position = UDim2.fromOffset(-125, 90)
-				elseif YARHMPointSave:get(string.gsub(buttonname, "_", "")) then
-					local data = YARHMPointSave:get(string.gsub(buttonname, "_", "")):split("|")
-					newFloatingButton.Position = udim2Serializer(data[1])
-					ts:Create(newFloatingButton, TweenInfo.new(2, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {
-						Size = udim2Serializer(data[2])
-					}):Play()
-					newFloatingButton.Visible = (data[3] == "true")
-					if data[4] == "false" then
-						newFloatingButton.Lock.UIScale.Scale = 1
-						shouldBeDraggable = false
-					end
-				end
-		
-				task.spawn(function()
-					if not fromload then
-						ts:Create(newFloatingButton, TweenInfo.new(2, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {
-							Size = UDim2.fromOffset(200, 50)
-						}):Play()
-						ts:Create(newFloatingButton, TweenInfo.new(0.7, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-							Position = UDim2.fromOffset(125, 90)
-						}):Play()
-					end
-				end)
-		
-				floatingButtonDraggers[string.gsub(buttonname, "_", "")] = DraggableObject.new(newFloatingButton)
-				if shouldBeDraggable then
-					floatingButtonDraggers[string.gsub(buttonname, "_", "")]:Enable()
-				end
-				floatingButtonDraggers[string.gsub(buttonname, "_", "")].Dragged = function(newPos)
-					YARHMPointSave:set(string.gsub(buttonname, "_", ""), udim2Serializer(newPos) .. "|" .. udim2Serializer(newFloatingButton.Size) .. "|" .. tostring(newFloatingButton.Visible) .. "|" .. tostring(floatingButtonDraggers[string.gsub(buttonname, "_", "")].CanBeDragged))
-				end
-		
-				local holder = ClickAndHold.new(newFloatingButton)
-				holder.Holded.Event:Connect(function()
-					if floatingButtonDraggers[string.gsub(buttonname, "_", "")].Dragging then return end
-					if ripple then
-						ripple:Destroy()
-					end
-					FUNCTIONSmodule.finetuneFloatingButton(floatingButtonObjectSelf, floatingButtonDraggers[string.gsub(buttonname, "_", "")])
-				end)
-		
-				newFloatingButton.InputBegan:Connect(function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton2 then
-						FUNCTIONSmodule.notification("Press a key to bind " .. string.gsub(buttonname, "_", "") .. " to...")
-						local keytobind
-						local result
-						repeat
-							result = UserInputService.InputBegan:Wait()
-							if result.UserInputType == Enum.UserInputType.Keyboard then keytobind = result.KeyCode end
-						until keytobind
-		
-						FUNCTIONSmodule.notification(string.gsub(buttonname, "_", "") .. " binded to key " .. result.KeyCode.Name .. "!")
-						task.wait(0.1) floatingButtonKeybinds[string.gsub(buttonname, "_", "")] = keytobind	
-					end
-				end)
-		
-				local uis = game:GetService("UserInputService")
-				if uis.KeyboardEnabled and uis.MouseEnabled then
-					floatingButtonConnections[string.gsub(buttonname, "_", "")] = uis.InputBegan:Connect(function(inp, processed)
-						if processed then return end
-						if inp.KeyCode == floatingButtonKeybinds[string.gsub(buttonname, "_", "")] then
-							if typeof(item["Args"][2]) == "function" then
-								item["Args"][2](button)
-							else
-								item["Args"][2][buttonname](button)
-							end
-						end
-					end)
-				end
-		
-			else
-				floatingButtonKeybinds[string.gsub(buttonname, "_", "")] = nil
-				if floatingButtonConnections[string.gsub(buttonname, "_", "")] then
-					floatingButtonConnections[string.gsub(buttonname, "_", "")]:Disconnect()
-				end
-				YARHMPointSave:remove(string.gsub(buttonname, "_", ""))
-				task.spawn(function()
-					local buttontodestroy = getgenv().YARHM.FloatingButtons:FindFirstChild(string.gsub(buttonname, "_", ""))
-					local btdtween = ts:Create(buttontodestroy, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-						Size = UDim2.new(0,0,0,0)
-					})
-					btdtween:Play()
-					btdtween.Completed:Wait()
-					buttontodestroy:Destroy()
-				end)
-			end
-		end
-		
-		function FUNCTIONSmodule.loadFloatingButtons()
-			repeat task.wait() until getgenv().Modules
-			for _, module in ipairs(getgenv().Modules) do
-				for _, item in ipairs(module) do
-					if item["Type"] == "Button" then
-						local key = string.gsub(item["Args"][1], "_", "")
-						local saved = YARHMPointSave:get(key)
-						if saved then
-							FUNCTIONSmodule.createFloatingButton(item, Instance.new("TextButton"), item["Args"][1], true)
-						end
-					end
-				end
-			end
-		end
-		function FUNCTIONSmodule.loader(module)
-			--local unloadtween = ts:Create(AREA, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-			--	Position = UDim2.fromScale(1.55, 0.606)
-			--})
-		
-			--unloadtween:Play()
-			--unloadtween.Completed:Wait()
-		
-		
-			local AREAframes = {}
-			for _, i in ipairs(AREA:GetChildren()) do if i:IsA("Frame") then table.insert(AREAframes, i) end end
-			if #AREAframes > 5 then
-				ts:Create(AREA, TweenInfo.new(0.1, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { CanvasPosition = Vector2.zero }):Play()
-				for i=1, math.min(7, #AREAframes) do
-					task.wait(0.01)
-					ts:Create(AREAframes[i]:GetChildren()[1], TweenInfo.new(0.2, Enum.EasingStyle.Cubic, Enum.EasingDirection.In), {
-						Position = UDim2.fromScale(2, 0)
-					}):Play()
-				end
-				task.wait(0.18)
-			end
-		
-			AREA:ClearAllChildren()
-			
-			
-			local listlayout = Instance.new("UIListLayout")
-			listlayout.Parent = AREA
-			listlayout.Padding = UDim.new(0, 10)
-			listlayout.FillDirection = Enum.FillDirection.Vertical
-			listlayout.SortOrder = Enum.SortOrder.LayoutOrder
-			listlayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-			
-			
-			for _, item in ipairs(module) do
-				local frameHolder = Instance.new("Frame")
-				frameHolder.Name = "Holder"
-				frameHolder.BackgroundTransparency = 1
-				frameHolder.Size = UDim2.new(1,0,0,0)
-				frameHolder.AutomaticSize = Enum.AutomaticSize.XY
-				frameHolder.Parent = AREA
-		
-				if item["Type"] == "Text" then
-		
-					local text = Instance.new("TextLabel")
-					text.Parent = frameHolder
-		
-					text.BackgroundTransparency = 1
-					text.Text = item["Args"][1]
-					text.TextScaled = true
-					text.TextColor3 = FUNCTIONSmodule.getTheme().textColor
-					text.Font = Enum.Font.GothamBold
-					text.Size = UDim2.new(1,0,0,20)
-					text.TextXAlignment = item["Args"][2] == "center" and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
-					text.RichText = true
-		
-		
-				elseif item["Type"] == "Button" then
-		
-					local button = Instance.new("TextButton")
-					button.Parent = frameHolder
-		
-					button.BackgroundColor3 = FUNCTIONSmodule.getTheme().primaryColor
-					button.Text = item["Args"][1]
-					button.TextScaled = true
-					button.TextColor3 = FUNCTIONSmodule.getTheme().textColor
-					button.Font = Enum.Font.GothamBold
-					button.Size = UDim2.new(1,0,0,25)
-		
-					local padding = Instance.new("UIPadding")
-					padding.Parent = button
-		
-					padding.PaddingTop = UDim.new(0, 5)
-					padding.PaddingBottom = UDim.new(0, 5)
-		
-		
-					Instance.new("UICorner", button)
-		
-					local hold = false
-		
-					button.MouseButton1Click:Connect(function()
-						item["Args"][2](button)
-					end)
-					
-					local cah = ClickAndHold.new(button, 0.5)
-					cah.Holded.Event:Connect(function()
-						FUNCTIONSmodule.createFloatingButton(item, button, item["Args"][1])
-					end)
-		
-					
-				elseif item["Type"] == "ButtonGrid" then
-		
-		
-		
-		
-					local frame = Instance.new("Frame")
-					frame.Parent = frameHolder
-					frame.Size = UDim2.new(1, 0, 0, 0)
-					frame.AutomaticSize = Enum.AutomaticSize.Y
-					frame.BackgroundTransparency = 1
-		
-		
-					local gridlayout = Instance.new("UIGridLayout")
-					gridlayout.Parent = frame
-					gridlayout.CellSize = UDim2.new((1 / item["Args"][1]) - 0.03, 0, 0, 30) -- remove 0.03 because if not it would wrap on its own lol
-		
-					--print("------")
-					--print(item["Args"][2])
-					--print(States)
-					for buttonname, args in item["Args"][2] do
-						local button = Instance.new("TextButton")
-						button.Parent = frame
-		
-						--print(args)
-						button.BackgroundColor3 = FUNCTIONSmodule.getTheme().primaryColor
-						if States[buttonname .. module.Name] then
-							button.BackgroundColor3 = FUNCTIONSmodule.getTheme().accentColor
-						end
-						button.Text = string.gsub(buttonname, "_", " ")
-						button.TextScaled = true
-						button.TextColor3 = FUNCTIONSmodule.getTheme().textColor
-						button.Font = Enum.Font.GothamBold
-		
-						local padding = Instance.new("UIPadding")
-						padding.Parent = button
-		
-						padding.PaddingTop = UDim.new(0, 5)
-						padding.PaddingBottom = UDim.new(0, 5)
-		
-						Instance.new("UICorner", button)
-		
-						button.MouseButton1Click:Connect(function()
-							if item["Toggleable"] then
-								item["Args"][2][buttonname](button)
-								--print(States[buttonname .. module.Name])
-								if States[buttonname .. module.Name] then
-									ts:Create(button, TweenInfo.new(0.3), {
-										BackgroundColor3 = FUNCTIONSmodule.getTheme().primaryColor
-									}):Play()
-									States[buttonname .. module.Name] = false
-								else
-									ts:Create(button, TweenInfo.new(0.3), {
-										BackgroundColor3 = FUNCTIONSmodule.getTheme().accentColor
-									}):Play()
-									States[buttonname .. module.Name] = true
-								end
-							else
-								item["Args"][2][buttonname](button)
-							end
-						end)
-		
-						local cah = ClickAndHold.new(button, 0.5)
-						cah.Holded.Event:Connect(function()
-							FUNCTIONSmodule.createFloatingButton(item, button, buttonname)
-						end)
-					end
-		
-		
-				elseif item["Type"] == "Input" then
-					local cloneinput = getgenv().YARHM.TextBoxPlaceholder:Clone()
-					cloneinput.Parent = frameHolder
-					cloneinput.Visible = true
-					
-					cloneinput.TextBox.PlaceholderText = item["Args"][1]
-					cloneinput.TextButton.Text = item["Args"][2]
-					
-					cloneinput.TextBox.TextColor3 = FUNCTIONSmodule.getTheme().textColor
-					cloneinput.TextButton.TextColor3 = FUNCTIONSmodule.getTheme().textColor
-					
-					cloneinput.TextBox.BackgroundColor3 = FUNCTIONSmodule.getTheme().primaryColor
-					cloneinput.TextButton.BackgroundColor3 = FUNCTIONSmodule.getTheme().primaryColor
-		
-		
-					cloneinput.TextButton.MouseButton1Click:Connect(function()
-						item["Args"][3](cloneinput.TextButton, cloneinput.TextBox.Text)
-					end)
-				elseif item["Type"] == "Toggle" then
-					local clonetoggle = getgenv().YARHM.Toggle:Clone()
-					clonetoggle.Parent = frameHolder
-					clonetoggle.Visible = true
-		
-					clonetoggle.TextLabel.Text = item["Args"][1]
-					clonetoggle.TextLabel.TextColor3 = FUNCTIONSmodule.getTheme().textColor
-					clonetoggle.TextLabel.Font = Enum.Font.Montserrat
-		
-		
-		
-					local clonetoggletoggler = clonetoggle.Frame.Frame.Toggler
-					
-					clonetoggletoggler.ImageLabel.ImageColor3 = FUNCTIONSmodule.getTheme().accentColor
-					clonetoggletoggler.Parent.BackgroundColor3 = FUNCTIONSmodule.getTheme().primaryColor
-					if toggleStates[item["Args"][1] .. module.Name] then
-						clonetoggletoggler.Position = UDim2.fromScale(0.7, 0.5)
-						clonetoggletoggler.ImageLabel.Image = "rbxassetid://5959696880"
-					end
-		
-					clonetoggletoggler.MouseButton1Click:Connect(function()
-						if toggleStates[item["Args"][1] .. module.Name] then
-							toggleStates[item["Args"][1] .. module.Name] = false
-							ts:Create(clonetoggletoggler, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-								Position = UDim2.fromScale(0.3, 0.5)
-							}):Play()
-							clonetoggletoggler.ImageLabel.Image = "rbxassetid://10002373478"
-						else
-							toggleStates[item["Args"][1] .. module.Name] = true
-							ts:Create(clonetoggletoggler, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-								Position = UDim2.fromScale(0.7, 0.5)
-							}):Play()
-							clonetoggletoggler.ImageLabel.Image = "rbxassetid://5959696880"
-						end
-						item["Args"][2](clonetoggletoggler, toggleStates[item["Args"][1] .. module.Name])
-					end)
-				elseif item["Type"] == "Dropdown" then	
-					local clonedropdown = getgenv().YARHM.Dropdown:Clone()
-					local dropdownFrame = getgenv().YARHM.DropdownFrameSample
-					clonedropdown.Parent = frameHolder
-					clonedropdown.Visible = true
-		
-					clonedropdown.TextLabel.Text = item["Args"][1]
-					clonedropdown.Frame.MouseButton1Click:Connect(function()
-						for _, v in ipairs(dropdownFrame.ScrollingFrame:GetChildren()) do if v:IsA("TextButton") and v.Name ~= "Sample" then v:Destroy() end end
-						local mouse = game.Players.LocalPlayer:GetMouse()
-						dropdownFrame.Position = UDim2.fromOffset(mouse.X, mouse.Y - 55)
-						dropdownFrame.Size = UDim2.new(0,108/2,0,0)
-						dropdownFrame.Visible = true
-						ts:Create(dropdownFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-							Size = UDim2.fromOffset(108, 239)
-						}):Play()
-		
-						local items
-						if typeof(item["Args"][2]) == "function" then
-							items = item["Args"][2]()
-						else
-							items = item["Args"][2]
-						end
-		
-						for _, v in ipairs(items) do
-							local clonedropdownbutton = dropdownFrame.ScrollingFrame.Sample:Clone()
-							clonedropdownbutton.Parent = dropdownFrame.ScrollingFrame
-							clonedropdownbutton.Name = v
-							clonedropdownbutton.Visible = true
-							clonedropdownbutton.Text = v
-							clonedropdownbutton.MouseButton1Click:Connect(function()
-								--dropdownFrame.Visible = false
-								clonedropdown.Frame.Text = v
-								item["Args"][3](clonedropdown.Frame, v)
-								local after = ts:Create(dropdownFrame, TweenInfo.new(0.1, Enum.EasingStyle.Circular, Enum.EasingDirection.Out), {
-									Size = UDim2.fromOffset(108/2, 0)
-								})
-								after:Play()
-								after.Completed:Once(function()
-									dropdownFrame.Visible = false
-								end)
-							end)
-						end
-					end)
-				elseif item["Type"] == "Range" then
-					local clonerange = getgenv().YARHM.Range:Clone()
-					clonerange.Parent = frameHolder
-					clonerange.Visible = true
-		
-					clonerange.TextLabel.Text = item["Args"][1]
-					clonerange.TextLabel.TextColor3 = FUNCTIONSmodule.getTheme().textColor
-					clonerange.TextLabel.Font = Enum.Font.Montserrat
-					
-					clonerange.Frame.Track.Ball.BackgroundColor3 = FUNCTIONSmodule.getTheme().accentColor
-					clonerange.Frame.Track.BackgroundColor3 = FUNCTIONSmodule.getTheme().primaryColor
-					
-					if not rangeValueStates[item["Args"][1] .. module.Name] then
-						rangeValueStates[item["Args"][1] .. module.Name] = item["Args"][2]
-					end
-					clonerange.Frame.Track.Ball.Size = UDim2.new(lrp(0.06, 1, rangeValueStates[item["Args"][1] .. module.Name] / item["Args"][3]), 0, 1, 0)
-		
-					local slider = DraggableObject.new(clonerange.Frame, nil, false, true)
-					slider:Enable()
-					
-					local relativeSlide = nil
-					slider.Dragged = function(pos: UDim2)
-						if not relativeSlide then relativeSlide = pos end
-						local dragDistance = pos - relativeSlide
-						
-						local resolvedVal = rangeValueStates[item["Args"][1] .. module.Name]
-						local deltaChange = dragDistance.X.Offset
-						if math.abs(deltaChange) * 2 > item["Args"][4] then
-							resolvedVal = math.clamp(resolvedVal + deltaChange, 0, item["Args"][3])
-							relativeSlide = pos
-							
-							if item["Args"][4] > 1 then
-								resolvedVal = math.round(resolvedVal)
-							end
-							
-							rangeValueStates[item["Args"][1] .. module.Name] = resolvedVal
-						end
-						
-						clonerange.Frame.Track.Ball.Size = UDim2.new(lrp(0.06, 1, resolvedVal / item["Args"][3]), 0, 1, 0)
-		
-						
-						
-						clonerange.Frame.Track.Ball.BallProgress.Text = roundNumber(resolvedVal, 2)
-						clonerange.Frame.Track.TrackProgress.Text = tostring(resolvedVal, 2)
-						if resolvedVal > item["Args"][3] / 2 then
-							ts:Create(clonerange.Frame.Track.Ball.BallProgress, TweenInfo.new(0.2), {
-								TextTransparency = 0,
-								TextStrokeTransparency = 0
-							}):Play()
-							ts:Create(clonerange.Frame.Track.TrackProgress, TweenInfo.new(0.2), {
-								TextTransparency = 1,
-								TextStrokeTransparency = 1
-							}):Play()
-						else
-							ts:Create(clonerange.Frame.Track.Ball.BallProgress, TweenInfo.new(0.2), {
-								TextTransparency = 1,
-								TextStrokeTransparency = 1
-							}):Play()
-							ts:Create(clonerange.Frame.Track.TrackProgress, TweenInfo.new(0.2), {
-								TextTransparency = 0,
-								TextStrokeTransparency = 0
-							}):Play()
-						end
-						
-						rangeValueStates[item["Args"][1] .. module.Name] = resolvedVal
-						
-						if item["Args"][5] then
-							item["Args"][5](clonerange, resolvedVal)
-						end
-					end
-					
-					slider.DragEnded = function()
-						relativeSlide = nil
-						ts:Create(clonerange.Frame.Track.Ball.BallProgress, TweenInfo.new(0.2), {
-							TextTransparency = 1,
-							TextStrokeTransparency = 1
-						}):Play()
-						ts:Create(clonerange.Frame.Track.TrackProgress, TweenInfo.new(0.2), {
-							TextTransparency = 1,
-							TextStrokeTransparency = 1
-						}):Play()
-					end
-		
-						
-				end
-				
-		
-		
-			end
-			
-			--if AREACONTAINER:FindFirstChildWhichIsA("UIListLayout") then
-			--	AREACONTAINER:FindFirstChildWhichIsA("UIListLayout"):Destroy()
-			--end -- idk where this instance coming from sorry
-			AREACONTAINER.Area.Position = UDim2.fromScale(0.5, 0.5)
-			ts:Create(AREACONTAINER.Area, TweenInfo.new(0.6, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-				Position = UDim2.fromScale(0.5, 0.5)
-			}):Play()
-		
-			ts:Create(listlayout, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-				Padding = UDim.new(0, 10)
-			}):Play()
-			local AREAframes = {}
-			for _, i in ipairs(AREA:GetChildren()) do if i:IsA("Frame") then table.insert(AREAframes, i) end end
-			if #AREAframes > 5 then
-				for i=1, math.min(7, #AREAframes) do AREAframes[i]:GetChildren()[1].Position = UDim2.fromScale(-1, 0) end
-				ts:Create(AREA, TweenInfo.new(0.1, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { CanvasPosition = Vector2.zero }):Play()
-				for i=1, math.min(7, #AREAframes) do
-					task.wait(0.02)
-					task.spawn(function()
-						local springEnter = SBT.new(AREAframes[i]:GetChildren()[1], "Position", 1, 17, 100)
-						springEnter:SetGoal(UDim2.fromScale(0, 0))
-						springEnter:Start()
-						task.wait(0.9)
-						springEnter:Stop()
-					end)
-					--ts:Create(AREAframes[i]:GetChildren()[1], TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-					--	Position = UDim2.fromScale(0, 0)
-					--}):Play()
-				end
-				--task.wait(0.1)
-			end
-			
-		end
-		
-		
-		
-		function FUNCTIONSmodule.refreshlist()
-		
-			for _, v in ipairs(script.Parent.Menu.List.ScrollingFrame:GetChildren()) do
-				if v:IsA("TextButton") then
-					v:Destroy()
-				end
-			end
-		
-			local dense = {}
-			for _, module in pairs(getgenv().Modules) do
-				if module then
-					table.insert(dense, module)
-				end
-			end
-			
-			if not AREAModuleSelected then
-				AREAModuleSelected = dense[1]
-			end
-			
-		
-			for i, module in ipairs(dense) do
-				local success, err = pcall(function()
-		
-					local listbutton = getgenv().YARHM.ListButton:Clone()
-					listbutton.Parent           = script.Parent.Menu.List.ScrollingFrame
-					listbutton.Name             = module.Name
-					listbutton.Text             = module.Name
-					listbutton.BackgroundColor3 = FUNCTIONSmodule.getTheme().primaryColor
-					listbutton.Visible          = true
-					
-					local themedColor = Instance.new("StringValue", listbutton)
-					themedColor.Name = "themedColor"
-					themedColor.Value = "primaryColor"
-		
-					listbutton.MouseButton1Click:Connect(function()
-		
-						if selected.Value then
-							ts:Create(selected.Value, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-								BackgroundColor3 = FUNCTIONSmodule.getTheme().primaryColor,
-								TextColor3       = FUNCTIONSmodule.getTheme().textColor,
-							}):Play()
-						end
-		
-						selected.Value = listbutton
-						AREAModuleSelected = module
-						ts:Create(selected.Value, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-							BackgroundColor3 = Color3.fromRGB(255,255,255),
-							TextColor3       = Color3.fromRGB(0,0,0),
-						}):Play()
-		
-						FUNCTIONSmodule.loader(module)
-					end)
-		
-					listbutton.MouseButton1Down:Connect(function()
-						ts:Create(listbutton, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-							Size = UDim2.new(1, -10, 0, 40)
-						}):Play()
-					end)
-		
-					listbutton.MouseButton1Up:Connect(function()
-						ts:Create(listbutton, TweenInfo.new(1.2, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {
-							Size = UDim2.new(1, 0, 0, 50),
-						}):Play()
-					end)
-		
-					listbutton.MouseLeave:Connect(function()
-						ts:Create(listbutton, TweenInfo.new(1.2, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {
-							Size = UDim2.new(1, 0, 0, 50),
-						}):Play()
-					end)
-				end)
-		
-				if not success then
-					warn(("[YARHM] Error loading module %q: %s"):format(module.Name, err))
-				end
-			end
-		end
-		
-		function FUNCTIONSmodule.refresharea()
-			FUNCTIONSmodule.loader(AREAModuleSelected)
-		end
-		
-		function FUNCTIONSmodule.dialog(title, description, buttons)
-			local dialog = script.Parent.Dialog
-			dialog.DialogTitle.Text = title
-			dialog.DialogDesc.Text = description
-		
-			for _,v in ipairs(dialog.Options:GetChildren()) do
-				if v:IsA("TextButton") and v.Name ~= "OptionPlaceholder" then v:Destroy() end
-			end
-			for _, button in buttons do
-				local newButton = dialog.Options.OptionPlaceholder:Clone()
-		
-				newButton.Visible = true
-				newButton.Name = button
-				newButton.Text = button
-				newButton.Parent = dialog.Options
-				newButton.MouseButton1Click:Connect(function()
-					newButton.Parent.Parent.OnSelect:Fire(newButton.Name)
-				end)
-			end
-		
-			ts:Create(dialog, TweenInfo.new(1.1, Enum.EasingStyle.Back, Enum.EasingDirection.Out),{
-				Size = UDim2.fromOffset(313, 147)
-			}):Play()
-		
-			ts:Create(dialog.UIScale, TweenInfo.new(0.7, Enum.EasingStyle.Back, Enum.EasingDirection.Out),{
-				Scale = 1
-			}):Play()
-		end
-		
-		function FUNCTIONSmodule.closedialog()
-			local dialog = script.Parent.Dialog
-			ts:Create(dialog, TweenInfo.new(1.1, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out),{
-				Size = UDim2.fromOffset(0, 147)
-			}):Play()
-		
-			ts:Create(dialog.UIScale, TweenInfo.new(0.7, Enum.EasingStyle.Back, Enum.EasingDirection.Out),{
-				Scale = 0
-			}):Play()
-		end
-		
-		function FUNCTIONSmodule.waitfordialog()
-			return script.Parent.Dialog.OnSelect.Event:Wait()
-		end
-		
-		
-		getgenv().YARHMFUNCTIONS = FUNCTIONSmodule
-		return FUNCTIONSmodule
-		
-    end
-    routine_module_scripts[script] = module_script
-end
-do -- Routine Module: StarterGui.YARHM.DraggableObject
-    local script = Instance.new("ModuleScript")
-    script.Name = "DraggableObject"
-    script.Parent = Converted["_YARHM"]
-    local function module_script()
-
-		local function a(b,c)local d=c.AbsoluteSize;local e=c.AbsolutePosition;local f=b.X.Scale*d.X+b.X.Offset;local g=b.Y.Scale*d.Y+b.Y.Offset;local h=math.clamp(f,0,d.X)local i=math.clamp(g,0,d.Y)local j=UDim2.new(b.X.Scale,h-b.X.Scale*d.X,b.Y.Scale,i-b.Y.Scale*d.Y)return j end;local k=UDim2.new;local l=game:GetService("UserInputService")local m=game:GetService("TweenService")local n={}n.__index=n;function n.new(o,p,q,r)local self={}self.Object=o;self.ToMove=p;self.Smooth=q;self.CallbackOnly=r;self.DragStarted=nil;self.DragEnded=nil;self.Dragged=nil;self.Dragging=false;self.LastPosition=nil;self.Velocity=Vector2.new(0,0)setmetatable(self,n)return self end;function n:Enable()local s=self.Object;local t=self.ToMove;local u=nil;local v=nil;local w=nil;local x=false;local function y(z)local A=z.Position-v;local B=UDim2.new(w.X.Scale,w.X.Offset+A.X,w.Y.Scale,w.Y.Offset+A.Y)if self.CallbackOnly then else B=a(B,self.Object:FindFirstAncestorWhichIsA("ScreenGui"))if(self.Smooth==nil or self.Smooth==true)and self.Smooth~=false then m:Create(t and t or s,TweenInfo.new(0.5,Enum.EasingStyle.Cubic,Enum.EasingDirection.Out),{Position=B}):Play()else local C=t and t or s;C.Position=B end end;return B end;self.InputBegan=s.InputBegan:Connect(function(z)if z.UserInputType==Enum.UserInputType.MouseButton1 or z.UserInputType==Enum.UserInputType.Touch then x=true;local D;D=z.Changed:Connect(function()if z.UserInputState==Enum.UserInputState.End and(self.Dragging or x)then self.Dragging=false;D:Disconnect()if self.DragEnded and not x then self.DragEnded(self.Velocity)end;x=false end end)end end)self.InputChanged=s.InputChanged:Connect(function(z)if z.UserInputType==Enum.UserInputType.MouseMovement or z.UserInputType==Enum.UserInputType.Touch then u=z end end)self.InputChanged2=l.InputChanged:Connect(function(z)if s.Parent==nil then self:Disable()return end;if x then x=false;if self.DragStarted then self.DragStarted()end;self.Dragging=true;v=z.Position;if t then w=t.Position else w=s.Position end;self.LastPosition=z.Position end;if z==u and self.Dragging then local B=y(z)self.Velocity=z.Position-self.LastPosition;self.LastPosition=z.Position;if self.Dragged then self.Dragged(B)end end end)end;function n:Disable()self.InputBegan:Disconnect()self.InputChanged:Disconnect()self.InputChanged2:Disconnect()if self.Dragging then self.Dragging=false;if self.DragEnded then self.DragEnded(self.Velocity)end end end;return n
-		
-    end
-    routine_module_scripts[script] = module_script
-end
-do -- Routine Module: StarterGui.YARHM.ClickAndHold
-    local script = Instance.new("ModuleScript")
-    script.Name = "ClickAndHold"
-    script.Parent = Converted["_YARHM"]
-    local function module_script()
-
-
-		local a={}a.__index=a;local b=game:GetService("UserInputService")function a.new(c,d)local self=setmetatable({},a)self.textButton=c;self.holdTime=d or 0.5;self.holdTask=nil;self.initialPosition=nil;self.Holded=Instance.new("BindableEvent")local function e(f,g)return math.sqrt((g.X-f.X)^2+(g.Y-f.Y)^2)end;self.textButton.MouseButton1Down:Connect(function(h,i)self.initialPosition=Vector2.new(h,i)self.holdTask=task.spawn(function()task.wait(self.holdTime)if self.holdTask then self.Holded:Fire()end end)end)b.InputChanged:Connect(function(j)if j.UserInputType==Enum.UserInputType.MouseMovement or j.UserInputType==Enum.UserInputType.Touch then if self.holdTask and self.initialPosition then local k=j.Position;local l=e(self.initialPosition,k)if l>10 then coroutine.close(self.holdTask)self.holdTask=nil end end end end)b.InputEnded:Connect(function(j)if j.UserInputType==Enum.UserInputType.MouseButton1 or j.UserInputType==Enum.UserInputType.Touch then if self.holdTask then coroutine.close(self.holdTask)self.holdTask=nil end;self.initialPosition=nil end end)return self end;return a
-    end
-    routine_module_scripts[script] = module_script
-end
-do -- Routine Module: StarterGui.YARHM.Spring
-    local script = Instance.new("ModuleScript")
-    script.Name = "Spring"
-    script.Parent = Converted["_YARHM"]
-    local function module_script()
-
-		local a=game:GetService("RunService")local b={}function OverDamping(c,d,e,f,g,h)local i=d*d-4*e/c;local j=-1/2;local k=d+math.sqrt(i)local l=d-math.sqrt(i)local m,n=j*k,j*l;local o,p=(n*f-g)/(n-m),(m*f-g)/(m-n)local q=h/e;return{Offset=function(r)return o*math.exp(m*r)+p*math.exp(n*r)+q end,Velocity=function(r)return o*m*math.exp(m*r)+p*n*math.exp(n*r)end,Acceleration=function(r)return o*m*m*math.exp(m*r)+p*n*n*math.exp(n*r)end}end;function CriticalDamping(c,d,e,f,g,h)local s=-d/2;local o,p=f,g-s*f;local q=h/e;return{Offset=function(r)return math.exp(s*r)*(o+p*r)+q end,Velocity=function(r)return math.exp(s*r)*(p*s*r+o*s+p)end,Acceleration=function(r)return s*math.exp(s*r)*(p*s*r+o*s+2*p)end}end;function UnderDamping(c,d,e,f,g,h)local i=d*d-4*e/c;local s=-d/2;local t=math.sqrt(-i)local o,p=f,(g-s*f)/t;local q=h/e;return{Offset=function(r)return math.exp(s*r)*(o*math.cos(t*r)+p*math.sin(t*r))+q end,Velocity=function(r)return-math.exp(s*r)*((o*t-p*s)*math.sin(t*r)+(-p*t-o*s)*math.cos(t*r))end,Acceleration=function(r)return-math.exp(s*r)*((p*t*t+2*o*s*t-p*s*s)*math.sin(t*r)+(o*t*t-2*p*s*t-o*s*s)*math.cos(t*r))end}end;function b.F(u)local f,g,h=u.InitialOffset,u.InitialVelocity,u.ExternalForce;local c,d,e=u.Mass,u.Damping,u.Constant;local i=d*d-4*e/c;if i>0 then return OverDamping(c,d,e,f,g,h)elseif i==0 then return CriticalDamping(c,d,e,f,g,h)else return UnderDamping(c,d,e,f,g,h)end end;local v=b;local w=math.sqrt;local x=math.pi;local y={OFFSET="Offset",VELOCITY="Velocity",ACCELERATION="Acceleration",GOAL="Goal",FREQUENCY="Frequency"}local z=[[.]]local A=[[.]]local u={}local B={}B.__index=function(self,C)local D={[y.OFFSET]=function()local r=tick()-self.StartTick;local E=self.F;local F=E.Offset(r)return F end,[y.VELOCITY]=function()local r=tick()-self.StartTick;local E=self.F;local G=E.Velocity(r)return G end,[y.ACCELERATION]=function()local r=tick()-self.StartTick;local E=self.F;local H=E.Acceleration(r)return H end,[y.GOAL]=function()local I=self.ExternalForce;local J=self.Constant;return I/J end,[y.FREQUENCY]=function()local K=self.Damping;local L=self.Constant;local M=self.Mass;return w(-K*K+4*L/M)/(2*x)end}local N=rawget(self,C)if N~=nil then return N end;local O=D[C]if O~=nil then return O()end;return B[C]end;B.__tostring=function(self)local r=tick()-self.StartTick;local E=self.F;local P=self.AdvancedObjectStringEnabled;local Q;if P==false then Q=string.format(z,E.Offset(r),E.Velocity(r),E.Acceleration(r))elseif P==true then Q=string.format(A,self.Mass,self.Damping,self.Constant,self.Goal,self.Frequency,self.InitialOffset,self.InitialVelocity,self.ExternalForce,self.StartTick,E.Offset(r),E.Velocity(r),E.Acceleration(r))end;return Q end;function u.new(M,K,L,f,g,R)assert(M>0,"Mass for spring system cannot be less than or equal to 0")assert(L>0,"Spring constant for spring system cannot be less than or equal to 0")f=f or 0;g=g or 0;R=R or 0;local S=R*L;local T={Mass=M,Damping=K,Constant=L,InitialOffset=f-R,InitialVelocity=g,ExternalForce=S,AdvancedObjectStringEnabled=false,StartTick=0}setmetatable(T,B)T:Reset()return T end;function u.fromFrequency(M,K,U,f,g,R)assert(M>0,"Mass for spring system cannot be less than or equal to 0")assert(U>0,"Spring frequency for spring system cannot be less than or equal to 0")local L=0.25*M*(4*x*x*U*U+K*K)f=f or 0;g=g or 0;R=R or 0;local S=R*L;local T={Mass=M,Damping=K,Constant=L,InitialOffset=f-R,InitialVelocity=g,ExternalForce=S,AdvancedObjectStringEnabled=false,StartTick=0}setmetatable(T,B)T:Reset()return T end;function B:Reset()self.F=v.F(self)self.StartTick=tick()end;function B:SetExternalForce(V)self.ExternalForce=V;self.InitialOffset=self.Offset-V/self.Constant;self.InitialVelocity=self.Velocity;self:Reset()end;function B:SetGoal(R)self.ExternalForce=R*self.Constant;self.InitialOffset=self.Offset-R;self.InitialVelocity=self.Velocity;self:Reset()end;function B:SetFrequency(U)self.Constant=0.25*self.Mass*(4*x*x*U*U+self.Damping*self.Damping)self.InitialOffset=self.Offset;self.InitialVelocity=self.Velocity;self:Reset()end;function B:SnapToCriticalDamping()self.Damping=2*w(self.Constant/self.Mass)self.InitialOffset=self.Offset;self.InitialVelocity=self.Velocity;self:Reset()end;function B:SetOffset(F,W)self.InitialOffset=F-self.Goal;self.InitialVelocity=W and 0 or self.Velocity;self:Reset()end;function B:AddOffset(F)self.InitialOffset=self.Offset+F;self.InitialVelocity=self.Velocity;self:Reset()end;function B:SetVelocity(G)self.InitialOffset=self.Offset;self.InitialVelocity=G;self:Reset()end;function B:AddVelocity(G)self.InitialOffset=self.Offset;self.InitialVelocity=self.Velocity+G;self:Reset()end;function B:Print()local X=tostring(self)print(X)end;return u
-    end
-    routine_module_scripts[script] = module_script
-end
-do -- Routine Module: StarterGui.YARHM.ESPIndicator
-    local script = Instance.new("ModuleScript")
-    script.Name = "ESPIndicator"
-    script.Parent = Converted["_YARHM"]
-    local function module_script()
-
-		-- Robust ESP module with distancing, arrows, and grouping
-		-- Designed and written by YARHM
-		
-		local e={} e.__index=e local a=game:GetService("RunService") local _=game:GetService("Players") local b=game:GetService("HttpService") local l=game:GetService("TweenService") e.Groups={} e.TargetIndex={} e.Defaults={AccentColor=Color3.new(1,1,0),HighlightFillTransparency=0.7,HighlightOutlineTransparency=0,HighlightDepthMode=Enum.HighlightDepthMode.AlwaysOnTop,ArrowShow=false,ArrowEdgePadding=50,ArrowMinDistance=0,ArrowSize=UDim2.new(0,30,0,30),ArrowImage="rbxassetid://97136202386756",ArrowShowDistanceText=true,ArrowDistanceFont=Enum.Font.Montserrat,ArrowDistanceTextSize=18,ShowLabel=false,LabelText="Target",LabelMaxDistance=99999,LabelOffset=Vector3.new(0,2,0),Parent=game:GetService("CoreGui")} function e.new(b)local c=setmetatable({},e) c.Settings={} for a,_ in pairs(e.Defaults)do c.Settings[a]=(b and b[a]~=nil)and b[a]or _ end local _=c.Settings.Parent or _.LocalPlayer:WaitForChild("PlayerGui") c.ScreenGui=Instance.new("ScreenGui") c.ScreenGui.Name="ESPIndicators" c.ScreenGui.IgnoreGuiInset=true c.ScreenGui.ResetOnSpawn=false c.ScreenGui.Parent=_ c.ArrowTemplate=Instance.new("ImageLabel") c.ArrowTemplate.Name="ArrowTemplate" c.ArrowTemplate.Size=c.Settings.ArrowSize c.ArrowTemplate.AnchorPoint=Vector2.new(0.5,0.5) c.ArrowTemplate.BackgroundTransparency=1 c.ArrowTemplate.Image=c.Settings.ArrowImage c.ArrowTemplate.ImageColor3=c.Settings.AccentColor c.ArrowTemplate.Visible=false c.ArrowTemplate.Parent=c.ScreenGui c.Scaler=Instance.new("UIScale") c.Scaler.Name="Scaler" c.Scaler.Scale=0 c.Scaler.Parent=c.ArrowTemplate c.Indicators={} c._updateConn=a.RenderStepped:Connect(function()c:_update()end) c._cleanupConn=a.Heartbeat:Connect(function()c:_cleanupOrphanedArrows() c:_cleanupOrphanedHighlights() c:_cleanupOrphanedLabels()end) return c end function e:AddGroup(_)local a=e.Groups[_] if not a then a={enabled=true,properties={},targets={}} e.Groups[_]=a end return a end function e:GetGroup(_)return e.Groups[_]end function e:RemoveGroup(b)local _=e.Groups[b] if not _ then return false end for _,_ in ipairs(_.targets)do local c=e.TargetIndex[_] if c then for _,a in ipairs(c)do if a==b then table.remove(c,_) break end end if#c==0 then e.TargetIndex[_]=nil end end if not e.TargetIndex[_]then self:Remove(_)end end e.Groups[b]=nil return true end function e:ClearAllGroups()for a,_ in pairs(e.Groups)do self:RemoveGroup(a)end end function e:ToggleGroup(_,a)local b=e.Groups[_] if not b then return end b.enabled=(a~=nil)and a or not b.enabled for _,_ in ipairs(b.targets)do local _=self.Indicators[_] if _ then if _.Highlight then _.Highlight.Enabled=b.enabled end if _.Arrow then _.Arrow.Visible=b.enabled and self.Settings.ArrowShow end if _.Label then _.Label.Enabled=b.enabled end end end return b.enabled end function e:SetGroupProperty(_,a,b)local _=self:AddGroup(_) _.properties[a]=b for _,_ in ipairs(_.targets)do local _=self.Indicators[_] if _ then if a=="AccentColor"then if _.Highlight then _.Highlight.FillColor=b _.Highlight.OutlineColor=b end if _.Arrow then _.Arrow.ImageColor3=b end if _.DistanceLabel then _.DistanceLabel.TextColor3=b end if _.Label and _.Label:FindFirstChild("TextLabel")then _.Label.TextLabel.TextColor3=b end end end end end function e:Add(a,g)assert(a,"ESPIndicator:Add requires a non-nil target") g=g or{} local d=Instance.new("Highlight") d.Name="Highlight_"..b:GenerateGUID(false) d.Adornee=a d.FillTransparency=g.HighlightFillTransparency or self.Settings.HighlightFillTransparency d.FillColor=g.AccentColor or self.Settings.AccentColor d.OutlineColor=g.AccentColor or self.Settings.AccentColor d.OutlineTransparency=g.HighlightOutlineTransparency or self.Settings.HighlightOutlineTransparency d.DepthMode=g.HighlightDepthMode or self.Settings.HighlightDepthMode d.Parent=self.ScreenGui local c,_,e if(g.ArrowShow or self.Settings.ArrowShow)then c=self.ArrowTemplate:Clone() c.Name="Arrow_"..b:GenerateGUID(false) c.ImageColor3=g.AccentColor or self.Settings.AccentColor c.Visible=true c.Parent=self.ScreenGui _=c:FindFirstChild("Scaler") if(g.ArrowShowDistanceText or self.Settings.ArrowShowDistanceText)then e=Instance.new("TextLabel") e.Name="DistanceLabel" e.AnchorPoint=Vector2.new(0.5,0) e.BackgroundTransparency=1 e.Font=g.ArrowDistanceFont or self.Settings.ArrowDistanceFont e.TextSize=g.ArrowDistanceTextSize or self.Settings.ArrowDistanceTextSize e.TextColor3=g.AccentColor or self.Settings.AccentColor e.Parent=c end end local f if(g.ShowLabel or self.Settings.ShowLabel)then f=Instance.new("BillboardGui") f.Name="Label_"..b:GenerateGUID(false) f.AlwaysOnTop=true f.MaxDistance=self.Settings.LabelMaxDistance f.Size=UDim2.new(0,70,0,70) f.StudsOffset=self.Settings.LabelOffset f.Adornee=a f.Parent=self.ScreenGui local _=Instance.new("TextLabel") _.Name="TextLabel" _.Size=UDim2.new(1,0,1,0) _.AnchorPoint=Vector2.new(0.5,0.5) _.Position=UDim2.new(0.5,0,0.5,0) _.BackgroundTransparency=1 _.Font=Enum.Font.SourceSansBold _.TextScaled=true _.TextWrapped=true _.TextSize=14 _.TextColor3=g.AccentColor or self.Settings.AccentColor _.Text=g.LabelText or self.Settings.LabelText _.Parent=f Instance.new("UIStroke",_)end self.Indicators[a]={Highlight=d,Arrow=c,Scaler=_,DistanceLabel=e,Label=f,Options=g} local _=g.GroupName or self.Settings.GroupName if _ then self:AddToGroup(a,_)end end function e:Remove(c)local _=self.Indicators[c] if not _ then return end if _.Highlight then _.Highlight.Adornee=nil _.Highlight:Destroy()end if _.Arrow then _.Arrow:Destroy()end if _.Label then _.Label:Destroy()end local _=e.TargetIndex[c] if _ then for _,_ in ipairs(_)do local b=e.Groups[_] if b then for a,_ in ipairs(b.targets)do if _==c then table.remove(b.targets,a) break end end end end e.TargetIndex[c]=nil end self.Indicators[c]=nil end function e:AddToGroup(c,b)local _=self:AddGroup(b) if not table.find(_.targets,c)then table.insert(_.targets,c)end local a=e.TargetIndex[c] if not a then a={} e.TargetIndex[c]=a end if not table.find(a,b)then table.insert(a,b)end for a,_ in pairs(_.properties)do self:SetGroupProperty(b,a,_)end if not _.enabled then local _=self.Indicators[c] if _ and _.Highlight then _.Highlight.Enabled=false end end return true end function e:RemoveFromGroup(d,b)local c=e.Groups[b] if not c then return false end if table.find(c.targets,d)then for _,a in ipairs(c.targets)do if a==d then table.remove(c.targets,_) break end end else return false end local c=e.TargetIndex[d] if c then for a,_ in ipairs(c)do if _==b then table.remove(c,a) break end end if#c==0 then e.TargetIndex[d]=nil end end return true end function e:GetGroupTargets(_)local _=e.Groups[_] return _ and _.targets or{}end function e:GetTargetGroups(_)return e.TargetIndex[_]or{}end function e:_cleanupOrphanedHighlights()for _,_ in ipairs(self.ScreenGui:GetChildren())do if _:IsA("Highlight")and not table.find(self:_allHighlights(),_)then _.Adornee=nil _:Destroy()end end end function e:_allHighlights()local a={} for _,_ in pairs(self.Indicators)do if _.Highlight then table.insert(a,_.Highlight)end end return a end function e:_cleanupOrphanedArrows()for _,_ in ipairs(self.ScreenGui:GetChildren())do if _:IsA("ImageLabel")and _.Name:match("^Arrow_")then if not table.find(self:_allArrows(),_)then _:Destroy()end end end end function e:_allArrows()local a={} for _,_ in pairs(self.Indicators)do if _.Arrow then table.insert(a,_.Arrow)end end return a end function e:_cleanupOrphanedLabels()for _,_ in ipairs(self.ScreenGui:GetChildren())do if _:IsA("BillboardGui")and _.Name:match("^Label_")then if not table.find(self:_allLabels(),_)then _.Adornee=nil _:Destroy()end end end end function e:_allLabels()local a={} for _,_ in pairs(self.Indicators)do if _.Label then table.insert(a,_.Label)end end return a end function e:_update()local a=workspace.CurrentCamera local _=a.ViewportSize local f,i=_.X,_.Y for _,p in pairs(self.Indicators)do local j=p.Options local h=p.Arrow local k=p.Scaler if((not h)or(not k))and self.Settings.ArrowShow then self:Remove(_) continue end if not h then continue end local n if _:IsA("Model")then n=(_.PrimaryPart and _.PrimaryPart.Position)or _:GetModelCFrame().p elseif _:IsA("BasePart")then n=_.Position else continue end local m,e=a:WorldToViewportPoint(n) local c=(a.CFrame.p-n).Magnitude local _=j.ArrowMinDistance or self.Settings.ArrowMinDistance local o=j.ArrowEdgePadding or self.Settings.ArrowEdgePadding if e and c>_ then l:Create(k,TweenInfo.new(0.1,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{Scale=0}):Play()else l:Create(k,TweenInfo.new(0.1,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{Scale=1}):Play() local d,g=f-o*2,i-o*2 local b=a.CFrame local _=math.sqrt((d/2)^2+(g/2)^2) local a=n-b.Position local a=b:VectorToObjectSpace(a) local n=Vector2.new(a.X,a.Y).Unit local a=math.clamp(m.X,o,f-o) local b=math.clamp(m.Y,o,i-o) if a==m.X and b==m.Y and e then l:Create(k,TweenInfo.new(0.1,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{Scale=0}):Play()else local _=n*_ local b if math.abs(_.Y)>g/2 then b=n*math.abs((g/2)/n.Y)else b=n*math.abs((d/2)/n.X)end local a=f/2+b.X local _=i/2-b.Y local b=math.atan2(n.X,n.Y) l:Create(h,TweenInfo.new(0.1,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{Position=UDim2.fromOffset(a,_),Rotation=math.deg(b)}):Play()end if p.DistanceLabel then p.DistanceLabel.Text=string.format("%dm",math.round(c)) local _=(j.ArrowSize and j.ArrowSize.Y.Offset or self.Settings.ArrowSize.Y.Offset)+16 p.DistanceLabel.Position=UDim2.new(0.5,0,0,_)end end end end function e:Destroy()if self._updateConn then self._updateConn:Disconnect()end if self._cleanupConn then self._cleanupConn:Disconnect()end self:ClearAllGroups() for _,_ in pairs(self.Indicators)do if _.Highlight then _.Highlight:Destroy()end if _.Arrow then _.Arrow:Destroy()end if _.Label then _.Label:Destroy()end end self.ScreenGui:Destroy() self.Indicators={} e.Groups={} e.TargetIndex={}end return e
-    end
-    routine_module_scripts[script] = module_script
-end
-do -- Routine Module: StarterGui.YARHM.Bezier
-    local script = Instance.new("ModuleScript")
-    script.Name = "Bezier"
-    script.Parent = Converted["_YARHM"]
-    local function module_script()
-
-		local h={} h.__index=h function h.new(...)local k={...} assert(#k>=3,"Must have at least 3 points") local e=(#k==3) local _=(#k==4) local j={} local d=Vector3.new local b=d().lerp local f=nil local i={} local c=0 local a=nil local function g(_)local _={_.X,_.Y,_.Z} function _:ToVector3()return d(self[1],self[2],self[3])end function _:lerp(_,a)return b(self:ToVector3(),_:ToVector3(),a)end return _ end if(not e and not _)then for _=1,#k-1 do local a=g(k[_]) local _=g(k[_+1]) local _={a,_,g(a)} i[#i+1]=_ end local b=i for _=#i,2,-1 do local a={} for c=1,_-1 do local b,_=b[c],b[c+1] local _={b[3],_[3],g(b[3])} a[c]=_ i[#i+1]=_ end b=a end a=b[1] c=#i end if(e)then local b,c,_=k[1],k[2],k[3] function j:Get(d,a)if(a)then d=(d<0 and 0 or d>1 and 1 or d)end return(1-d)*(1-d)*b+2*(1-d)*d*c+d*d*_ end elseif(_)then local _,a,c,b=k[1],k[2],k[3],k[4] function j:Get(e,d)if(d)then e=(e<0 and 0 or e>1 and 1 or e)end return(1-e)*(1-e)*(1-e)*_+3*(1-e)*(1-e)*e*a+3*(1-e)*e*e*c+e*e*e*b end else function j:Get(b,_)if(_)then b=(b<0 and 0 or b>1 and 1 or b)end for _=1,c do local _=i[_] local a=_[1]:lerp(_[2],b) local _=_[3] _[1],_[2],_[3]=a.X,a.Y,a.Z end return a[3]:ToVector3()end end function j:GetLength(_)if(not f)then local a=self:GetPath(_ or 0.1) local b=0 for _=2,#a do local _=(a[_-1]-a[_]).Magnitude b=(b+_)end f=b end return f end function j:GetPath(_)assert(type(_)=="number","Must provide a step increment") assert(_>0 and _<1,"Step out of domain; should be between 0 and 1 (exclusive)") local b={} local a=0 for _=0,1,_ do a=_ b[#b+1]=self:Get(_)end if(a<1)then local _=((1-a)<(_*0.5)) b[#b+(_ and 0 or 1)]=self:Get(1)end return b end function j:GetPathByNumberSegments(_)assert(type(_)=="number","Must provide number of segments") assert(_>0,"Number of segments must be greater than 0") return self:GetPath(1/_)end function j:GetPathBySegmentLength(a)assert(type(a)=="number","Must provide a segment length") assert(a>0,"Segment length must be greater than 0") local _=self:GetLength() local _=_/a return self:GetPathByNumberSegments(math.floor(_+0.5))end function j:GetPoints()return k end return setmetatable(j,h)end return h
-    end
-    routine_module_scripts[script] = module_script
-end
-do -- Routine Module: StarterGui.YARHM.PointSave
-    local script = Instance.new("ModuleScript")
-    script.Name = "PointSave"
-    script.Parent = Converted["_YARHM"]
-    local function module_script()
-
-		-- Datasaving module using files and folders
-		-- Designed and written by YARHM
-		
-		local _=false local function d(...)if _ then print("[PointSave DEBUG]:",...)end end getgenv()._FOLDERS=getgenv()._FOLDERS or{} getgenv()._FILES=getgenv()._FILES or{} isfolder=isfolder or function(_)d("Checking if folder exists:",_) return getgenv()._FOLDERS[_]~=nil end makefolder=makefolder or function(_)d("Creating folder:",_) getgenv()._FOLDERS[_]={} return getgenv()._FOLDERS[_]end isfile=isfile or function(_)d("Checking if file exists:",_) return getgenv()._FILES[_]~=nil end writefile=writefile or function(a,_)d("Writing file:",a,"with content:",_) getgenv()._FILES[a]=_ return getgenv()._FILES[a]end readfile=readfile or function(_)d("Reading file:",_) return getgenv()._FILES[_]end delfile=delfile or function(_)d("Deleting file:",_) getgenv()._FILES[_]=nil end listfiles=listfiles or function(c)d("Listing files in folder:",c) local _=getgenv()._FOLDERS[c] if _ then local a={} for b,_ in pairs(getgenv()._FILES)do if b:sub(1,#c+1)==c.."/"then local _=b:sub(#c+2) d("Found file in folder:",_) table.insert(a,_)end end return a end d("Folder does not exist:",c) return{}end local b={} b.__index=b local c="PointSaveData" local function _()if not isfolder(c)then d("Base folder not found, creating:",c) makefolder(c)else d("Base folder already exists:",c)end end function b.new(a)d("Initializing new PointSave instance for namespace:",a) _() local _=setmetatable({},b) _.namespace=a _.folderPath=c.."/"..a if not isfolder(_.folderPath)then d("Namespace folder does not exist, creating:",_.folderPath) makefolder(_.folderPath)else d("Namespace folder already exists:",_.folderPath)end return _ end function b:set(b,a)local _=self.folderPath.."/"..b..".txt" d("Setting value for key:",b,"->",a) writefile(_,tostring(a))end function b:get(a)local _=self.folderPath.."/"..a..".txt" d("Getting value for key:",a) if isfile(_)then local _=readfile(_) d("Found value for key:",a,"->",_) return _ end d("Key not found:",a) return nil end function b:remove(a)local _=self.folderPath.."/"..a..".txt" d("Removing key:",a) if isfile(_)then delfile(_) d("Removed file for key:",a)else d("File for key does not exist:",a)end end function b:clear()d("Clearing all keys in namespace:",self.namespace) local _=listfiles(self.folderPath) for _,_ in ipairs(_)do local _=self.folderPath.."/".._ if isfile(_)then d("Deleting file:",_) delfile(_)end end end function b.deleteNamespace(a)local b=c.."/"..a d("Deleting namespace:",a) local _=listfiles(b) for _,_ in ipairs(_)do local _=b.."/".._ if isfile(_)then d("Deleting file from namespace:",_) delfile(_)end end getgenv()._FOLDERS[b]=nil d("Deleted folder for namespace:",a)end function b.listNamespaces()d("Listing all namespaces") _() local b={} for a,_ in pairs(getgenv()._FOLDERS)do if a:sub(1,#c+1)==c.."/"then local _=a:sub(#c+2) d("Found namespace:",_) table.insert(b,_)end end return b end return b
-    end
-    routine_module_scripts[script] = module_script
-end
-do -- Routine Module: StarterGui.YARHM.Theme
-    local script = Instance.new("ModuleScript")
-    script.Name = "Theme"
-    script.Parent = Converted["_YARHM"]
-    local function module_script()
-
-		-- Beautiful theming module for YARHM
-		
-		local YARHMRoot = getgenv().YARHM
-		local api = {
-			colors = {
-				font = Enum.Font.Montserrat,
-				textColor = Color3.fromRGB(255, 255, 255),
-				accentColor = Color3.fromRGB(197, 0, 0),
-				primaryColor = Color3.fromRGB(22, 22, 22),
-				secondaryColor = Color3.fromRGB(12, 12, 12),
-		
-				backgroundColorCSQ = ColorSequence.new(Color3.fromRGB(36, 36, 36), Color3.fromRGB(68, 68, 68)),	
-				strokeColorCSQ = ColorSequence.new{
-					ColorSequenceKeypoint.new(0, Color3.fromRGB(53.00000064074993, 53.00000064074993, 53.00000064074993)),
-					ColorSequenceKeypoint.new(0.15224914252758026, Color3.fromRGB(50.69031357765198, 50.69031357765198, 50.69031357765198)),
-					ColorSequenceKeypoint.new(0.4723183512687683, Color3.fromRGB(255, 0, 4.000000236555934)),
-					ColorSequenceKeypoint.new(0.7577854990959167, Color3.fromRGB(50.13314567506313, 50.13314567506313, 50.13314567506313)),
-					ColorSequenceKeypoint.new(1, Color3.fromRGB(48.000000938773155, 48.000000938773155, 48.000000938773155))
-				},
-			}
-		}
-		
-		local themeObjects = {
-			font = {},
-			textColor = {},
-			primaryColor = {},
-			secondaryColor = {},
-			backgroundColorCSQ = {},
-			strokeColorCSQ = {},
-		}
-		
-		
-		
-		-- value method matching
-		function api:sortObjects(gui)
-			for _, obj in next, gui:getDescendants() do
-				if obj:FindFirstChild("themedColor") then 
-					if obj:FindFirstChild("themedColor").Value == "primaryColor" then
-						table.insert(themeObjects.primaryColor, obj)
-					elseif obj:FindFirstChild("themedColor").Value == "secondaryColor" then
-						table.insert(themeObjects.secondaryColor, obj)
-					elseif obj:FindFirstChild("themedColor").Value == "backgroundColorCSQ" then
-						for _, find in ipairs(obj:GetChildren()) do
-							if find:IsA("UIGradient") then table.insert(themeObjects.backgroundColorCSQ, find) break end
-						end
-					else
-						warn("FRAME unknown obj: "..obj.Name)
-					end
-				end
-				if obj:IsA("TextLabel") or obj:IsA("TextButton") then
-					--print("found obj")
-					
-					table.insert(themeObjects.font, obj)
-					table.insert(themeObjects.textColor, obj)
-					--print("added to font obj",obj.Name)
-				end
-				if obj:IsA("UIStroke") and obj:FindFirstChildWhichIsA("UIGradient") then
-					table.insert(themeObjects.strokeColorCSQ, obj:FindFirstChildWhichIsA("UIGradient"))
-				end
-				
-			end
-			--print("sorted")
-		end
-		
-		
-		--function api:sortObjects(gui)
-		--	for _, obj in next, gui:getDescendants() do
-		--		if obj:IsA("Frame") then 
-		--			if obj.BackgroundColor == api.colors.primaryColor then
-		--				table.insert(themeObjects.primaryColor, obj)
-		--			elseif obj.BackgroundColor == api.colors.secondaryColor then
-		--				table.insert(themeObjects.secondaryColor, obj)
-		--			else
-		--				warn("FRAME unknown obj: "..obj.Name)
-		--				local c = obj.BackgroundColor3
-						--print(string.format("color of unknown obj: (%d, %d, %d)", c.R * 255, c.G * 255, c.B * 255))
-		--			end
-		--		elseif obj:IsA("TextLabel") or obj:IsA("TextButton") then
-					--print("found obj")
-		--			if obj.BackgroundColor == api.colors.primaryColor then
-		--				table.insert(themeObjects.primaryColor, obj)
-		--			elseif obj.BackgroundColor == api.colors.secondaryColor then
-		--				table.insert(themeObjects.secondaryColor, obj)
-		--		--[[
-		--			elseif obj.Font == api.colors.font then
-						--print("FONT OBJECT", api.colors.font)
-		--				table.insert(themeObjects.font, obj)
-		--			elseif obj.Text and obj.TextColor == api.colors.textColor then
-		--				table.insert(themeObjects.textColor, obj)
-		--		]]
-		--			else
-		--				warn("TEXT unknown obj: "..obj.Name)
-		--			end
-		--			table.insert(themeObjects.font, obj)
-		--			table.insert(themeObjects.textColor, obj)
-					--print("added to font obj",obj.Name)
-		--		end
-		--	end
-			--print("sorted")
-		--end
-		
-		function api:updateColor(colorType, newColor)
-			--print("aplying")
-			--api.colors[colorType] = (colorType == "font" and newColor) or newColor
-			if colorType == "font" then
-				--for _, obj in next, themeObjects.font do
-				--	obj.Font = newColor
-				--end
-				
-				-- changed weights so disabeled sorry
-			elseif colorType == "textColor" then
-				for _, obj in next, themeObjects.textColor do
-					obj.TextColor3 = newColor
-				end
-			elseif colorType == "primaryColor" then
-				for _, obj in next, themeObjects.primaryColor do
-					local s=pcall(function() obj.Color = newColor end) if s then return end
-					obj.BackgroundColor3 = newColor
-				end
-			elseif colorType == "secondaryColor" then
-				for _, obj in next, themeObjects.secondaryColor do
-					local s=pcall(function() obj.Color = newColor end) if s then return end
-					obj.BackgroundColor3 = newColor
-				end
-			elseif colorType == "backgroundColorCSQ" then
-				for _, obj in next, themeObjects.backgroundColorCSQ do
-					obj.Color = newColor
-				end
-			elseif colorType == "strokeColorCSQ" then
-				for _, obj in next, themeObjects.strokeColorCSQ do
-					obj.Color = newColor
-				end
-			end
-		end
-		
-		function api:setColorTable(t)
-			api.colors = t
-			if getgenv then getgenv().YARHM_THEME = t end
-		end
-		
-		function api:init(p)
-			api:sortObjects(p)
-			for colorKey, color in api.colors do
-				local s, e = pcall(function() 
-					api:updateColor(colorKey, color)
-				end)
-				if not s then warn(e) end
-			end
-		end
-		
-		getgenv().ThemeManager = api
-		getgenv().ThemeObjects = themeObjects
-		
-		getgenv().ThemeManagerModuleObject = script
-		
-		return api
-		
-    end
-    routine_module_scripts[script] = module_script
-end
-do -- Routine Module: StarterGui.YARHM.FlyUtility
-    local script = Instance.new("ModuleScript")
-    script.Name = "FlyUtility"
-    script.Parent = Converted["_YARHM"]
-    local function module_script()
-
-		-- Mobile-compatible fly module
-		-- Designed and written by YARHM
-		
-		local l={} local _=game:GetService("Players") local b=game:GetService("RunService") local d=_.LocalPlayer local h=false local e=50 local c=2 local i=0 local g=Vector3.new() local j=nil local k=nil local f=nil local function _()if f then f:Disconnect() f=nil end if j then j:Destroy() j=nil end if k then k:Destroy() k=nil end local _=d.Character if _ then local _=_:FindFirstChildOfClass("Humanoid") if _ then _.PlatformStand=false end end h=false i=0 end local function a(_)local a=d.Character if not h or not a then l:Stop() return end local _=a:FindFirstChildOfClass("Humanoid") local d=a:FindFirstChild("HumanoidRootPart") local a=workspace.CurrentCamera if not _ or _.Health<=0 or not d or not a then l:Stop() return end local _=_.MoveDirection if _.Magnitude>0.01 then i=math.min(e,i+c) g=_.Unit else i=math.max(0,i-c)end local _=Vector3.new(g.X,0,g.Z) local c=Vector3.zero if _.Magnitude>0 then c=_.Unit*i end local f=a.CFrame.LookVector.Unit local b=g:Dot(f) local _=b<0 and-1 or 1 local a=Vector3.new(f.X,0,f.Z) if a.Magnitude>0 then a=a.Unit end local a=math.abs(g:Dot(a)) local _=f.Y*_*a local _=_*i k.Velocity=Vector3.new(c.X,_,c.Z) local _=(i/e)*30 local _=-math.rad(b*_) j.CFrame=CFrame.new(d.Position,d.Position+f)*CFrame.Angles(_,0,0)end function l:Start()if h then return end local c=d.Character if not c then return end local _=c:FindFirstChildOfClass("Humanoid") local c=c:FindFirstChild("HumanoidRootPart") if not _ or not c then return end h=true j=Instance.new("BodyGyro") j.P=100000 j.MaxTorque=Vector3.new(math.huge,math.huge,math.huge) j.CFrame=c.CFrame j.Parent=c k=Instance.new("BodyVelocity") k.P=10000 k.MaxForce=Vector3.new(math.huge,math.huge,math.huge) k.Velocity=Vector3.new(0,0,0) k.Parent=c _.PlatformStand=true f=b.Heartbeat:Connect(a)end function l:Stop()if not h then return end _()end function l:SetMaxSpeed(_)if type(_)=="number"and _>=0 then e=_ else warn("FlyModule:SetMaxSpeed requires a non-negative number.")end end function l:GetMaxSpeed()return e end function l:IsFlying()return h end d.CharacterRemoving:Connect(function(_)if h then l:Stop()end end) return l
-    end
-    routine_module_scripts[script] = module_script
-end
-
--- Routines:
-
-local function WMYX_routine() -- Routine: StarterGui.YARHM.Flee the Facility
-    local script = Instance.new("LocalScript")
-    script.Name = "Flee the Facility"
-    script.Parent = Converted["_YARHM"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+local function validateActions(actions)
+    local errors = {}
+    local createdNames = {}
+    for i, action in ipairs(actions) do
+        local parent = action.parent
+        if (action.type == "create_instance" or action.type == "create_compound") and action.name then
+            createdNames[action.name:lower()] = true
         end
-        return req(obj)
-    end
-
-
-	local module = {}
-	module["gameId"] = 893973440 -- Restrict module to a certain game ID only. 0 allows all games.
-	if (module["gameId"] ~= game.GameId) and module["gameId"] ~= 0 then
-		script.Enabled = false
-	end
-	
-	module["Name"] = "Flee the Facility"
-	
-	local ts = game:GetService("TweenService")
-	
-	local FUNCTIONS = require(script.Parent.FUNCTIONS)
-	local espindc = require(script.Parent.ESPIndicator)
-	
-	local espcontainer = espindc.new({ArrowEdgePadding = 50, ArrowShowDistanceText = false,})
-	
-	
-	module.players = false
-	module.pcs = false
-	module.pods = false
-	module.exits = false
-	module.lockers = false
-	
-	local hideLabelsAndArrows = false
-	
-	module.antipcerror = false
-	module.flashlight = false
-	
-	local esps = {}
-	
-	local function getBeast()
-		local listplayers = game.Players:GetChildren()
-		for _, player in ipairs(listplayers) do
-			local character = player.Character
-			if character ~= nil and character:FindFirstChild("BeastPowers") then
-				return player
-			end
-		end
-	end
-	
-	local function reloadESP()
-		espcontainer:ClearAllGroups()
-	
-		--for _, i in ipairs(workspace:GetChildren()) do
-		--	if i.Name == "PlayerHighlight" and not module.players then
-		--		i:Destroy()
-		--	end
-	
-		--	if i.Name == "PCHighlight" and not module.pcs then
-		--		i:Destroy()
-		--	end
-	
-		--	if i.Name == "PodsHighlight" and not module.pods then
-		--		i:Destroy()
-		--	end
-	
-		--	if i.Name == "ExitsHighlight" and not module.exits then
-		--		i:Destroy()
-		--	end
-		--end
-		
-		if module.players then
-			
-			
-			local listplayers = game.Players:GetChildren()
-			for _, player in ipairs(listplayers) do
-				if player ~= game.Players.LocalPlayer and player.Character ~= nil then
-					local character = player.Character
-					if player == getBeast() then
-						espcontainer:Add(character, {
-							AccentColor    =  Color3.new(1, 0, 0),
-							ArrowShow        = not hideLabelsAndArrows,
-							ArrowMinDistance       = 999999,           
-							ArrowSize         = UDim2.new(0,40,0,40),
-							LabelText         = "Beast",
-							ShowLabel         = not hideLabelsAndArrows,
-							GroupName         = "players"
-						})
-					else
-						espcontainer:Add(character, {
-							AccentColor    =  Color3.new(0, 1, 0),
-							ArrowShow        = false,
-							ShowLabel         = false,
-							GroupName         = "players"
-						})
-					end
-				end
-			end
-			
-			
-		end
-		
-		if module.pcs then
-			
-			
-			for _, obj in ipairs(game.Workspace:GetDescendants()) do
-				if obj.Name == "ComputerTable" then
-					if obj.Screen.Color == Color3.fromRGB(40, 127, 71) then
-						espcontainer:Add(obj, {
-							AccentColor    =  Color3.new(0.133333, 0.333333, 0.00784314),
-							ArrowShow        = false,
-							ArrowShowDistanceText       = false,
-							ShowLabel         = false,
-							GroupName       	  = "pcs"
-						})
-					else
-						espcontainer:Add(obj, {
-							AccentColor    =  Color3.new(0, 0.37, 1),
-							ArrowShow        = not hideLabelsAndArrows,
-							ArrowMinDistance       = 99999,      
-							ArrowShowDistanceText       = false,
-							ArrowSize        		 = UDim2.new(0,10,0,10),
-							ShowLabel         = false,
-							GroupName       	  = "pcs"
-						})
-					end
-				end
-			end
-			
-			
-		end
-		
-		if module.pods then
-			
-			
-			for _, obj in ipairs(game.Workspace:GetDescendants()) do
-				if obj.Name == "FreezePod" then
-					espcontainer:Add(obj, {
-						AccentColor    =  Color3.new(0, 1, 1),
-						ArrowShow        = false,
-						ShowLabel         = false,
-						GroupName         = "pods"
-					})
-				end
-			end
-			
-			
-		end
-		
-		if module.exits then
-			
-			
-			for _, obj in ipairs(game.Workspace:GetDescendants()) do
-				if obj.Name == "ExitDoor" then
-					espcontainer:Add(obj, {
-						AccentColor    =  Color3.new(1, 1, 0),
-						ArrowShow        = false,
-						ShowLabel         = false,
-						GroupName         = "exits"
-					})
-				end
-			end
-			
-			
-		end
-		
-		if module.lockers then
-	
-	
-			for _, obj in ipairs(game:GetService("CollectionService"):GetTagged("LOCKER")) do
-				espcontainer:Add(obj, {
-					AccentColor    =  Color3.new(1, 0.054902, 0.623529),
-					ArrowShow        = false,
-					ShowLabel         = false,
-					GroupName         = "lockers"
-				})
-			end
-	
-	
-		end
-	
-		--if module.players then
-	
-	
-	
-		--	local listplayers = game.Players:GetChildren()
-		--	for _, player in ipairs(listplayers) do
-		--		if player ~= game.Players.LocalPlayer and player.Character ~= nil then
-		--			local character = player.Character
-		--			if not character:FindFirstChild("PlayerHighlight") then
-		--				local a = Instance.new("Highlight", workspace)
-		--				esps["PlayerHighlight"] = a
-		--				a.Name = "PlayerHighlight"
-		--				a.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-		--				a.Adornee = character
-		--				task.spawn(function()
-		--					repeat
-		--						task.wait(0.1)
-		--						if player == getBeast() then
-		--							a.FillColor = Color3.fromRGB(255,0,0)
-		--						else
-		--							a.FillColor = Color3.fromRGB(0,255,0)
-		--						end
-		--					until character == nil or a == nil
-		--				end)
-		--			end
-		--		end
-		--	end
-	
-	
-		--end
-	
-		--if module.pcs then
-	
-	
-	
-	
-		--	for _, obj in ipairs(game.Workspace:GetDescendants()) do
-		--		if obj.Name == "ComputerTable" and not obj:FindFirstChild("PCHighlight") then
-		--			local hili = Instance.new("Highlight", workspace)
-		--			esps["PCHighlight"] = hili
-		--			hili.Name = "PCHighlight"
-		--			hili.OutlineTransparency = 1
-		--			hili.Adornee = obj
-		--			hili.FillColor = obj:FindFirstChild("Screen").Color
-		--		end
-		--	end
-	
-	
-		--end
-	
-		--if module.pods then
-	
-	
-	
-		--	for _, obj in ipairs(game.Workspace:GetDescendants()) do
-		--		if obj.Name == "FreezePod" then
-		--			local hili = Instance.new("Highlight", workspace)
-		--			esps["PodsHighlight"] = hili
-		--			hili.Name = "PodsHighlight"
-		--			hili.OutlineTransparency = 1
-		--			hili.Adornee = obj
-		--			hili.FillColor = Color3.fromRGB(0, 200, 255)
-		--		end
-		--	end
-	
-		--end
-	
-	
-		--if module.exits then
-	
-	
-	
-		--	for _, obj in ipairs(game.Workspace:GetDescendants()) do
-		--		if obj.Name == "ExitDoor" and not obj:FindFirstChild("ExitsHighlight") then
-		--			local hili = Instance.new("Highlight", workspace)
-		--			esps["ExitsHighlight"] = hili
-		--			hili.Name = "ExitsHighlight"
-		--			hili.OutlineTransparency = 1
-		--			hili.Adornee = obj
-		--			hili.FillColor = Color3.fromRGB(255,255,0)
-		--		end
-		--	end
-	
-		--end
-	end
-	
-	
-	
-	
-	table.insert(module, {
-		Type = "Text",
-		Args = {"ESPs"}
-	})
-	
-	table.insert(module, {
-		Type = "ButtonGrid",
-		Toggleable = true, -- Recolors buttons for you onclick, you still need to save the state yourself
-		Args = {3, { -- 3 is the number of columns
-			Players = function(Self)
-	
-				if module.players then
-					module.players = false
-					reloadESP()
-				else
-					module.players = true
-					reloadESP()
-				end
-	
-	
-			end,
-			PCs = function(Self)
-	
-				if module.pcs then
-					module.pcs = false
-					reloadESP()
-				else
-					module.pcs = true
-					reloadESP()
-				end
-	
-			end,
-			Pods = function(Self)
-	
-				if module.pods then
-					module.pods = false
-					reloadESP()
-				else
-					module.pods = true
-					reloadESP()
-				end
-	
-	
-			end,
-			Exits = function(Self)
-	
-				if module.exits then
-					module.exits = false
-					reloadESP()
-				else
-					module.exits = true
-					reloadESP()
-				end
-	
-			end,
-			Lockers = function(Self)
-	
-				if module.lockers then
-					module.lockers = false
-					reloadESP()
-				else
-					module.lockers = true
-					reloadESP()
-				end
-	
-			end,
-		}
-		} 
-	})
-	
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"Hide arrows and labels", function(Self, state)
-			hideLabelsAndArrows = state
-			reloadESP()
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Text",
-		Args = {"Tools"}
-	})
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Third person camera", function(Self)
-			game.Players.LocalPlayer.CameraMode = Enum.CameraMode.Classic
-			game.Players.LocalPlayer.CameraMaxZoomDistance = 400
-			
-			FUNCTIONS.notification("Camera unlocked for third person. Try zooming out!")
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Reload ESP", function(Self)
-			reloadESP()
-		end,}
-	})
-	
-	
-	local isGameActive = game:GetService("ReplicatedStorage"):WaitForChild("IsGameActive", 5)
-	local gameStatus = game:GetService("ReplicatedStorage"):WaitForChild("GameStatus", 5)
-	
-	if isGameActive and gameStatus then
-		isGameActive.Changed:Connect(function()
-			reloadESP()
-		end)
-		gameStatus.Changed:Connect(function()
-			reloadESP()
-		end)
-	end
-	
-	local root = game:GetService("Players").LocalPlayer.Character:WaitForChild("HumanoidRootPart")
-	
-	light = Instance.new("PointLight", root)
-	light.Brightness = 0
-	light.Range = 9999999999
-	
-	local wslock = false
-	local ws = 18
-	
-	local antifail = false
-	
-	
-	task.spawn(function() 
-		if game:GetService("RunService"):IsStudio() then return end -- :)
-	
-		local OldNameCall = nil
-	
-		OldNameCall = hookmetamethod(game, "__namecall", function(Self, ...)
-			local Args = {...}
-			local NamecallMethod = getnamecallmethod()
-	
-			if NamecallMethod == "FireServer" and Args[1] == "SetPlayerMinigameResult" and antifail then
-				print("Minigame result - Intercepting result to true")
-				Args[2] = true
-			end
-	
-			return OldNameCall(Self, unpack(Args))
-		end)
-	
-	end)
-	
-	
-	table.insert(module, {
-		Type = "ButtonGrid",
-		Toggleable = true,
-		Args = {3, {
-			Anti_PC_Error = function()
-				if antifail then antifail = false else antifail = true end
-			end,
-			Flashlight = function()
-				if light.Brightness == 0 then
-					light.Brightness = 2.5
-				else
-					light.Brightness = 0
-				end
-			end,
-		}}
-	})
-	
-	task.spawn(function()
-		while task.wait(0.1) do
-			if wslock then
-				root.Parent:WaitForChild("Humanoid").WalkSpeed = ws
-			end
-		end
-	end)
-	
-	table.insert(module, {
-		Type = "Input",
-		Args = {"Input a walkspeed", "Set & Lock", function(Self, text)
-			if not tonumber(text) then
-				FUNCTIONS.notification("Input isn't a valid number.")
-				return
-			end
-	
-			ws = tonumber(text)
-			wslock = true
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Unlock all", function()
-			wslock = false
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Text",
-		Args = {"Locking means your speed will stay the same no matter what. This means you will not be slow when crawling or jumping as beast."}
-	})
-	
-	repeat task.wait() until getgenv().Modules
-	getgenv().Modules[2] = module
-end
-local function CEBY_routine() -- Routine: StarterGui.YARHM.Universal
-    local script = Instance.new("LocalScript")
-    script.Name = "Universal"
-    script.Parent = Converted["_YARHM"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+        -- Size validation: skip for GUI objects (they use UDim2 = 4-element [sX,oX,sY,oY])
+        if action.type == "create_instance" and type(action.properties) == "table" then
+            local guiClasses = { ScreenGui = true, Frame = true, TextLabel = true, TextButton = true,
+                ImageLabel = true, ScrollingFrame = true, BillboardGui = true }
+            local isGUI = guiClasses[action.className]
+            local sz = action.properties.Size
+            if type(sz) == "table" and isGUI then
+                if #sz ~= 4 or type(sz[1]) ~= "number" or type(sz[2]) ~= "number" or type(sz[3]) ~= "number" or type(sz[4]) ~= "number" then
+                    table.insert(errors, ("Action %d: '%s' has invalid UDim2 Size %s (needs 4 numbers: scaleX, offsetX, scaleY, offsetY)."):format(
+                        i, action.name or "?", HttpService:JSONEncode(sz)
+                    ))
+                end
+            elseif type(sz) == "table" and not isGUI then
+                if not ((sz[1] or 0) > 0 and (sz[2] or 0) > 0 and (sz[3] or 0) > 0) then
+                    table.insert(errors, ("Action %d: '%s' has invalid Size %s (must be positive numbers on all 3 axes)."):format(
+                        i, action.name or "?", HttpService:JSONEncode(sz)
+                    ))
+                end
+            end
+            -- موقع متطرف بشكل غير منطقي (احتمال خطأ حسابي بالـ AI، مو طلب فعلي)
+            local pos = action.properties.Position
+            if type(pos) == "table" then
+                for axisIdx = 1, 3 do
+                    local v = pos[axisIdx]
+                    if type(v) == "number" and math.abs(v) > 100000 then
+                        table.insert(errors, ("Action %d: '%s' has extreme Position value (%d) on axis %d. Likely a calculation error — keep coordinates reasonable (e.g. within ±2000)."):format(
+                            i, action.name or "?", v, axisIdx
+                        ))
+                    end
+                end
+            end
         end
-        return req(obj)
-    end
-
-
-	local module = {}
-	module["gameId"] = 0 -- Restrict module to a certain game ID only. 0 allows all games.
-	if (module["gameId"] ~= game.GameId) and module["gameId"] ~= 0 then
-		script.Enabled = true
-	end
-	
-	local ts = game:GetService("TweenService")
-	local uis = game:GetService("UserInputService")
-	local rs = game:GetService("RunService")
-	local https = game:GetService("HttpService")
-	local Players = game:GetService("Players")
-	
-	local fu = require(script.Parent.FUNCTIONS)
-	local theme = require(script.Parent.Theme)
-	local espind = require(script.Parent.ESPIndicator)
-	local flyutility = require(script.Parent.FlyUtility)
-	local PointSave = require(script.Parent.PointSave)
-	
-	
-	local loopfovandws = false
-	local ctrlclicktp = false
-	local ws = 16
-	local fov = 70
-	
-	local hidden = false
-	
-	local YARHMPointSave = PointSave.new("YARHM")
-	
-	function splitString(str,delim)
-		local broken = {}
-		if delim == nil then delim = "," end
-		for w in string.gmatch(str,"[^"..delim.."]+") do
-			table.insert(broken,w)
-		end
-		return broken
-	end
-	
-	function toTokens(str)
-		local tokens = {}
-		for op,name in string.gmatch(str,"([+-])([^+-]+)") do
-			table.insert(tokens,{Operator = op,Name = name})
-		end
-		return tokens
-	end
-	
-	function onlyIncludeInTable(tab,matches)
-		local matchTable = {}
-		local resultTable = {}
-		for i,v in pairs(matches) do matchTable[v.Name] = true end
-		for i,v in pairs(tab) do if matchTable[v.Name] then table.insert(resultTable,v) end end
-		return resultTable
-	end
-	
-	function removeTableMatches(tab,matches)
-		local matchTable = {}
-		local resultTable = {}
-		for i,v in pairs(matches) do matchTable[v.Name] = true end
-		for i,v in pairs(tab) do if not matchTable[v.Name] then table.insert(resultTable,v) end end
-		return resultTable
-	end
-	
-	function getPlayersByName(Name)
-		local Name,Len,Found = string.lower(Name),#Name,{}
-		for _,v in pairs(Players:GetPlayers()) do
-			if Name:sub(0,1) == '@' then
-				if string.sub(string.lower(v.Name),1,Len-1) == Name:sub(2) then
-					table.insert(Found,v)
-				end
-			else
-				if string.sub(string.lower(v.Name),1,Len) == Name or string.sub(string.lower(v.DisplayName),1,Len) == Name then
-					table.insert(Found,v)
-				end
-			end
-		end
-		return Found
-	end
-	
-	function getPlayer(list,speaker)
-		if list == nil then return {speaker.Name} end
-		local nameList = splitString(list,",")
-	
-		local foundList = {}
-	
-		for _,name in pairs(nameList) do
-			if string.sub(name,1,1) ~= "+" and string.sub(name,1,1) ~= "-" then name = "+"..name end
-			local tokens = toTokens(name)
-			local initialPlayers = Players:GetPlayers()
-	
-			for i,v in pairs(tokens) do
-				if v.Operator == "+" then
-					local tokenContent = v.Name
-					local foundCase = false
-	
-					if not foundCase then
-						initialPlayers = onlyIncludeInTable(initialPlayers,getPlayersByName(tokenContent))
-					end
-				else
-					local tokenContent = v.Name
-					local foundCase = false
-	
-					if not foundCase then
-						initialPlayers = removeTableMatches(initialPlayers,getPlayersByName(tokenContent))
-					end
-				end
-			end
-	
-			for i,v in pairs(initialPlayers) do table.insert(foundList,v) end
-		end
-	
-		local foundNames = {}
-		for i,v in pairs(foundList) do table.insert(foundNames,v.Name) end
-	
-		return foundNames[1]
-	end
-	
-	
-	
-	task.spawn(function()
-		rs.RenderStepped:Connect(function()
-			if loopfovandws then
-				workspace.CurrentCamera.FieldOfView = fov
-				if game.Players.LocalPlayer.Character then
-					if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-						game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = ws
-					end
-				end
-			end
-		end)
-	end)
-	
-	uis.InputBegan:Connect(function(inp, proc)
-		if proc then return end
-	
-		if uis:IsKeyDown(Enum.KeyCode.LeftControl) and inp.KeyCode == Enum.KeyCode.Y and hidden then
-			hidden = false
-			ts:Create(script.Parent.Menu.UIScale, TweenInfo.new(1, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-				Scale = 1
-			}):Play()
-		end
-	end)
-	
-	local function getPlayerMouse()
-		local player = game:GetService("Players").LocalPlayer
-		if player then
-			return player:GetMouse()
-		end
-		return nil
-	end
-	
-	-- Function to cast a ray from the cursor to the furthest object
-	local function getRayHitPosition()
-		local mouse = getPlayerMouse()
-		if not mouse then
-			return nil
-		end
-	
-		local camera = workspace.CurrentCamera
-		local unitRay = camera:ScreenPointToRay(mouse.X, mouse.Y)
-		local ray = Ray.new(unitRay.Origin, unitRay.Direction * 1000) -- Adjust the range as needed
-	
-		local part, position = workspace:FindPartOnRay(ray, game:GetService("Players").LocalPlayer.Character)
-	
-		if part then
-			return position
-		else
-			return nil
-		end
-	end
-	
-	uis.InputBegan:Connect(function(inp, proc)
-		if proc then return end
-	
-		if uis:IsKeyDown(Enum.KeyCode.LeftControl) and inp.UserInputType == Enum.UserInputType.MouseButton1 and ctrlclicktp then
-			local ray = getRayHitPosition()
-			if not ray then fu.notification("Couldn't find a place to teleport to.") return end
-			game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(ray)
-		end
-	end)
-	
-	if uis.AccelerometerEnabled then
-		uis.DeviceAccelerationChanged:Connect(function(acc)
-			if hidden and acc.Position.Magnitude > 28 then
-				hidden = false
-				ts:Create(script.Parent.Menu.UIScale, TweenInfo.new(1, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-					Scale = 1
-				}):Play()
-			end 
-		end)
-	end
-	
-	--local flyob = flyutility.new(Players.LocalPlayer)
-	
-	
-	module["Name"] = "Universal"
-	
-	local ts = game:GetService("TweenService")
-	
-	--table.insert(module, {
-	--	Type = "Text",
-	--	Args = {"Welcome to YARHM! The open, free script hub."}
-	--})
-	
-	table.insert(module, {
-		Type = "Text",
-		Args = {"<font color='#FFFF00'>Another great script</font> by YARHM developers below!"}
-	})
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"AFEM Max - The best AI-powered emote script!", function()
-			loadstring(game:HttpGet("https://yarhm.mhi.im/scr?channel=afemmax"))()
-			fu.notification("AFEM has been executed.")
-		end,}
-	})
-	
-	
-	table.insert(module, {
-		Type = "Text",
-		Args = {"---"}
-	})
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Join our Discord", function(Self)
-			if setclipboard then setclipboard("https://discord.gg/2jbYxvDkxr") end
-			fu.notification('Discord link has been copied to clipboard!')
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"OP Fly", function(Self, state)
-			if state then
-				flyutility:Start(Players.LocalPlayer.Character)
-			else
-				flyutility:Stop(Players.LocalPlayer.Character)
-			end
-		end}
-	})
-	
-	table.insert(module, {
-		Type = "Range",
-		Args = {"Fly speed", 50, 350, 10, function(Self, spd)
-			--print(spd)
-			flyutility:SetMaxSpeed(spd)
-		end}
-	})
-	
-	local infJump = false
-	local infJumpConnection = nil
-	local landedConnection = nil
-	
-	local infJumps = 0
-	local infJumpDeb = false
-	local infJumpOnlyTwo = false
-	local landed = true
-	
-	local function setupHumanoid(humanoid)
-		if landedConnection then landedConnection:Disconnect() end
-	
-		landedConnection = humanoid.StateChanged:Connect(function(_, n)
-			if n == Enum.HumanoidStateType.Landed or n == Enum.HumanoidStateType.Running then
-	
-				landed = true
-				infJumps = 0
-			end
-		end)
-	end
-	
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"Infinite jump", function(Self, state)
-			infJump = state
-	
-			if state then
-				local char = game.Players.LocalPlayer.Character
-				if char and char:FindFirstChildWhichIsA("Humanoid") then
-					setupHumanoid(char:FindFirstChildWhichIsA("Humanoid"))
-				end
-	
-				infJumpConnection = uis.JumpRequest:Connect(function()
-					local character = game.Players.LocalPlayer.Character
-					local humanoid = character and character:FindFirstChildWhichIsA("Humanoid")
-	
-					if not humanoid then return end
-	
-					if infJumpOnlyTwo and infJumps >= 2 and not landed then
-						--print(infJumpOnlyTwo)
-						--print(infJumps)
-						--print(landed)
-						return end
-	
-					if not infJumpDeb then
-						infJumpDeb = true
-						humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-						infJumps += 1
-						landed = false
-	
-						task.wait(.1)
-						infJumpDeb = false
-					end
-				end)
-			else
-				if infJumpConnection then infJumpConnection:Disconnect() end
-				if landedConnection then landedConnection:Disconnect() end
-				infJumps = 0
-				landed = true
-			end
-		end}
-	})
-	
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"Limit infinite jump to 2 jumps only", function(Self, state)
-			infJumpOnlyTwo = state
-			infJumps = 0 
-		end}
-	})
-	
-	
-	local aggressiveExp = false
-	local hitboxExp = 1
-	table.insert(module, {
-		Type = "Input",
-		Args = {"Hitbox expander", "Expand everyone's hitbox", function(Self, ToExpand)
-			hitboxExp = ToExpand
-			local players = game:GetService("Players"):GetPlayers()
-			for i,v in ipairs(players) do
-				if v ~= game.Players.LocalPlayer and v.Character:FindFirstChild('HumanoidRootPart') then
-					local sizeArg = tonumber(ToExpand)
-					local Size = Vector3.new(sizeArg,sizeArg,sizeArg)
-					if aggressiveExp then
-						for _, part in ipairs(v.Character:GetChildren()) do
-							if part:IsA("BasePart") then
-								if not ToExpand or sizeArg == 1 then
-									part.Size = Vector3.new(2,1,1)
-									part.Transparency = 0.2
-								else
-									part.Size = Size
-									part.Transparency = 0.2
-								end
-								--part.CanCollide = false
-							end
-						end
-					else
-						local Root = v.Character:FindFirstChild('HumanoidRootPart')
-						if Root:IsA("BasePart") then
-							if not ToExpand or sizeArg == 1 then
-								Root.Size = Vector3.new(2,1,1)
-								Root.Transparency = 0.2
-							else
-								Root.Size = Size
-								Root.Transparency = 0.2
-							end
-							Root.CanCollide = false
-						end
-					end
-				end
-			end
-			fu.notification("Hitboxes expanded.")
-		end,}
-	})
-	
-	local loopHitBoxExp
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"Loop hitbox expansion", function(Self, state)
-			if state then
-				loopHitBoxExp = rs.Heartbeat:Connect(function()
-					local players = game:GetService("Players"):GetPlayers()
-					for i,v in ipairs(players) do
-						if v ~= game.Players.LocalPlayer and v.Character:FindFirstChild('HumanoidRootPart') then
-							local sizeArg = tonumber(hitboxExp)
-							local Size = Vector3.new(sizeArg,sizeArg,sizeArg)
-							local Root = v.Character:FindFirstChild('HumanoidRootPart')
-							if aggressiveExp then
-								for _, part in ipairs(v.Character:GetChildren()) do
-									if part:IsA("BasePart") then
-										if not hitboxExp or sizeArg == 1 then
-											part.Size = Vector3.new(2,1,1)
-											part.Transparency = 0.2
-										else
-											part.Size = Size
-											part.Transparency = 0.2
-										end
-										--part.CanCollide = false
-									end
-								end
-							else
-								local Root = v.Character:FindFirstChild('HumanoidRootPart')
-								if Root:IsA("BasePart") then
-									if not hitboxExp or sizeArg == 1 then
-										Root.Size = Vector3.new(2,1,1)
-										Root.Transparency = 0.2
-									else
-										Root.Size = Size
-										Root.Transparency = 0.2
-									end
-									Root.CanCollide = false
-								end
-							end
-						end
-					end
-				end)
-			else
-				loopHitBoxExp:Disconnect()
-			end
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"Aggressive hitbox expasion (all parts)", function(Self, state)
-			aggressiveExp = state
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Input",
-		Args = {"Walkspeed", "Set speed", function(Self, speed)
-			local lp = game:GetService("Players").LocalPlayer
-			local char = lp.Character
-			if not char then fu.notification("No character!") return end
-			local hu = char:FindFirstChildOfClass("Humanoid")
-			if not hu then fu.notification("No humanoid on your character..?") return end
-			hu.WalkSpeed = tonumber(speed) or 16
-			fu.notification("Walkspeed set.")
-			ws = tonumber(speed) or 16
-		end,}
-	})
-	
-	
-	local walkspeedInDeCrement = 2
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Increase walkspeed", function(Self)
-			local lp = game:GetService("Players").LocalPlayer
-			local char = lp.Character
-			if not char then fu.notification("No character!") return end
-			local hu = char:FindFirstChildOfClass("Humanoid")
-			if not hu then fu.notification("No humanoid on your character..?") return end
-			ws = ws + walkspeedInDeCrement
-			hu.WalkSpeed = hu.WalkSpeed + walkspeedInDeCrement
-			fu.notification("Walkspeed is now ".. hu.WalkSpeed)
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Decrease walkspeed", function(Self)
-			local lp = game:GetService("Players").LocalPlayer
-			local char = lp.Character
-			if not char then fu.notification("No character!") return end
-			local hu = char:FindFirstChildOfClass("Humanoid")
-			if not hu then fu.notification("No humanoid on your character..?") return end
-			ws = ws - walkspeedInDeCrement
-			hu.WalkSpeed = hu.WalkSpeed - walkspeedInDeCrement
-			fu.notification("Walkspeed is now ".. hu.WalkSpeed)
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Input",
-		Args = {"Walkspeed increment (How big each increase/decrease is)", "Set", function(Self, input)
-			walkspeedInDeCrement = tonumber(input) or 2
-			if not tonumber(input) then fu.notification("Not a number. Setting to default (2).") end
-			fu.notification("Set walkspeed increment to ".. walkspeedInDeCrement)
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Input",
-		Args = {"FOV change", "Set FOV", function(Self, tofov)
-			if not tonumber(tofov) then fu.notification("Not a number. Setting to default.") end
-			ts:Create(workspace.CurrentCamera, TweenInfo.new(1, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-				FieldOfView = tonumber(tofov) or 70
-			}):Play()
-			fov = tonumber(tofov) or 70
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"Loop walkspeed and FOV", function(Self, state)
-			loopfovandws = state
-		end,}
-	})
-	
-	
-	if uis.KeyboardEnabled and uis.MouseEnabled then
-		table.insert(module, {
-			Type = "Toggle",
-			Args = {"CTRL+Click Teleport", function(Self, state)
-				ctrlclicktp = state
-			end,}
-		})
-	end
-	
-	table.insert(module, {
-		Type = "Text",
-		Args = {"Teleports"}
-	})
-	
-	local function gotoPlayer(targetPlayerName)
-		local targetPlayer = Players:FindFirstChild(getPlayer(targetPlayerName, game.Players.LocalPlayer))
-		if targetPlayer then
-			local character = targetPlayer.Character
-			if character and character:FindFirstChild("HumanoidRootPart") then
-				local targetPosition = character.HumanoidRootPart.Position
-				local playerCharacter = Players.LocalPlayer.Character
-				if playerCharacter and playerCharacter:FindFirstChild("HumanoidRootPart") then
-					playerCharacter.HumanoidRootPart.CFrame = CFrame.new(targetPosition + Vector3.new(0, 5, 0))
-				end
-			end
-		else
-			print("Player '" .. targetPlayerName .. "' not found.")
-		end
-	end
-	
-	table.insert(module, {
-		Type = "Input",
-		Args = {
-			"Enter player's name", 
-			"Teleport", 
-			function(Self, text)
-				gotoPlayer(text)
-			end
-		}
-	})
-	
-	local spectateLoop = nil
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Spectate players", function(Self)
-			local listofplayers = game.Players:GetPlayers()
-			local currentlyViewing = 1
-			local currentPlayer = listofplayers[currentlyViewing]
-			if not currentPlayer then return end
-			workspace.CurrentCamera.CameraSubject = currentPlayer.Character.Humanoid
-			spectateLoop = task.spawn(function()
-				while true do
-					fu.dialog("Spectating...", "Now spectating: " .. workspace.CurrentCamera.CameraSubject.Parent.Name, {"Previous", "Stop", "Next"})
-					local action = fu.waitfordialog()
-					if action == "Stop" then
-						fu.closedialog()
-						workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character.Humanoid
-						task.cancel(spectateLoop)
-						break
-					elseif action == "Next" then
-						currentlyViewing = currentlyViewing + 1
-						if currentlyViewing > #listofplayers then
-							currentlyViewing = 1
-						end
-						currentPlayer = listofplayers[currentlyViewing]
-						if not currentPlayer then return end
-						workspace.CurrentCamera.CameraSubject = currentPlayer.Character.Humanoid
-					elseif action == "Previous" then
-						currentlyViewing = currentlyViewing - 1
-						if currentlyViewing < 1 then
-							currentlyViewing = #listofplayers
-						end
-						currentPlayer = listofplayers[currentlyViewing]
-						if not currentPlayer then return end
-						workspace.CurrentCamera.CameraSubject = currentPlayer.Character.Humanoid
-					end
-				end
-	
-			end)
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Text",
-		Args = {"Aim locking"}
-	})
-	
-	local aimlockrscon
-	local target
-	
-	table.insert(module, {
-		Type = "Input",
-		Args = {"Target player", "Set target", function(Self, input)
-			if not Players:FindFirstChild(getPlayer(input, game.Players.LocalPlayer)) then
-				fu.notification("Player not found.")
-				return
-			end
-			fu.notification("Target is set to " .. Players:FindFirstChild(getPlayer(input, game.Players.LocalPlayer)).Name)
-			target = Players:FindFirstChild(getPlayer(input, game.Players.LocalPlayer))
-		end,}
-	})
-	
-	local aimlock = false
-	local cam = workspace.CurrentCamera
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Aim lock", function(Self)
-			if aimlock then return end
-			if aimlockrscon then aimlockrscon:Disconnect() end
-			if not target then fu.notification("Set a target first.") return end
-			aimlockrscon = rs.RenderStepped:Connect(function()
-				if not target then fu.notification("No valid target.") aimlockrscon:Disconnect() return end
-				if not target.Character then return end
-				if not target.Character:FindFirstChild("HumanoidRootPart") then return end
-				cam.CFrame = CFrame.new(cam.CFrame.Position, target.Character:FindFirstChild("HumanoidRootPart").Position)
-			end)
-			aimlock = true
-			fu.notification("Aim lock is now on.")
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Unaim lock", function(Self)
-			if not aimlock then return end
-			aimlock = false
-			if aimlockrscon then aimlockrscon:Disconnect() end
-			fu.notification("Aim lock is now off.")
-		end,}
-	})
-	
-	
-	
-	
-	table.insert(module, {
-		Type = "Text",
-		Args = {"Fling"}
-	})
-	
-	local playerToFling
-	table.insert(module, {
-		Type = "Input",
-		Args = {"Target fling player", "Set target", function(Self, input)
-			if not Players:FindFirstChild(getPlayer(input, game.Players.LocalPlayer)) then
-				fu.notification("Player not found.")
-				return
-			end
-			fu.notification("Target is set to " .. Players:FindFirstChild(getPlayer(input, game.Players.LocalPlayer)).Name)
-			playerToFling = Players:FindFirstChild(getPlayer(input, game.Players.LocalPlayer))
-		end,}
-	})
-	
-	
-	local antiFling = false
-	table.insert(module, {
-		Type = "ButtonGrid",
-		Args = {1, {
-	
-			Fling = function(Self)
-				if not playerToFling then
-					fu.notification("You need to target a player to fling.")
-					return
-				end
-				if not Players:FindFirstChild(playerToFling.Name) then
-					fu.notification("You need to target a player to fling.")
-					return
-				end
-				if antiFling then
-					fu.notification("Turn off anti-fling to use fling.")
-					return
-				end
-	
-				local player = game.Players.LocalPlayer
-				local mouse = player:GetMouse()
-				local Targets = {playerToFling}
-	
-				local Players = game:GetService("Players")
-				local Player = Players.LocalPlayer
-	
-				local AllBool = false
-	
-				local SkidFling = function(TargetPlayer)
-					local Character = Player.Character
-					local Humanoid = Character and Character:FindFirstChildOfClass("Humanoid")
-					local RootPart = Humanoid and Humanoid.RootPart
-	
-					local TCharacter = TargetPlayer.Character
-					local THumanoid
-					local TRootPart
-					local THead
-					local Accessory
-					local Handle
-	
-					if TCharacter:FindFirstChildOfClass("Humanoid") then
-						THumanoid = TCharacter:FindFirstChildOfClass("Humanoid")
-					end
-					if THumanoid and THumanoid.RootPart then
-						TRootPart = THumanoid.RootPart
-					end
-					if TCharacter:FindFirstChild("Head") then
-						THead = TCharacter.Head
-					end
-					if TCharacter:FindFirstChildOfClass("Accessory") then
-						Accessory = TCharacter:FindFirstChildOfClass("Accessory")
-					end
-					if Accessory and Accessory:FindFirstChild("Handle") then
-						Handle = Accessory.Handle
-					end
-	
-					if Character and Humanoid and RootPart then
-						if RootPart.Velocity.Magnitude < 50 then
-							getgenv().OldPos = RootPart.CFrame
-						end
-						if THumanoid and THumanoid.Sit and not AllBool then
-						end
-						if THead then
-							if THead.Velocity.Magnitude > 500 then
-								fu.dialog("Player flung", "Player is already flung. Fling again?", {"Fling again", "No"})
-								if fu.waitfordialog() == "No" then return fu.closedialog() end
-								fu.closedialog()
-							end
-						elseif not THead and Handle then
-							if Handle.Velocity.Magnitude > 500 then
-								fu.dialog("Player flung", "Player is already flung. Fling again?", {"Fling again", "No"})
-								if fu.waitfordialog() == "No" then return fu.closedialog() end
-								fu.closedialog()
-							end
-						end
-	
-	
-						if THead then
-							workspace.CurrentCamera.CameraSubject = THead
-						elseif not THead and Handle then
-							workspace.CurrentCamera.CameraSubject = Handle
-						elseif THumanoid and TRootPart then
-							workspace.CurrentCamera.CameraSubject = THumanoid
-						end
-						if not TCharacter:FindFirstChildWhichIsA("BasePart") then
-							return
-						end
-	
-						local FPos = function(BasePart, Pos, Ang)
-							RootPart.CFrame = CFrame.new(BasePart.Position) * Pos * Ang
-							Character:SetPrimaryPartCFrame(CFrame.new(BasePart.Position) * Pos * Ang)
-							RootPart.Velocity = Vector3.new(9e7, 9e7 * 10, 9e7)
-							RootPart.RotVelocity = Vector3.new(9e8, 9e8, 9e8)
-						end
-	
-						local SFBasePart = function(BasePart)
-							local TimeToWait = 2
-							local Time = tick()
-							local Angle = 0
-	
-							repeat
-								if RootPart and THumanoid then
-									if BasePart.Velocity.Magnitude < 50 then
-										Angle = Angle + 100
-	
-										FPos(BasePart, CFrame.new(0, 1.5, 0) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle),0 ,0))
-										task.wait()
-	
-										FPos(BasePart, CFrame.new(0, -1.5, 0) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle), 0, 0))
-										task.wait()
-	
-										FPos(BasePart, CFrame.new(2.25, 1.5, -2.25) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle), 0, 0))
-										task.wait()
-	
-										FPos(BasePart, CFrame.new(-2.25, -1.5, 2.25) + THumanoid.MoveDirection * BasePart.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(Angle), 0, 0))
-										task.wait()
-	
-										FPos(BasePart, CFrame.new(0, 1.5, 0) + THumanoid.MoveDirection,CFrame.Angles(math.rad(Angle), 0, 0))
-										task.wait()
-	
-										FPos(BasePart, CFrame.new(0, -1.5, 0) + THumanoid.MoveDirection,CFrame.Angles(math.rad(Angle), 0, 0))
-										task.wait()
-									else
-										FPos(BasePart, CFrame.new(0, 1.5, THumanoid.WalkSpeed), CFrame.Angles(math.rad(90), 0, 0))
-										task.wait()
-	
-										FPos(BasePart, CFrame.new(0, -1.5, -THumanoid.WalkSpeed), CFrame.Angles(0, 0, 0))
-										task.wait()
-	
-										FPos(BasePart, CFrame.new(0, 1.5, THumanoid.WalkSpeed), CFrame.Angles(math.rad(90), 0, 0))
-										task.wait()
-	
-										FPos(BasePart, CFrame.new(0, 1.5, TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(math.rad(90), 0, 0))
-										task.wait()
-	
-										FPos(BasePart, CFrame.new(0, -1.5, -TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(0, 0, 0))
-										task.wait()
-	
-										FPos(BasePart, CFrame.new(0, 1.5, TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(math.rad(90), 0, 0))
-										task.wait()
-	
-										FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(math.rad(90), 0, 0))
-										task.wait()
-	
-										FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(0, 0, 0))
-										task.wait()
-	
-										FPos(BasePart, CFrame.new(0, -1.5 ,0), CFrame.Angles(math.rad(-90), 0, 0))
-										task.wait()
-	
-										FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(0, 0, 0))
-										task.wait()
-									end
-								else
-									break
-								end
-							until BasePart.Velocity.Magnitude > 500 or BasePart.Parent ~= TargetPlayer.Character or TargetPlayer.Parent ~= Players or TargetPlayer.Character ~= TCharacter or THumanoid.Sit or Humanoid.Health <= 0 or tick() > Time + TimeToWait
-						end
-	
-						workspace.FallenPartsDestroyHeight = 0/0
-	
-						local BV = Instance.new("BodyVelocity")
-						BV.Name = "EpixVel"
-						BV.Parent = RootPart
-						BV.Velocity = Vector3.new(9e8, 9e8, 9e8)
-						BV.MaxForce = Vector3.new(1/0, 1/0, 1/0)
-	
-						Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
-	
-						if TRootPart and THead then
-							if (TRootPart.CFrame.p - THead.CFrame.p).Magnitude > 5 then
-								SFBasePart(THead)
-							else
-								SFBasePart(TRootPart)
-							end
-						elseif TRootPart and not THead then
-							SFBasePart(TRootPart)
-						elseif not TRootPart and THead then
-							SFBasePart(THead)
-						elseif not TRootPart and not THead and Accessory and Handle then
-							SFBasePart(Handle)
-						else
-							fu.notification("Can't find a proper part of target player to fling.")
-						end
-	
-						BV:Destroy()
-						Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
-						workspace.CurrentCamera.CameraSubject = Humanoid
-	
-						repeat
-							RootPart.CFrame = getgenv().OldPos * CFrame.new(0, .5, 0)
-							Character:SetPrimaryPartCFrame(getgenv().OldPos * CFrame.new(0, .5, 0))
-							Humanoid:ChangeState("GettingUp")
-							table.foreach(Character:GetChildren(), function(_, x)
-								if x:IsA("BasePart") then
-									x.Velocity, x.RotVelocity = Vector3.new(), Vector3.new()
-								end
-							end)
-							task.wait()
-						until (RootPart.Position - getgenv().OldPos.p).Magnitude < 25
-						workspace.FallenPartsDestroyHeight = getgenv().FPDH
-					else
-						fu.notification("No valid character of said target player. May have died.")
-					end
-				end
-				SkidFling(Targets[1])
-				-- this whole thing is skidded LMAOO
-			end,
-	
-			--Stop_Fling = function(Self)
-			--	if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("BodyAngularVelocity") then
-			--		game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("BodyAngularVelocity"):Destroy()
-			--	end
-			--end,
-		}
-		}
-	})
-	
-	
-	local antiFlingLastPos = Vector3.zero
-	local flingNeutralizerCon
-	local flingDetectionCon
-	local detectedPlayers = {}
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"Anti-fling", function(Self, state)
-			antiFling = state
-			if state then
-				fu.notification("Anti-fling activated.")
-				flingDetectionCon = rs.Heartbeat:Connect(function()
-					for _, pl in ipairs(game:GetService("Players"):GetPlayers()) do
-						if pl.Character:IsDescendantOf(workspace) then
-							if pl.Character.PrimaryPart.AssemblyAngularVelocity.Magnitude > 50 or pl.Character.PrimaryPart.AssemblyLinearVelocity.Magnitude > 100 then
-								if not detectedPlayers[pl.Name] then
-									fu.notification("A flinger has been detected with the name " .. pl.Name .. "!")
-									detectedPlayers[pl.Name] = true	
-								end
-	
-								for _, p in ipairs(pl.Character:GetDescendants()) do
-									if p:IsA("BasePart") then
-										p.CanCollide = false
-										p.AssemblyAngularVelocity = Vector3.zero
-										p.AssemblyLinearVelocity = Vector3.zero
-										p.CustomPhysicalProperties = PhysicalProperties.new(0,0,0)
-									end
-								end
-							end
-						end
-					end
-				end)
-	
-				flingNeutralizerCon = rs.Heartbeat:Connect(function()
-					if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character.PrimaryPart then
-						if game.Players.LocalPlayer.Character.PrimaryPart.AssemblyLinearVelocity.Magnitude > 250 or  game.Players.LocalPlayer.Character.PrimaryPart.AssemblyAngularVelocity.Magnitude > 250 then
-							fu.notification("You were flung. Neutralizing velocity!")
-							game.Players.LocalPlayer.Character.PrimaryPart.AssemblyLinearVelocity = Vector3.zero
-							game.Players.LocalPlayer.Character.PrimaryPart.AssemblyAngularVelocity = Vector3.zero
-							if antiFlingLastPos ~= Vector3.zero then
-								game.Players.LocalPlayer.Character.PrimaryPart.CFrame = CFrame.new(antiFlingLastPos)
-							end
-						else
-							antiFlingLastPos = game.Players.LocalPlayer.Character.PrimaryPart.Position
-						end
-					end
-				end)
-			else
-				flingDetectionCon:Disconnect()
-				flingNeutralizerCon:Disconnect()
-				detectedPlayers = {}
-				fu.notification("Anti-fling deactivated.")
-			end
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Text",
-		Args = {"Miscellaneous"}
-	})
-	
-	-- taken (corporate term for skidded) from infyiff
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Anti AFK detection", function(Self)
-			local pl = game.Players.LocalPlayer
-			if getconnections then
-				for _, connection in pairs(getconnections(pl.Idled)) do
-					if connection["Disable"] then
-						connection["Disable"](connection)
-					elseif connection["Disconnect"] then
-						connection["Disconnect"](connection)
-					end
-				end
-			else
-				pl.Idled:Connect(function()
-					game:GetService("VirtualUser"):CaptureController()
-					game:GetService("VirtualUser"):ClickButton2(Vector2.new())
-				end)
-			end
-			
-		end,}
-	})
-	
-	--table.insert(module, {
-	--	Type = "Dropdown",
-	--	Args = {"Player to fling", function()
-	--		local playersAsStrings = {"None"}
-	--		for _, p in ipairs(game.Players:GetPlayers()) do
-	--			table.insert(playersAsStrings, p.Name)
-	--		end
-	--		return playersAsStrings
-	--	end,
-	
-	--	function(Self, selected)
-	--		print(selected)
-	--	end,}
-	--})
-	
-	pcall(function()
-		if game:GetService("CoreGui"):FindFirstChild("DeltaIcon") then
-			table.insert(module, {
-				Type = "Toggle",
-				Args = {"Hide Delta Icon", function(Self, state)
-					game:GetService("CoreGui"):FindFirstChild("DeltaIcon").Enabled = state
-				end,}
-			})
-		end
-	end)
-	
-	
-	
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Hide YARHM", function(Self)
-			if uis.KeyboardEnabled then
-				ts:Create(script.Parent.Menu.UIScale, TweenInfo.new(0.6, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-					Scale = 0
-				}):Play()
-				hidden=true
-				fu.notification("Press CTRL+SHIFT+Y to bring back the menu.")
-			elseif uis.AccelerometerEnabled then
-				ts:Create(script.Parent.Menu.UIScale, TweenInfo.new(0.6, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-					Scale = 0
-				}):Play()
-				hidden=true
-				fu.notification("Shake your device to bring back the menu.")
-			else
-				fu.notification("Can't hide YARHM!") -- how else are you gonna open???
-			end
-		end,}
-	}
-	)
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"FPS Boost", function(Self)
-			fu.dialog("FPS boosting", "FPS boosting can have unpredictable effects. You may instead lag more using this!", {"FPS boost anyway", "Nevermind"})
-			local result = fu.waitfordialog()
-			fu.closedialog()
-			if result == "FPS boost anyway" then
-				local Terrain = workspace:FindFirstChildOfClass('Terrain')
-				Terrain.WaterWaveSize = 0
-				Terrain.WaterWaveSpeed = 0
-				Terrain.WaterReflectance = 0
-				Terrain.WaterTransparency = 0
-				game.Lighting.GlobalShadows = false
-				game.Lighting.FogEnd = 9e9
-				pcall(function()
-					settings().Rendering.QualityLevel = 1
-				end)
-				for i,v in pairs(game:GetDescendants()) do
-					if v:IsA("Part") or v:IsA("UnionOperation") or v:IsA("MeshPart") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then
-						v.Material = "Plastic"
-						v.Reflectance = 0
-					elseif v:IsA("Decal") then
-						v.Transparency = 1
-					elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-						v.Lifetime = NumberRange.new(0)
-					elseif v:IsA("Explosion") then
-						v.BlastPressure = 1
-						v.BlastRadius = 1
-					end
-				end
-				for i,v in pairs(game.Lighting:GetDescendants()) do
-					if v:IsA("BlurEffect") or v:IsA("SunRaysEffect") or v:IsA("ColorCorrectionEffect") or v:IsA("BloomEffect") or v:IsA("DepthOfFieldEffect") then
-						v.Enabled = false
-					end
-				end
-				workspace.DescendantAdded:Connect(function(child)
-					task.spawn(function()
-						if child:IsA('ForceField') then
-							rs.Heartbeat:Wait()
-							child:Destroy()
-						elseif child:IsA('Sparkles') then
-							rs.Heartbeat:Wait()
-							child:Destroy()
-						elseif child:IsA('Smoke') or child:IsA('Fire') then
-							rs.Heartbeat:Wait()
-							child:Destroy()
-						end
-					end)
-				end)
-			end
-		end,}
-	})
-	
-	local rsloopconnectionfling
-	local clip = true
-	local nocliploop
-	
-	
-	table.insert(module, {
-		Type = "ButtonGrid",
-		Args = {2, {
-			Noclip = function()
-				clip = false
-				nocliploop = rs.Stepped:Connect(function()
-					if clip == false and game.Players.LocalPlayer.Character ~= nil then
-						for _, child in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-							if child:IsA("BasePart") and child.CanCollide == true then
-								child.CanCollide = false
-							end
-						end
-					end
-				end)
-			end,
-	
-			Reclip = function()
-				if clip then return end
-				clip = true
-				nocliploop:Disconnect()
-				fu.notification("Reclipping may need you to reset your character.")
-			end,
-		}}})
-	
-	
-	
-	table.insert(module, {
-		Type = "Text",
-		Args = {"Other"}
-	})
-	
-	--table.insert(module, {
-	--	Type = "Button",
-	--	Args = {"Lock/unlock a floating button", function()
-	--		fu.lockMode = true
-	--		fu.notification("Click/tap a floating button to lock/unlock...")
-	--	end,}
-	--})
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Get ping", function(Self)
-			fu.notification(game.Players.LocalPlayer:GetNetworkPing() * 1000)
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Open developer console (debugging)", function(Self)
-			game.StarterGui:SetCore("DevConsoleVisible", true)
-			--getgenv().YARHM.Open.UIStroke.Transparency = 0
-			--getgenv().YARHM.Open.TextTransparency = 0
-			--ts:Create(getgenv().YARHM.Open, TweenInfo.new(1, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-			--	Position = UDim2.fromScale(0.5, 0.903)
-			--}):Play()
-	
-			--ts:Create(getgenv().YARHM.Open.UIStroke, TweenInfo.new(1), {
-			--	Transparency = 1
-			--}):Play()
-			--ts:Create(getgenv().YARHM.Open, TweenInfo.new(1), {
-			--	TextTransparency = 1
-			--}):Play()
-		end}
-	}
-	)
-	
-	function themeSerialize(data)
-		local function s(v)
-			local t = typeof(v)
-			if t == "number" or t == "string" or t == "boolean" then
-				return v
-			elseif t == "Color3" then
-				return {__type="Color3", r=math.floor(v.R*255+0.5), g=math.floor(v.G*255+0.5), b=math.floor(v.B*255+0.5)}
-			elseif t == "EnumItem" then
-				return {__type="EnumItem", enumType=v.EnumType.Name, name=v.Name}
-			elseif t == "ColorSequence" then
-				local kp = {}
-				for _, k in ipairs(v.Keypoints) do
-					table.insert(kp, {t=k.Time, v={r=math.floor(k.Value.R*255+0.5), g=math.floor(k.Value.G*255+0.5), b=math.floor(k.Value.B*255+0.5)}})
-				end
-				return {__type="ColorSequence", keypoints=kp}
-			elseif t == "table" then
-				local out = {}
-				for k, val in pairs(v) do
-					if k ~= "font" then out[k] = s(val) end
-				end
-				return out
-			else
-				error("Unsupported type: " .. t)
-			end
-		end
-		return s(data)
-	end
-	
-	function themeDeserialize(data)
-		local function d(v)
-			if typeof(v) ~= "table" then return v end
-			if v.__type == "Color3" then
-				return Color3.fromRGB(v.r, v.g, v.b)
-			elseif v.__type == "EnumItem" then
-				local e = Enum[v.enumType] return e and e[v.name] or nil
-			elseif v.__type == "ColorSequence" then
-				local kps = {}
-				for _, k in ipairs(v.keypoints) do
-					table.insert(kps, ColorSequenceKeypoint.new(k.t, Color3.fromRGB(k.v.r, k.v.g, k.v.b)))
-				end
-				return ColorSequence.new(kps)
-			else
-				local out = {}
-				for k, val in pairs(v) do out[k] = d(val) end
-				return out
-			end
-		end
-		return d(data)
-	end
-	
-	table.insert(module, {
-		Type = "Text",
-		Args = {"Theme"}
-	})
-	
-	local function loadThemeFromSave(last)
-		if not last then task.wait(1) else task.wait(0.2) end
-		if YARHMPointSave:get("YARHMGlobal_themeCode") then
-			local themeObjectImport = themeDeserialize(https:JSONDecode(fu.from_base64(YARHMPointSave:get("YARHMGlobal_themeCode"))))
-			theme:setColorTable(themeObjectImport)
-			theme:init(getgenv().YARHM)
-	
-			fu.setTheme(themeObjectImport)
-	
-			fu.refreshlist()
-			fu.refresharea()
-			if not last then loadThemeFromSave(true) end -- im getting desperate
-		end
-	end
-	
-	table.insert(module, {
-		Type = "Input",
-		Args = {
-			"Theme code",
-			"Apply",
-			function(obj, value)
-				local themeObjectImport = themeDeserialize(https:JSONDecode(fu.from_base64(value)))
-				theme:setColorTable(themeObjectImport)
-				theme:init(getgenv().YARHM)
-				
-				fu.setTheme(themeObjectImport)
-				
-				fu.refreshlist()
-				fu.refresharea()
-				fu.notification("Successfully applied theme!")
-				
-				YARHMPointSave:set("YARHMGlobal_themeCode", value)
-			end
-		}
-	})
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Reload theme", function()
-			theme:init(getgenv().YARHM)
-	
-			fu.refreshlist()
-			fu.refresharea()
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Delete theme from save", function()
-			YARHMPointSave:remove("YARHMGlobal_themeCode")
-			
-			fu.notification("Theme will not be restored on the next executes.")
-		end,}
-	})
-	
-	task.spawn(loadThemeFromSave)
-	
-	
-	
-	--task.spawn(function()
-	--	local success, titles = pcall(function()
-	--		return https:JSONDecode(game:HttpGet("https://yarhm.mhi.im/static/ingametitles.json"))
-	--	end)
-	
-	--	if not success then
-	--		titles = {}
-	--	end
-	
-	--	local function applyTag(player)
-	--		local data = titles[player.Name]
-	--		if data and player.Character then
-	--			local head = player.Character:FindFirstChild("Head")
-	--			if head then
-	--				espind:Remove(head)
-	--				espind:Add(head, {
-	--					ShowLabel = true,
-	--					LabelText = data.text,
-	--					AccentColor = Color3.fromHex(data.color),
-	--					LabelMaxDistance = 50,
-	--					LabelOffset = Vector3.new(0, 2, 0),
-	--					GroupName = "UserTags"
-	--				})
-	--			end
-	--		end
-	--	end
-	
-	--	local function onCharacterAdded(player)
-	--		player.CharacterAdded:Connect(function(character)
-	--			task.wait(1) -- small delay
-	--			applyTag(player)
-	--		end)
-	--	end
-	
-	--	for _, player in ipairs(Players:GetPlayers()) do
-	--		applyTag(player)
-	--		onCharacterAdded(player)
-	--	end
-	
-	--	Players.PlayerAdded:Connect(function(player)
-	--		onCharacterAdded(player)
-	--	end)
-	--end)
-	
-	--table.insert(module, {
-	--	Type = "Toggle",
-	--	Args = {"Hide YARHM+/Developer tags", function(_, state)
-	--		local group = espind:GetGroup("UserTags")
-	--		if group then
-	--			espind:ToggleGroup("UserTags", not state)
-	--		end
-	--	end
-	--	}
-	--})
-	
-	
-	--table.insert(module, {
-	--	Type = "Dropdown",
-	--	Args = {"how rizz is yarhm", {"very rizz", "no rizz"}, function(Self, item)
-	--		print(item)
-	--	end,}
-	--})
-	
-	repeat task.wait() until getgenv().Modules
-	getgenv().Modules[1] = module
-end
-local function DSZIHQM_routine() -- Routine: StarterGui.YARHM.Init
-    local script = Instance.new("LocalScript")
-    script.Name = "Init"
-    script.Parent = Converted["_YARHM"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+        -- نفس فحص الحجم لأجزاء create_compound (كل part بالمصفوفة)
+        if action.type == "create_compound" and type(action.parts) == "table" then
+            for partIdx, partData in ipairs(action.parts) do
+                if type(partData) == "table" and type(partData.size) == "table" then
+                    local sz = partData.size
+                    if not ((sz[1] or 0) > 0 and (sz[2] or 0) > 0 and (sz[3] or 0) > 0) then
+                        table.insert(errors, ("Action %d (compound '%s', part %d): invalid size %s (must be positive on all 3 axes)."):format(
+                            i, action.name or "?", partIdx, HttpService:JSONEncode(sz)
+                        ))
+                    end
+                end
+            end
         end
-        return req(obj)
-    end
-
-
-
-	getgenv().Modules = {}
-	
-	local ts = game:GetService("TweenService")
-	
-	
-	getgenv().YARHM = script.Parent
-	getgenv().ThemeManager = require(script.Parent.Theme)
-	local COREGUI = game:GetService("CoreGui")
-	function randomString()
-		local length = math.random(10,20)
-		local array = {}
-		for i = 1, length do
-			array[i] = string.char(math.random(32, 126))
-		end
-		return table.concat(array)
-	end
-	local s, e = pcall(function()
-		if get_hidden_gui or gethui then
-			local hiddenUI = get_hidden_gui or gethui
-			script.Parent.Name = randomString()
-			script.Parent.Parent = hiddenUI()
-			--print("[YARHM] - Using get_hidden_gui for anti-detection.")
-		elseif (not is_sirhurt_closure) and (syn and syn.protect_gui) then
-			script.Parent.Name = randomString()
-			syn.protect_gui(script.Parent)
-			script.Parent.Parent = COREGUI
-			--print("[YARHM] - Using syn.protect_gui for anti-detection.")
-		elseif COREGUI:FindFirstChild('RobloxGui') then
-			script.Parent.Parent = COREGUI.RobloxGui
-			--print("[YARHM] - Using RobloxGui for anti-detection.")
-		else
-			--warn("[YARHM] - Using CoreGui as anti-detection. This is the most basic coverage and can still be detected.")
-		end
-	end)
-	
-	--print("[YARHM] - YARHM is now in " .. tostring(script.Parent:GetFullName()))
-	if not s then
-		--warn("[YARHM] - Attempts at anti-detection failed. Using CoreGui as anti-detection.")
-		warn(e)	
-	end
-	
-	--printidentity("[YARHM] - Your executor level (identity) is")
-	
-	local getExeName = identifyexecutor or getexecutorname or function() return "Yet Another Roblox Executor v1.2" end
-	--print("[YARHM] - Your executor is " .. getExeName())
-	
-	script.Parent.SafeAreaCompatibility = Enum.SafeAreaCompatibility.None
-	script.Parent.ScreenInsets = Enum.ScreenInsets.None
-	script.Parent.ResetOnSpawn = false
-	
-	
-	script.Parent.Menu.Position = UDim2.fromScale(0.5, -0.6)
-	--script.Parent.Menu.Size = UDim2.fromOffset(441,0)
-	
-	script.Parent.Dialog.Size = UDim2.fromOffset(0, 147)
-	script.Parent.Dialog.UIScale.Scale = 0
-	
-	script.Parent.Dialog.Visible = true
-	
-	script.Parent.Menu.CanvasGroup.Visible = true
-	script.Parent.Menu.CanvasGroup.GroupTransparency = 0
-	
-	if not game:IsLoaded() then
-		game.Loaded:Wait()
-	end
-	
-	--require(script.Parent.FUNCTIONS).notification("Welcome to YARHM Nebula.")
-	script.Parent.Menu.HubName.Text = script.Parent.Menu.HubName.Text .. `<font transparency="0.8" size="5">{require(script.Parent.FUNCTIONS).__v}</font>`
-	
-	ts:Create(script.Parent.Menu, TweenInfo.new(1, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), 
-		{Position = UDim2.fromScale(0.5, 0.05)}
-	):Play()
-	
-	task.wait(1)
-	ts:Create(script.Parent.Menu.CanvasGroup, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), 
-		{GroupTransparency = 1}
-	):Play()
-	require(script.Parent.FUNCTIONS).refreshlist()
-	task.wait(0.5)
-	script.Parent.Menu.CanvasGroup.Visible = false
-	script.Parent.Menu.CanvasGroup.TextLabel.Visible = false
-	script.Parent.Menu.CanvasGroup.ImageLabel.Visible = true
-	script.Parent.Menu.CanvasGroup.Interactable = true
-	
-	script.Parent.Menu.CloseArea.AllowForSpring:Fire()
-	task.wait(1)
-	require(script.Parent.FUNCTIONS).loadFloatingButtons()
-	--require(script.Parent.Theme):init(getgenv().YARHM)
-	
-	--require(script.Parent.FUNCTIONS).refreshlist()
-	--require(script.Parent.FUNCTIONS).refresharea()
-	
-	--getgenv().ThemeManager:init(script.Parent)
-end
-local function EXEKBZ_routine() -- Routine: StarterGui.YARHM.Forsaken
-    local script = Instance.new("LocalScript")
-    script.Name = "Forsaken"
-    script.Parent = Converted["_YARHM"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+        -- GUI objects in Workspace
+        if action.type == "create_instance" and parent == "Workspace" then
+            local guiClasses = { ScreenGui = true, Frame = true, TextLabel = true, TextButton = true,
+                ImageLabel = true, ScrollingFrame = true, BillboardGui = true }
+            if guiClasses[action.className] then
+                table.insert(errors, ("Action %d: GUI '%s' parented to Workspace. Use StarterGui instead."):format(i, action.name or "?"))
+            end
         end
-        return req(obj)
-    end
-
-
-	-- Module setup
-	local module = {}
-	module.gameId = 6331902150
-	module.Name = "Forsaken"
-	
-	local fu = require(getgenv().YARHM.FUNCTIONS)
-	if (module.gameId ~= game.GameId) then
-		table.insert(module, {
-			Type = "Text",
-			Args = {"YARHM now includes an official <font color='#FFFF00'>Forsaken</font> module!"}
-		})
-		table.insert(module, {
-			Type = "Text",
-			Args = {"<font size='10'>To use, run YARHM on Forsaken.</font>"}
-		})
-		repeat task.wait() until getgenv().Modules
-		getgenv().Modules[4] = module
-		return
-	end
-	
-	-- Imports
-	local ts = game:GetService("TweenService")
-	
-	local espind = require(script.Parent.ESPIndicator)
-	local espcontainer = espind.new({ArrowEdgePadding = 50, ArrowShowDistanceText = true})
-	
-	-- Toggles
-	module.players = false
-	module.items = false
-	module.generators = false
-	module.priotizingmedkit = false
-	module.infinitestamina = false
-	module.noCooldownSolve = false
-	
-	-- Cooldowns
-	local solveGeneratorCooldown = false
-	
-	-- Connections
-	local conns = {}
-	
-	-- ESP Helpers
-	local function addPlayer(p)
-		espcontainer:Add(p, {AccentColor = Color3.new(0.149, 1, 0), ArrowShow = false, ShowLabel = false, GroupName = "players"})
-	end
-	
-	local function addKiller(k)
-		espcontainer:Add(k, {
-			AccentColor = Color3.new(1, 0, 0),
-			ArrowShow = true,
-			ArrowMinDistance = 999999,
-			ArrowSize = UDim2.new(0, 40, 0, 40),
-			LabelText = "Killer",
-			ShowLabel = true,
-			GroupName = "players"
-		})
-	end
-	
-	local function addItem(i)
-		local cfg = {AccentColor = Color3.new(0.0313725, 0.917647, 1), ArrowShow = false, ShowLabel = false, GroupName = "items"}
-		if module.priotizingmedkit and i.Name == "Medkit" then
-			fu.notification("Medkit spawned!")
-			cfg = {
-				AccentColor = Color3.new(1, 1, 1),
-				ArrowShow = true,
-				ArrowMinDistance = 999999,
-				ArrowSize = UDim2.new(0, 40, 0, 40),
-				LabelText = "Medkit",
-				ShowLabel = true,
-				GroupName = "items"
-			}
-		end
-		espcontainer:Add(i, cfg)
-	end
-	
-	local function addGenerator(g)
-		local progVal = g:FindFirstChild("Progress")
-		local progress = (progVal and progVal.Value) or 0
-	
-		local showLabel = true
-		local showArrow = true
-		local accentColor = Color3.new(0.984, 1, 0)       
-		local labelText = tostring(math.floor(progress)) .. "%"
-	
-		if progress >= 100 then
-			showLabel = false
-			showArrow = false
-			accentColor = Color3.new(0, 0.5, 0)           
-		end
-	
-		espcontainer:Add(g, {
-			AccentColor      = accentColor,
-			ArrowShow        = showArrow,
-			ArrowMinDistance = 999999,
-			ArrowSize        = UDim2.new(0,20,0,20),
-			ShowLabel        = showLabel,
-			LabelText        = labelText,
-			GroupName        = "generators",
-		})
-	
-		if progVal then
-			progVal.Changed:Connect(function(new)
-				espcontainer:Remove(g)
-				addGenerator(g)
-			end)
-		end
-	end
-	
-	local function getClosestGenerator()
-		local char = game.Players.LocalPlayer.Character
-		if not char or not char.PrimaryPart then return nil end
-	
-		local root = char.PrimaryPart
-		local closest, shortestDist = nil, math.huge
-	
-		local map = workspace.Map:FindFirstChild("Ingame"):FindFirstChild("Map")
-		if map then
-			for _, obj in ipairs(map:GetChildren()) do
-				if obj.Name == "Generator" and obj:IsA("Model") and obj.PrimaryPart then
-					local dist = (root.Position - obj.PrimaryPart.Position).Magnitude
-					if dist < shortestDist then
-						closest = obj
-						shortestDist = dist
-					end
-				end
-			end
-		end
-	
-		return closest
-	end
-	
-	local function removeIndicator(obj)
-		espcontainer:Remove(obj)
-	end
-	
-	local function listen(parent, signal, callback)
-		local conn = signal:Connect(callback)
-		table.insert(conns, conn)
-		return conn
-	end
-	
-	local function setupAutoUpdate()
-		local s, k = workspace.Players:FindFirstChild("Survivors"), workspace.Players:FindFirstChild("Killers")
-		if s then
-			listen(s, s.ChildAdded, function(c) 
-				if module.players then addPlayer(c) end 
-			end)
-			listen(s, s.ChildRemoved, function(c) 
-				if module.players then removeIndicator(c) end 
-			end)
-		end
-		if k then
-			listen(k, k.ChildAdded, function(c) 
-				if module.players then addKiller(c) end 
-			end)
-			listen(k, k.ChildRemoved, function(c) 
-				if module.players then removeIndicator(c) end 
-			end)
-		end
-	
-		local ingame = workspace.Map:FindFirstChild("Ingame")
-		if ingame then
-			listen(ingame, ingame.ChildAdded, function(c) 
-				if module.items and c.Name ~= "Map" then addItem(c) end 
-			end)
-			listen(ingame, ingame.ChildRemoved, function(c) 
-				if module.items and c.Name ~= "Map" then removeIndicator(c) end 
-			end)
-			local map = ingame:FindFirstChild("Map")
-			if map then
-				listen(map, map.ChildAdded, function(c) 
-					if module.generators and c.Name == "Generator" then addGenerator(c) end 
-				end)
-				listen(map, map.ChildRemoved, function(c) 
-					if module.generators and c.Name == "Generator" then removeIndicator(c) end 
-				end)
-			end
-		end
-	end
-	
-	function module.clear()
-		for _, c in ipairs(conns) do c:Disconnect() end
-		table.clear(conns)
-		espcontainer:ClearAllGroups()
-	end
-	
-	-- Sprinting Patch
-	task.spawn(function()
-		local sprintingModule = require(game:GetService("ReplicatedStorage").Systems.Character.Game.Sprinting)
-		while task.wait(1) do
-			if module.infinitestamina then
-				sprintingModule.StaminaLossDisabled = true
-			end
-		end
-	end)
-	
-	-- UI Setup
-	table.insert(module, { Type = "Text", Args = {"ESPs"} })
-	
-	table.insert(module, {
-		Type = "ButtonGrid",
-		Toggleable = true,
-		Args = {3, {
-			Players = function(Self)
-				module.players = not module.players
-				if module.players then
-					local survivors = workspace.Players:FindFirstChild("Survivors")
-					if survivors then
-						for _, p in ipairs(survivors:GetChildren()) do
-							addPlayer(p)
-						end
-					end
-					local killers = workspace.Players:FindFirstChild("Killers")
-					if killers then
-						local killer = killers:GetChildren()[1]
-						if killer then addKiller(killer) end
-					end
-					--espcontainer:ToggleGroup("players", true)
-				else
-					espcontainer:RemoveGroup("players")
-				end
-			end,
-			Items = function(Self)
-				module.items = not module.items
-				if module.items then
-					local ingame = workspace.Map:FindFirstChild("Ingame")
-					if ingame then
-						for _, i in ipairs(ingame:GetChildren()) do
-							if i.Name ~= "Map" then addItem(i) end
-						end
-					end
-					--espcontainer:ToggleGroup("items", true)
-				else
-					espcontainer:RemoveGroup("items")
-				end
-			end,
-			Generators = function(Self)
-				module.generators = not module.generators
-				if module.generators then
-					local ingame = workspace.Map:FindFirstChild("Ingame")
-					if ingame then
-						local map = ingame:FindFirstChild("Map")
-						if map then
-							for _, g in ipairs(map:GetChildren()) do
-								if g.Name == "Generator" then addGenerator(g) end
-							end
-						end
-					end
-					--espcontainer:ToggleGroup("generators", true)
-				else
-					espcontainer:RemoveGroup("generators")
-				end
-			end,
-		}}
-	})
-	
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"Show medkit in item ESP", function(Self, state)
-			module.priotizingmedkit = state
-			espcontainer:RemoveGroup("items")
-			if module.items then
-				local ingame = workspace.Map:FindFirstChild("Ingame")
-				if ingame then
-					for _, i in ipairs(ingame:GetChildren()) do
-						if i.Name ~= "Map" then addItem(i) end
-					end
-				end
-				--espcontainer:ToggleGroup("items", true)
-			end
-		end}
-	})
-	
-	table.insert(module, { Type = "Text", Args = {"Tools"} })
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Finish generator puzzle", function(Self)
-			if solveGeneratorCooldown then fu.notification("Cooldown for 4 seconds!") return end
-			solveGeneratorCooldown = not module.noCooldownSolve --confusing i know
-			if getClosestGenerator() then
-				getClosestGenerator().Remotes.RE:FireServer()
-			end
-			task.wait(4) solveGeneratorCooldown = false
-		end}
-	})
-	
-	table.insert(module, { Type = "Text", Args = {"You will automatically solve the closest generator."} })
-	
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"Bypass puzzle solver cooldown", function(Self, state)
-			module.noCooldownSolve = state
-		end,}
-	})
-	
-	table.insert(module, { Type = "Text", Args = {"If you solve too quickly, you can be <font color='#FF0000'>DETECTED</font> by the game. Use with caution!"} })
-	
-	
-	
-	table.insert(module, { Type = "Text", Args = {""} })
-	
-	
-	
-	table.insert(module, { Type = "Text", Args = {"<font color='#FF0000'>Detectables</font>"} })
-	
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"Infinite stamina", function(Self, state)
-			module.infinitestamina = state
-			if not state then
-				local sprintingModule = require(game:GetService("ReplicatedStorage").Systems.Character.Game.Sprinting)
-				sprintingModule.StaminaLossDisabled = false
-			end
-		end}
-	})
-	
-	table.insert(module, {
-		Type = "Input",
-		Args = {"Sprinting speed (Default = 26)", "Set sprint speed", function(Self, text)
-			local sprintingModule = require(game:GetService("ReplicatedStorage").Systems.Character.Game.Sprinting)
-			sprintingModule.SprintSpeed = tonumber(text) or 26
-		end}
-	})
-	
-	table.insert(module, {
-		Type = "Input",
-		Args = {"Stamina gain rate (Default = 20)", "Set stamina gain", function(Self, text)
-			local sprintingModule = require(game:GetService("ReplicatedStorage").Systems.Character.Game.Sprinting)
-			sprintingModule.StaminaGain = tonumber(text) or 20
-		end}
-	})
-	
-	-- Final setup
-	setupAutoUpdate()
-	repeat task.wait() until getgenv().Modules
-	getgenv().Modules[4] = module
-end
-local function XXZOB_routine() -- Routine: StarterGui.YARHM.Murder Mystery 2
-    local script = Instance.new("LocalScript")
-    script.Name = "Murder Mystery 2"
-    script.Parent = Converted["_YARHM"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+        -- Parts in GUI services
+        if action.type == "create_instance" and parent and action.className then
+            local isPart = action.className == "Part" or action.className == "MeshPart" or action.className == "WedgePart" or action.className == "CylinderPart" or action.className == "BallPart"
+            local isGuiSvc = parent == "StarterGui" or parent == "StarterPlayerScripts" or parent == "StarterCharacterScripts"
+            if isPart and isGuiSvc then
+                table.insert(errors, ("Action %d: Part '%s' parented to %s. Use Workspace instead."):format(i, action.name or "?", parent))
+            end
         end
-        return req(obj)
-    end
-
-
-	local module = {}
-	module["gameId"] = 0 -- 66654135 -- Restrict module to a certain game ID only. 0 allows all games.
-	
-	local fu = require(getgenv().YARHM.FUNCTIONS)
-	local espindc = require(script.Parent.ESPIndicator)
-	
-	
-	
-	
-	
-	local espcontainer = espindc.new({ArrowEdgePadding = 50, ArrowShowDistanceText = false,})
-	
-	local playerESP = false
-	local sheriffAimbot = false
-	local coinAutoCollect = false
-	local autoShooting = false
-	local shootOffset = 2.8
-	local offsetToPingMult = 1
-	
-	local predictionAIEngine = false
-	local predictionOngoing = false
-	
-	local predictionCooldown = false
-	
-	
-	local gunDropESP
-	
-	local trapDetection = false
-	--local trapESP = Instance.new("Highlight")
-	--trapESP.Name = "TrapESP"
-	--trapESP.FillColor = Color3.fromRGB(255, 112, 10)
-	--trapESP.OutlineColor = Color3.fromRGB(255, 112, 10)
-	--trapESP.FillTransparency = 0.5
-	
-	
-	local autoGetDroppedGun = false
-	local simulateKnifeThrow = false
-	
-	local localplayer = game:GetService("Players").LocalPlayer
-	
-	local playerData = {}
-	
-	local phs = game:GetService("PathfindingService")
-	local ts = game:GetService("TweenService")
-	local rs = game:GetService("RunService")
-	
-	local claimedCoins = {}
-	
-	local function findMurderer()
-	
-	
-		-- Fallback
-		for _, i in ipairs(game.Players:GetPlayers()) do
-			if i.Backpack:FindFirstChild("Knife") then
-				return i
-			end
-		end
-	
-		for _, i in ipairs(game.Players:GetPlayers()) do
-			if not i.Character then continue end
-			if i.Character:FindFirstChild("Knife") then
-				return i
-			end
-		end
-	
-		if playerData then
-			for player, data in playerData do
-				if data.Role == "Murderer" then
-					if game.Players:FindFirstChild(player) then
-						return game.Players:FindFirstChild(player)
-					end
-				end
-			end
-		end
-		return nil
-	end
-	
-	local function findSheriff()
-	
-	
-		-- Fallback
-		for _, i in ipairs(game.Players:GetPlayers()) do
-			if i.Backpack:FindFirstChild("Gun") then
-				return i
-			end
-		end
-	
-		for _, i in ipairs(game.Players:GetPlayers()) do
-			if not i.Character then continue end
-			if i.Character:FindFirstChild("Gun") then
-				return i
-			end
-		end
-	
-	
-		if playerData then
-			for player, data in playerData do
-				if data.Role == "Sheriff" then
-					if game.Players:FindFirstChild(player) then
-						return game.Players:FindFirstChild(player)
-					end
-				end
-			end
-		end
-		return nil
-	end
-	
-	local function findSheriffThatsNotMe()
-	
-	
-		-- Fallback
-		for _, i in ipairs(game.Players:GetPlayers()) do
-			if i == localplayer then continue end
-			if i.Backpack:FindFirstChild("Gun") then
-				return i
-			end
-		end
-	
-		for _, i in ipairs(game.Players:GetPlayers()) do
-			if i == localplayer then continue end
-			if not i.Character then continue end
-			if i.Character:FindFirstChild("Gun") then
-				return i
-			end
-		end
-	
-	
-		if playerData then
-			for player, data in playerData do
-				if data.Role == "Sheriff" then
-					if game.Players:FindFirstChild(player) then
-						if game.Players:FindFirstChild(player) == localplayer then continue end
-						return game.Players:FindFirstChild(player)
-					end
-				end
-			end
-		end
-		return nil
-	end
-	
-	
-	
-	local hideMeEsp = false
-	function reloadESP()
-		if not playerESP then return end
-		espcontainer:RemoveGroup("players")
-		local listplayers = game.Players:GetChildren()
-		for _, player in ipairs(listplayers) do
-			if player == localplayer and hideMeEsp then continue end
-			if  player.Character ~= nil then
-				local character = player.Character
-				if true then
-	
-					task.spawn(function()
-						if player == findMurderer() then
-							espcontainer:Add(character, {
-								AccentColor    =  Color3.new(1, 0, 0.0156863),
-								ArrowShow        = true,
-								ArrowMinDistance       = 999999,           
-								ArrowSize         = UDim2.new(0,40,0,40),
-								LabelText         = "Murderer",
-								ShowLabel         = true,
-								GroupName         = "players"
-							})
-						elseif player == findSheriff() then
-							espcontainer:Add(character, {
-								AccentColor    =  Color3.new(0, 0.6, 1),
-								ArrowShow        = false,
-								ShowLabel         = false,
-								GroupName         = "players"
-							})
-						else
-							espcontainer:Add(character, {
-								AccentColor    =  Color3.new(0, 1, 0.0313725),
-								ArrowShow        = false,
-								ShowLabel         = false,
-								GroupName         = "players"
-							})
-						end
-						--if a then
-						--	if not player then return end
-						--	a.Adornee = player.Character or player.CharactedAdded:Wait()
-						--end
-					end)
-				end
-			end
-		end
-	end
-	
-	
-	
-	if not game.ReplicatedStorage:WaitForChild("Remotes", 5) then
-		fu.dialog("Not MM2", "Looks like this game isn't MM2. Do you want to load the module anyway?", {"Load", "No"})
-	
-		if fu.waitfordialog() == "No" then
-			fu.closedialog()
-			fu.notification("MM2 will not be loaded until you rejoin.", Color3.fromRGB(255, 0, 0), "x")
-			return
-		end	
-		fu.closedialog()
-	else
-		game.ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Gameplay"):WaitForChild("PlayerDataChanged", 5).OnClientEvent:Connect(function(data)
-			playerData = data
-			if playerESP then
-				reloadESP()
-			end
-		end)
-	end
-	
-	
-	local onTesting = game.GameId == 119460199
-	
-	--if game.ReplicatedStorage:WaitForChild("UpdatePlayerData", 1) then
-	--	local UpdatePlayerDataEvent = game.ReplicatedStorage:WaitForChild("UpdatePlayerData", 5)
-	--	if UpdatePlayerDataEvent then
-	--		UpdatePlayerDataEvent.OnClientEvent:Connect(function(data)
-	--			playerData = data
-	--		end)
-	--	end
-	--end
-	
-	local Players = game:GetService("Players")
-	local playerToExamineIsSpamJumping = false
-	
-	
-	
-	
-	local function findNearestPlayer()
-		local Players = game:GetService("Players")
-		local localPlayer = Players.LocalPlayer
-	
-		local nearestPlayer = nil
-		local shortestDistance = math.huge
-	
-		for _, player in ipairs(Players:GetPlayers()) do
-			if player ~= localPlayer and player.Character then 
-	
-				local localRootPart = localPlayer.Character:FindFirstChild("HumanoidRootPart")
-				local otherRootPart = player.Character:FindFirstChild("HumanoidRootPart")
-	
-				if localRootPart and otherRootPart then
-					local distance = (localRootPart.Position - otherRootPart.Position).Magnitude
-	
-					if distance < shortestDistance then
-						shortestDistance = distance
-						nearestPlayer = player
-					end
-				end
-			end
-		end
-	
-		return nearestPlayer
-	end
-	
-	function miniFling(playerToFling)
-		local a=game.Players.LocalPlayer;local b=a:GetMouse()local c={playerToFling}local d=game:GetService("Players")local e=d.LocalPlayer;local f=false;local g=function(h)local i=e.Character;local j=i and i:FindFirstChildOfClass("Humanoid")local k=j and j.RootPart;local l=h.Character;local m;local n;local o;local p;local q;if l:FindFirstChildOfClass("Humanoid")then m=l:FindFirstChildOfClass("Humanoid")end;if m and m.RootPart then n=m.RootPart end;if l:FindFirstChild("Head")then o=l.Head end;if l:FindFirstChildOfClass("Accessory")then p=l:FindFirstChildOfClass("Accessory")end;if p and p:FindFirstChild("Handle")then q=p.Handle end;if i and j and k then if k.Velocity.Magnitude<50 then getgenv().OldPos=k.CFrame end;if m and m.Sit and not f then end;if o then if o.Velocity.Magnitude>500 then fu.dialog("Player flung","Player is already flung. Fling again?",{"Fling again","No"})if fu.waitfordialog()=="No"then return fu.closedialog()end;fu.closedialog()end elseif not o and q then if q.Velocity.Magnitude>500 then fu.dialog("Player flung","Player is already flung. Fling again?",{"Fling again","No"})if fu.waitfordialog()=="No"then return fu.closedialog()end;fu.closedialog()end end;if o then workspace.CurrentCamera.CameraSubject=o elseif not o and q then workspace.CurrentCamera.CameraSubject=q elseif m and n then workspace.CurrentCamera.CameraSubject=m end;if not l:FindFirstChildWhichIsA("BasePart")then return end;local r=function(s,t,u)k.CFrame=CFrame.new(s.Position)*t*u;i:SetPrimaryPartCFrame(CFrame.new(s.Position)*t*u)k.Velocity=Vector3.new(9e7,9e7*10,9e7)k.RotVelocity=Vector3.new(9e8,9e8,9e8)end;local v=function(s)local w=2;local x=tick()local y=0;repeat if k and m then if s.Velocity.Magnitude<50 then y=y+100;r(s,CFrame.new(0,1.5,0)+m.MoveDirection*s.Velocity.Magnitude/1.25,CFrame.Angles(math.rad(y),0,0))task.wait()r(s,CFrame.new(0,-1.5,0)+m.MoveDirection*s.Velocity.Magnitude/1.25,CFrame.Angles(math.rad(y),0,0))task.wait()r(s,CFrame.new(2.25,1.5,-2.25)+m.MoveDirection*s.Velocity.Magnitude/1.25,CFrame.Angles(math.rad(y),0,0))task.wait()r(s,CFrame.new(-2.25,-1.5,2.25)+m.MoveDirection*s.Velocity.Magnitude/1.25,CFrame.Angles(math.rad(y),0,0))task.wait()r(s,CFrame.new(0,1.5,0)+m.MoveDirection,CFrame.Angles(math.rad(y),0,0))task.wait()r(s,CFrame.new(0,-1.5,0)+m.MoveDirection,CFrame.Angles(math.rad(y),0,0))task.wait()else r(s,CFrame.new(0,1.5,m.WalkSpeed),CFrame.Angles(math.rad(90),0,0))task.wait()r(s,CFrame.new(0,-1.5,-m.WalkSpeed),CFrame.Angles(0,0,0))task.wait()r(s,CFrame.new(0,1.5,m.WalkSpeed),CFrame.Angles(math.rad(90),0,0))task.wait()r(s,CFrame.new(0,1.5,n.Velocity.Magnitude/1.25),CFrame.Angles(math.rad(90),0,0))task.wait()r(s,CFrame.new(0,-1.5,-n.Velocity.Magnitude/1.25),CFrame.Angles(0,0,0))task.wait()r(s,CFrame.new(0,1.5,n.Velocity.Magnitude/1.25),CFrame.Angles(math.rad(90),0,0))task.wait()r(s,CFrame.new(0,-1.5,0),CFrame.Angles(math.rad(90),0,0))task.wait()r(s,CFrame.new(0,-1.5,0),CFrame.Angles(0,0,0))task.wait()r(s,CFrame.new(0,-1.5,0),CFrame.Angles(math.rad(-90),0,0))task.wait()r(s,CFrame.new(0,-1.5,0),CFrame.Angles(0,0,0))task.wait()end else break end until s.Velocity.Magnitude>500 or s.Parent~=h.Character or h.Parent~=d or h.Character~=l or m.Sit or j.Health<=0 or tick()>x+w end;workspace.FallenPartsDestroyHeight=0/0;local z=Instance.new("BodyVelocity")z.Name="EpixVel"z.Parent=k;z.Velocity=Vector3.new(9e8,9e8,9e8)z.MaxForce=Vector3.new(1/0,1/0,1/0)j:SetStateEnabled(Enum.HumanoidStateType.Seated,false)if n and o then if(n.CFrame.p-o.CFrame.p).Magnitude>5 then v(o)else v(n)end elseif n and not o then v(n)elseif not n and o then v(o)elseif not n and not o and p and q then v(q)else fu.notification("Can't find a proper part of target player to fling.")end;z:Destroy()j:SetStateEnabled(Enum.HumanoidStateType.Seated,true)workspace.CurrentCamera.CameraSubject=j;repeat k.CFrame=getgenv().OldPos*CFrame.new(0,.5,0)i:SetPrimaryPartCFrame(getgenv().OldPos*CFrame.new(0,.5,0))j:ChangeState("GettingUp")table.foreach(i:GetChildren(),function(A,B)if B:IsA("BasePart")then B.Velocity,B.RotVelocity=Vector3.new(),Vector3.new()end end)task.wait()until(k.Position-getgenv().OldPos.p).Magnitude<25;workspace.FallenPartsDestroyHeight=getgenv().FPDH else fu.notification("No valid character of said target player. May have died.")end end;g(c[1])
-	end
-	
-	function getMap()
-		for _, o in ipairs(workspace:GetChildren()) do
-			if o:FindFirstChild("CoinContainer") and o:FindFirstChild("Spawns") then
-				return o
-			end
-		end
-		return nil
-	end
-	
-	
-	
-	--task.spawn(function() 
-	--	if game:GetService("RunService"):IsStudio() then return end -- :)
-	
-	--local OldNameCall = nil
-	
-	--OldNameCall = hookmetamethod(game, "__namecall", function(Self, ...)
-	--	local Args = {...}
-	--	local NamecallMethod = getnamecallmethod()
-	
-	--	if NamecallMethod == "InvokeServer" and Args[1] == 1 and sheriffAimbot then
-	--		if not findMurderer() then
-	--			print("No murderer to be shot!")
-	--		else
-	--			print("Shot - Intercepting shot to murderer")
-	--			Args[2] = findMurderer().Character:FindFirstChild("HumanoidRootPart").Position
-	--		end
-	--	end
-	
-	--	return OldNameCall(Self, unpack(Args))
-	--end)
-	
-	--end)
-	
-	-- I honestly don't know what went wrong so if any of you experts know why this stuff aint working make a pull request :praying_hands_emoji:
-	
-	
-	module["Name"] = "Murder Mystery 2"
-	
-	-- Player ESP
-	workspace.ChildAdded:Connect(function(ch)
-		if ch == getMap() and playerESP then
-			fu.notification("Map has loaded, waiting for roles...")
-			repeat
-				task.wait(1)
-			until findMurderer()
-	
-			fu.notification("Player ESP reloaded.")
-		end
-	end)
-	
-	workspace.ChildRemoved:Connect(function(ch)
-		if ch == getMap() and playerESP then
-			fu.notification("Game ended, removing Player ESPs.")
-			playerData = {}
-			espcontainer:ClearAllGroups()
-		end
-	end)
-	
-	-- Dropped Gun ESP
-	workspace.DescendantAdded:Connect(function(ch)
-		if trapDetection and ch.Name == "Trap" and (ch.Parent:IsA("Folder") or ch.Parent:IsA("Model")) then
-			ch.Transparency = 0
-			espcontainer:Add(ch, {
-				AccentColor    =  Color3.new(1, 0, 0.0156863),
-				ArrowShow        = false,
-				ShowLabel         = true,
-				LabelText         = "Trap",
-				GroupName         = "trap"
-			})
-	
-			fu.notification("Murderer has placed a trap!")
-		end
-	
-		if gunDropESP and ch.Name == "GunDrop" then
-			espcontainer:Add(ch, {
-				AccentColor    =  Color3.new(0.952941, 1, 0.0745098),
-				ArrowShow        = true,
-				ArrowMinDistance       = 999999,      
-				ArrowSize         = UDim2.new(0,40,0,40),
-				LabelText         = "Dropped gun!",
-				ShowLabel         = true,
-				GroupName         = "gun"
-			})
-			--if not script.Parent:FindFirstChild("GunESP") then
-			--	local gunesp = Instance.new("Highlight", script.Parent)
-			--	gunesp.OutlineTransparency = 1
-			--	gunesp.FillColor = Color3.fromRGB(255, 255, 0)
-			--	gunesp.Name = "GunESP"
-			--	gunesp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-			--	gunesp.Adornee = ch
-			--	gunesp.Enabled = true
-			--end
-			--script.Parent:FindFirstChild("GunESP").Adornee = ch
-			--script.Parent:FindFirstChild("GunESP").Enabled = true
-			--local bguiclone = script.Parent.DroppedGunBGUI:Clone()
-			--bguiclone.Parent = script.Parent
-			--bguiclone.Adornee = ch
-			--bguiclone.Enabled = true
-			--bguiclone.Name = "DGBGUIClone"
-			fu.notification("Gun has been dropped! Find a yellow highlight.")
-			if autoGetDroppedGun then
-				fu.notification("Auto get dropped gun - Cooling down...")
-				task.wait(1)
-				if not getMap():FindFirstChild("GunDrop") then fu.notification("No dropped gun to be teleported to.") return end
-				local previousPosition = localplayer.Character:GetPivot()
-				localplayer.Character:MoveTo(getMap():FindFirstChild("GunDrop").Position)
-				localplayer.Backpack.ChildAdded:Wait()
-				localplayer.Character:PivotTo(previousPosition)
-			end
-		end
-	end)
-	
-	workspace.DescendantRemoving:Connect(function(ch)
-		if gunDropESP and ch.Name == "GunDrop" then
-			espcontainer:RemoveGroup("gun")
-			fu.notification("Someone has took the dropped gun.")
-			task.wait(1)
-			fu.notification("The hero is " .. findSheriff().DisplayName .. ".")
-			reloadESP()
-			--if playerESP then
-			--	for _, v in ipairs(script.Parent:GetChildren()) do
-			--		if v:IsA("Highlight") then
-			--			v:Destroy()
-			--		end
-			--	end
-			--end
-	
-			--local listplayers = game.Players:GetChildren()
-			--for _, player in ipairs(listplayers) do
-			--	if  player.Character ~= nil then
-			--		local character = player.Character
-			--		if not character:FindFirstChild("PlayerESP") then
-			--			local a = Instance.new("Highlight", script.Parent)
-			--			a.Name = "PlayerESP"
-			--			a.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-			--			a.Adornee = character
-			--			a.FillColor = Color3.fromRGB(255, 255, 255)
-			--			a.FillTransparency = 0.5
-			--			task.spawn(function()
-			--				if player == findMurderer() then
-			--					local mbgui = script.Parent.MurdererBGUI:Clone()
-			--					mbgui.Enabled = true
-			--					mbgui.Name = "AppliedMurdererBGUI"
-			--					mbgui.Parent = getgenv().YARHM
-			--					mbgui.Adornee = character
-			--					a.FillColor = Color3.fromRGB(255,0,0)
-			--					a.OutlineColor = Color3.fromRGB(255,0,0)
-			--				elseif player == findSheriff() then
-			--					a.FillColor = Color3.fromRGB(255, 255,0)
-			--					a.OutlineColor = Color3.fromRGB(255, 255,0)
-			--				else
-			--					a.FillColor = Color3.fromRGB(0,255,0)
-			--					a.OutlineColor = Color3.fromRGB(0, 255, 0)
-			--				end
-			--				if a then
-			--					if not player then return end
-			--					a.Adornee = player.Character or player.CharactedAdded:Wait()
-			--				end
-			--			end)
-			--		end
-			--	end
-			--end
-		end
-	end)
-	
-	function getClosestModelToPlayer(player, models)
-		local closestModel = nil
-		local closestDistance = math.huge 
-	
-		local playerPosition = player.Character.HumanoidRootPart.Position
-	
-		for _, model in ipairs(models) do
-			local modelPosition = model:GetPivot().Position
-			local distance = (modelPosition - playerPosition).Magnitude
-			if distance < closestDistance then
-				closestDistance = distance
-				closestModel = model
-			end
-		end
-	
-		local returningResult = {closestModel, closestDistance}
-		setmetatable(returningResult, {
-			__tostring = function(t)
-				return closestModel
-			end,
-		})
-	
-		return returningResult
-	end
-	
-	-- Coin autocollect
-	task.spawn(
-		function()
-			while task.wait(0.1) do
-				if not coinAutoCollect then continue end
-	
-				if getMap() then
-					if getMap():FindFirstChild("CoinContainer") and #getMap():FindFirstChild("CoinContainer"):GetChildren() > 1 then
-						local closestCoin = getClosestModelToPlayer(localplayer, getMap():FindFirstChild("CoinContainer"):GetChildren())
-						if closestCoin then
-							if not localplayer.Character:FindFirstChild("HumanoidRootPart") then continue end
-							local distance = (localplayer.Character:FindFirstChild("HumanoidRootPart").Position - closestCoin:GetPivot().Position).Magnitude
-							local toclosestcoin = ts:Create(localplayer.Character:FindFirstChild("HumanoidRootPart"), TweenInfo.new(distance*0.05, Enum.EasingStyle.Linear), {
-								CFrame = closestCoin:GetPivot()
-							})
-							toclosestcoin:Play()
-							toclosestcoin.Completed:Wait()
-							task.wait(0.1)
-							closestCoin:Destroy() -- so we wont try to get it anymore
-							--localplayer.Character:MoveTo(Vector3.new(closestCoin:GetPivot().X, closestCoin:GetPivot().Y, closestCoin:GetPivot().Z))
-							claimedCoins[closestCoin] = true
-						end
-					end
-				end
-			end
-		end
-	)
-	
-	
-	
-	local function getPredictedPosition(player, shootOffset)
-		local usingBasicPred = not predictionAIEngine
-		if predictionOngoing then
-			fu.notification("Cancelling AI prediction, using basic prediction.")
-			usingBasicPred = true
-		end
-		local ogplayer = player
-		pcall(function()
-			player = player.Character
-			if not player.Character then fu.notification("No murderer to predict position.") return end
-		end)
-		local playerHRP = player:FindFirstChild("UpperTorso")
-		local playerHum = player:FindFirstChild("Humanoid")
-		if not playerHRP or not playerHum then
-			return Vector3.new(0,0,0), "Could not find the player's HumanoidRootPart."
-		end
-	
-		local playerPosition = playerHRP.Position
-	
-	
-		if predictionAIEngine and not usingBasicPred and not predictionCooldown and getgenv().YARHMNetwork_predictPos then
-			if (playerPosition - localplayer.Character:FindFirstChild("UpperTorso").Position).Magnitude > 20 then
-				fu.notification("Calculating trajectory...")
-				predictionCooldown = true
-				predictionOngoing = true
-				local predictedPosition = getgenv().YARHMNetwork_predictPos(ogplayer)
-				predictionOngoing = false
-				task.spawn(function()
-					task.wait(5)
-					predictionCooldown = false
-				end)
-				return predictedPosition
-			else
-				fu.notification("Murderer is too close for trajectory prediction. Reverting to basic prediction.")
-			end
-		elseif predictionAIEngine and not getgenv().YARHMNetwork.predictPos then
-			fu.notification("YARHM AI Engine is not available. Reverting to basic prediction.")	
-		end
-	
-	
-		local velocity = Vector3.new()
-		velocity = playerHRP.AssemblyLinearVelocity
-		local playerMoveDirection = playerHum.MoveDirection
-		local playerLookVec = playerHRP.CFrame.LookVector
-		local yVelFactor = velocity.Y > 0 and -1 or 0.5
-		local predictedPosition
-		predictedPosition = playerHRP.Position + ((velocity * Vector3.new(0.75, 0.5, 0.75))) * (shootOffset / 15) +playerMoveDirection * shootOffset
-		predictedPosition = predictedPosition * (((localplayer:GetNetworkPing() * 1000) * ((offsetToPingMult - 1) * 0.01)) + 1)
-		-- failed so hard i had to revert back to v1.11 :sob:
-	
-		--predictedPosition = Vector3.new(predictedPositiomurdererHRP.Position + ((murdererVelocity * Vector3.new(0, 0.5, 0))) * (shootOffset / 15) + murderer.Character.Humanoid.MoveDirection * shootOffsetn.X, math.clamp(predictedPosition.Y, playerPosition.Y - 2, playerPosition.Y + 2), predictedPosition.Z)
-	
-	
-		return predictedPosition
-	end
-	
-	
-	
-	
-	task.spawn(function()
-		while task.wait(1) do
-			if findSheriff() == localplayer and autoShooting then
-				fu.notification("Auto-shooting started.")
-				repeat
-					task.wait(0.1)
-					local murderer = findMurderer()
-					if not murderer then fu.notification("No murderer.") continue end
-					local murdererPosition = murderer.Character.HumanoidRootPart.Position
-					local characterRootPart = localplayer.Character.HumanoidRootPart
-					local rayDirection = murdererPosition - characterRootPart.Position
-	
-					local raycastParams = RaycastParams.new()
-					raycastParams.FilterType = Enum.RaycastFilterType.Exclude
-					raycastParams.FilterDescendantsInstances = {localplayer.Character}
-	
-					local hit = workspace:Raycast(characterRootPart.Position, rayDirection, raycastParams)
-					if not hit or hit.Instance.Parent == murderer.Character then -- Check if nothing collides or if it collides with the murderer
-						fu.notification("Auto-shooting!")
-						if not localplayer.Character:FindFirstChild("Gun") then
-							local hum = localplayer.Character:FindFirstChild("Humanoid")
-							if localplayer.Backpack:FindFirstChild("Gun") then
-								localplayer.Character:FindFirstChild("Humanoid"):EquipTool(localplayer.Backpack:FindFirstChild("Gun"))
-							else
-								fu.notification("You don't have the gun..?")
-								return
-							end
-						end
-						local murdererHRP = murderer.Character:FindFirstChild("HumanoidRootPart")
-						if not murdererHRP then
-							fu.notification("Could not find the murderer's HumanoidRootPart.")
-							return
-						end
-	
-						local predictedPosition = getPredictedPosition(murderer, shootOffset)
-	
-						local args = {
-							[1] = 1,
-							[2] = predictedPosition,
-							[3] = "AH2"
-						}
-	
-	
-						localplayer.Character.Gun.KnifeLocal.CreateBeam.RemoteFunction:InvokeServer(unpack(args))
-	
-	
-	
-					end
-				until findSheriff() ~= localplayer or not autoShooting
-			end
-		end
-	end)
-	
-	table.insert(module, {
-		Type = "Text",
-		Args = {"ESPs"}
-	})
-	
-	
-	table.insert(module, {
-		Type = "ButtonGrid",
-		Toggleable = true,
-		Args = {2, {
-			Players = function()
-				if playerESP then
-					playerESP = false
-					espcontainer:RemoveGroup("players")
-				else
-					playerESP = true
-					if not findMurderer() or not findSheriff() then
-						fu.notification("No roles yet. Waiting for roles...")
-						repeat
-							task.wait(1)
-						until findSheriff() or findMurderer()
-					end
-					reloadESP()
-				end
-			end,
-	
-			Dropped_Gun = function()
-				if gunDropESP then
-					gunDropESP = false
-					espcontainer:RemoveGroup("gun")
-				else
-					gunDropESP = true
-					if not getMap() then return end
-					if getMap():FindFirstChild("GunDrop") then
-						espcontainer:Add(getMap():FindFirstChild("GunDrop"), {
-							AccentColor    =  Color3.new(0.952941, 1, 0.0745098),
-							ArrowShow        = true,
-							ArrowMinDistance       = 999999,      
-							ArrowSize         = UDim2.new(0,40,0,40),
-							LabelText         = "Dropped gun!",
-							ShowLabel         = true,
-							GroupName         = "gun"
-						})
-						fu.notification("Gun has been dropped! Find a yellow highlight.")
-					end
-	
-				end
-			end,
-	
-			Traps = function()
-				if trapDetection then
-					trapDetection = false
-					espcontainer:RemoveGroup("trap")
-				else
-					trapDetection = true
-					for _, v in ipairs(workspace:GetDescendants()) do
-						if v.Name == "Trap" and (v.Parent:IsA("Folder") or v.Parent:IsA("Model")) then
-							v.Transparency = 0
-							espcontainer:Add(v, {
-								AccentColor    =  Color3.new(1, 0, 0),
-								ArrowShow        = false,
-								ShowLabel         = true,
-								LabelText         = "Trap",
-								GroupName         = "trap"
-							})
-						end
-					end
-				end
-			end,
-		}}
-	})
-	
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"Hide my own ESP", function(Self, state)
-			hideMeEsp = state
-			reloadESP()
-		end,}
-	})
-	table.insert(module, {
-		Type = "Text",
-		Args = {"Tools"}
-	})
-	
-	local instakillshoot = false
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Shoot murderer", function(Self)
-			if findSheriff() ~= localplayer then 
-				fu.notification("You're not sheriff/hero.") 
-				return 
-			end
-	
-			local murderer = findMurderer() or findSheriffThatsNotMe()
-			if not murderer then
-				fu.notification("No murderer (or sheriff) to shoot.")
-				return
-			end
-	
-			if not localplayer.Character:FindFirstChild("Gun") then
-				local hum = localplayer.Character:FindFirstChild("Humanoid")
-				if localplayer.Backpack:FindFirstChild("Gun") then
-					hum:EquipTool(localplayer.Backpack:FindFirstChild("Gun"))
-				else
-					fu.notification("You don't have the gun..?")
-					return
-				end
-			end
-	
-			local murdererHRP = murderer.Character:FindFirstChild("HumanoidRootPart")
-			if not murdererHRP then
-				fu.notification("Could not find the murderer's HumanoidRootPart.")
-				return
-			end
-	
-			local predictedPosition = getPredictedPosition(murderer, shootOffset)
-		
-			local args
-			if instakillshoot then
-				args = {
-					CFrame.new(murdererHRP.Position + Vector3.new(0,1,0)), --laziest "anticheat" ive ever seen
-					CFrame.new(murdererHRP.Position)
-				}
-			else
-				args = {
-					CFrame.new(localplayer.Character.RightHand.Position),
-					CFrame.new(predictedPosition)
-				}
-			end
-			localplayer.Character:WaitForChild("Gun"):WaitForChild("Shoot"):FireServer(unpack(args))
-	
-			--local args = {
-			--	[1] = 1,
-			--	[2] = predictedPosition,
-			--	[3] = "AH2"
-			--}
-	
-	
-			--localplayer.Character.Gun.KnifeLocal.CreateBeam.RemoteFunction:InvokeServer(unpack(args))
-		end,}
-	})
-	
-	local spawnAtPlayer = false
-	local loopThrow = false
-	local function knifeThrow(silent)
-		if findMurderer() ~= localplayer then 
-			if silent then return end
-	
-			fu.notification("You're not murderer.") 
-			return 
-		end
-	
-		if not localplayer.Character:FindFirstChild("Knife") then
-			local hum = localplayer.Character:FindFirstChild("Humanoid")
-			if localplayer.Backpack:FindFirstChild("Knife") then
-				hum:EquipTool(localplayer.Backpack:FindFirstChild("Knife"))
-			else
-				if silent then return end
-	
-				fu.notification("You don't have the knife..?")
-				return
-			end
-		end
-	
-		local NearestPlayer = findNearestPlayer()
-	
-		if not NearestPlayer or not NearestPlayer.Character then
-			if silent then return end
-	
-			fu.notification("Can't find a player!?")
-			return
-		end
-		local nearestHRP = NearestPlayer.Character:FindFirstChild("HumanoidRootPart")
-		if not nearestHRP then
-			if silent then return end
-	
-			fu.notification("Can't find the player's pivot.")
-		end
-	
-		-- nearestHRP.Anchored = true
-		local argsThrowRemote = {
-			CFrame.new(localplayer.Character.RightHand.Position),
-			CFrame.new(getPredictedPosition(NearestPlayer, shootOffset + 1)),
-		}
-	
-		if spawnAtPlayer then
-			argsThrowRemote[1] = CFrame.new(nearestHRP.Position + (nearestHRP.CFrame.LookVector * 5))
-		end
-		-- task.spawn(function()
-		--     task.wait(2)
-		--     -- nearestHRP.Anchored = false
-		-- end)
-		localplayer.Character:WaitForChild("Knife"):WaitForChild("Events"):WaitForChild("KnifeThrown"):FireServer(unpack(argsThrowRemote))
-	
-		--localplayer.Character:WaitForChild("Knife"):WaitForChild("Throw"):FireServer(unpack(argsThrowRemote))
-	end
-	
-	
-	
-	
-	task.spawn(function()
-		while task.wait(1.5) do
-			if loopThrow then
-				knifeThrow(true)
-			end
-		end
-	end)
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Knife throw to closest (NEW)", function()
-			knifeThrow()
-		end}
-	})
-	
-	
-	
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"Auto knife throw", function(Self, tog)
-			loopThrow = tog
-		end}
-	})
-	
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Delayed shoot murderer", function(Self)
-			if findSheriff() ~= localplayer then 
-				fu.notification("You're not sheriff/hero.") 
-				return 
-			end
-	
-			local murderer = findMurderer() or findSheriffThatsNotMe()
-			if not murderer then
-				fu.notification("No murderer (or sheriff) to shoot.")
-				return
-			end
-	
-			if not localplayer.Character:FindFirstChild("Gun") then
-				local hum = localplayer.Character:FindFirstChild("Humanoid")
-				if localplayer.Backpack:FindFirstChild("Gun") then
-					hum:EquipTool(localplayer.Backpack:FindFirstChild("Gun"))
-				else
-					fu.notification("You don't have the gun..?")
-					return
-				end
-			end
-	
-			local murdererHRP = murderer.Character:FindFirstChild("HumanoidRootPart")
-			if not murdererHRP then
-				fu.notification("Could not find the murderer's HumanoidRootPart.")
-				return
-			end
-	
-			fu.notification("Waiting for murderer to be in view...")
-			rs.Stepped:Connect(function()
-				-- shoot a ray from player to murderer
-				local origin = localplayer.Character.HumanoidRootPart.Position
-				local direction = (Vector3.new(murdererHRP.Position.X, origin.Y, murdererHRP.Position.Z) - origin).unit * 1000
-				local params = RaycastParams.new()
-	
-				local raycastResult = workspace:Raycast(origin, direction, params)
-				if raycastResult then
-					if raycastResult.Instance == murdererHRP then
-						local predictedPosition = getPredictedPosition(murderer, shootOffset)
-	
-						local args = {
-							[1] = 1,
-							[2] = predictedPosition,
-							[3] = "AH2"
-						}
-	
-	
-						localplayer.Character.Gun.KnifeLocal.CreateBeam.RemoteFunction:InvokeServer(unpack(args))
-					end
-				end
-			end)
-	
-	
-		end,}
-	})
-	
-	-- table.insert(module, {
-	-- 	Type = "Toggle",
-	-- 	Args = {"Use AI Prediction Engine", function(Self, state)
-	-- 		predictionAIEngine = state
-	-- 	end,}
-	-- })
-	
-	
-	
-	table.insert(module, {
-		Type = "Input",
-		Args = {"Shoot position offset", "Set", function(Self, text)
-			if not tonumber(text) then fu.notification("Not a valid number.") return end
-	
-			if tonumber(text) > 5 then
-				fu.notification("An offset with a multiplier of 5 might not at all shoot the murderer!")
-			end
-			if tonumber(text) < 0 then
-				fu.notification("An offset with a negative multiplier will make a shot BEHIND the murderer's walk direction.")
-			end
-			shootOffset = tonumber(text)
-			fu.notification("Offset has been set.")
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Input",
-		Args = {"Offset-to-ping multiplier", "Set", function(Self, text)
-			if not tonumber(text) then fu.notification("Not a valid number.") return end
-	
-			if tonumber(text) > 5 then
-				fu.notification("An offset with a multiplier of 5 might not at all shoot the murderer!")
-			end
-			if tonumber(text) < 0 then
-				fu.notification("An offset with a negative multiplier will make a shot BEHIND the murderer's walk direction.")
-			end
-			offsetToPingMult = tonumber(text)
-			fu.notification("Offset has been set.")
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Text",
-		Args = {"Shoot offset re-aims the gun/knife shoot/throw to the character's predicted position. Recommended is 2.8"}
-	})
-	
-	table.insert(module, {
-		Type = "Text",
-		Args = {"Offset-to-ping multiplier allows the offset to change dynamically with latency/ping. The default is 1 (aka no adjustment)"}
-	})
-	
-	
-	
-	--table.insert(module, {
-	--	Type = "ButtonGrid",
-	--	Toggleable = true,
-	--	Args = {1, {
-	--		--Coins_Magnet = function()
-	--		--	coinAutoCollect = not coinAutoCollect
-	--		--	if coinAutoCollect then
-	--		--		fu.notification("Coins magnet is currently buggy right now. Use at your own risk.")
-	--		--	end
-	--		--end,
-	--		Auto_Shoot_murderer = function()
-	--			autoShooting = not autoShooting
-	--			if findSheriff() == localplayer and autoShooting then
-	--				fu.notification("Auto-shooting started.")
-	--				repeat
-	--					task.wait(0.1)
-	--					local murderer = findMurderer() or findSheriffThatsNotMe()
-	--					if not murderer then warn("[YARHM] > MM2 Autoshoot - No murderer.") continue end
-	--					local murdererPosition = murderer.Character.HumanoidRootPart.Position
-	--					local characterRootPart = localplayer.Character.HumanoidRootPart
-	--					local rayDirection = (murdererPosition - characterRootPart.Position).Unit * 50
-	
-	--					local raycastParams = RaycastParams.new()
-	--					raycastParams.FilterType = Enum.RaycastFilterType.Exclude
-	--					raycastParams.FilterDescendantsInstances = {localplayer.Character}
-	
-	--					local hit = workspace:Raycast(characterRootPart.Position, rayDirection, raycastParams)
-	--					if not hit or hit.Instance.Parent == murderer.Character then -- Check if nothing collides or if it collides with the murderer
-	--						fu.notification("Auto-shooting!")
-	--						if not localplayer.Character:FindFirstChild("Gun") then
-	--							local hum = localplayer.Character:FindFirstChild("Humanoid")
-	--							if localplayer.Backpack:FindFirstChild("Gun") then
-	--								localplayer.Character:FindFirstChild("Humanoid"):EquipTool(localplayer.Backpack:FindFirstChild("Gun"))
-	--							else
-	--								fu.notification("You don't have the gun..?")
-	--								return
-	--							end
-	--						end
-	--						local murdererHRP = murderer.Character:FindFirstChild("HumanoidRootPart")
-	--						if not murdererHRP then
-	--							fu.notification("Could not find the murderer's HumanoidRootPart.")
-	--							return
-	--						end
-	--						local murdererVelocity = murdererHRP.AssemblyLinearVelocity
-	--						local predictedPosition = murdererHRP.Position + (murdererVelocity * Vector3.new(1, 0.5, 1)) * (shootOffset / 15)
-	
-	--						local args = {
-	--							[1] = 1,
-	--							[2] = predictedPosition,
-	--							[3] = "AH2"
-	--						}
-	
-	
-	--						localplayer.Character.Gun.KnifeLocal.CreateBeam.RemoteFunction:InvokeServer(unpack(args))
-	--					end
-	--				until not autoShooting
-	--			end
-	--		end,
-	--	}}
-	--})
-	
-	local function secondsToMinutes(seconds)
-		if seconds == -1 then return "" end
-		local minutes = math.floor(seconds / 60)
-		local remainingSeconds = seconds % 60
-		return string.format("%dm %ds", minutes, remainingSeconds)
-	end
-	local timertask = nil
-	local timertext = nil
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"Round timer", function(Self, state)
-			if state then
-				timertext = Instance.new("TextLabel")
-				timertext.Parent = script.Parent
-				timertext.BackgroundTransparency = 1
-				timertext.TextColor3 = Color3.fromRGB(255, 255, 255)
-				timertext.TextScaled = true
-				timertext.AnchorPoint = Vector2.new(0.5, 0.5)
-	
-				timertext.Position = UDim2.fromScale(0.5, 0.15)
-				timertext.Size = UDim2.fromOffset(200, 35)
-	
-				timertext.Font = Enum.Font.Montserrat
-	
-				timertask = task.spawn(function()
-					while task.wait(0.5) do
-						local timeLeft = game.Workspace:FindFirstChild("RoundTimerPart"):GetAttribute("Time")
-						timertext.Text = secondsToMinutes(timeLeft)
-					end
-				end)
-			else
-				if timertext then
-					timertext:Destroy()
-				end
-				task.cancel(timertask)
-			end
-		end,}
-	})
-	
-	table.insert(module, {Type="Text", Args={""}})
-	
-	table.insert(module, {
-		Type = "Text",
-		Args = {"<font color='#FF0000'>Detectables</font>"}
-	})
-	
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"Instakill murderer as sheriff", function(Self, tog)
-			instakillshoot = tog
-		end}
-	})
-	
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"Spawn knife throw near player", function(Self, tog)
-			spawnAtPlayer = tog
-		end}
-	})
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Send Sheriff and Murderer names into chat", function(Self)
-			local textchannels = game:GetService("TextChatService"):WaitForChild("TextChannels"):GetChildren()
-			for _, textchannel in ipairs(textchannels) do
-				if textchannel.Name == "RBXSystem" then continue end
-				local murd = findMurderer()
-				local sher = findSheriff()
-	
-				local murdName = "-"
-				local sherName = "-"
-				if murd then murdName = murd.Name end
-				if sher then sherName = sher.Name end
-				local message = string.format([[Murderer: %s |
-		Sheriff: %s |
-		<<YARHM>>]], murdName, sherName)
-				textchannel:SendAsync(message)
-			end
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "ButtonGrid",
-		Args = {2, {
-			Teleport_to_lobby = function(Self)
-				local lobby = workspace:FindFirstChild("Lobby") 
-				if lobby then
-					localplayer.Character:MoveTo(lobby.Spawns:FindFirstChildWhichIsA("SpawnLocation").Position)
-				end
-				--localplayer.Character:MoveTo(Vector3.new(-350, 522, -4))
-			end,
-	
-			Teleport_to_map = function(Self)
-				local spawnsFolder = getMap():FindFirstChild("Spawns")
-				if spawnsFolder then
-					local spawns = spawnsFolder:GetChildren()
-					local randomSpawn = spawns[math.random(1, #spawns)]
-					localplayer.Character:MoveTo(randomSpawn.Position)
-				else
-					fu.notification("No map to teleport to.")
-				end
-			end,
-		}}
-	}) 
-	
-	table.insert(module, {
-		Type = "ButtonGrid",
-		Args = {2, {
-			Fling_Sheriff = function()
-				if not findSheriff() then
-					fu.notification("No sheriff/hero to fling.")
-					return
-				end
-				miniFling(findSheriff())
-			end,
-	
-			Fling_Murderer = function()
-				if not findMurderer() then
-					fu.notification("No murderer to fling.")
-					return
-				end
-				miniFling(findMurderer())
-			end,
-		}}
-	})
-	
-	table.insert(module, {
-		Type = "ButtonGrid",
-		Args = {2, {
-			Copy_murderer_username = function()
-				if not findMurderer() then
-					fu.notification("No murderer to copy.")
-					return
-				end
-				if setclipboard then setclipboard(findMurderer().Name) end
-				fu.notification("Copied to clipboard.")
-			end,
-	
-			Copy_sheriff_username = function()
-				if not findSheriff() then
-					fu.notification("No sheriff/hero to copy.")
-					return
-				end
-				if setclipboard then setclipboard(findSheriff().Name) end
-				fu.notification("Copied to clipboard.")
-			end,
-		}}
-	})
-	
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Teleport to dropped gun", function(Self)
-			if not getMap():FindFirstChild("GunDrop") then fu.notification("No dropped gun to be teleported to.") return end
-			local previousPosition = localplayer.Character:GetPivot()
-			localplayer.Character:PivotTo(getMap():FindFirstChild("GunDrop"):GetPivot())
-			localplayer.Backpack.ChildAdded:Wait()
-			localplayer.Character:PivotTo(previousPosition)
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"Automatically get gun on drop", function(Self, state)
-			autoGetDroppedGun = state
-		end,}
-	})
-	
-	local ignoreknifethrow = false
-	game.Workspace.ChildAdded:Connect(function(chi)
-		if chi.Name == "ThrowingKnife" and ignoreknifethrow then
-			chi:Destroy()
-		end
-	end)
-	
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"Ignore knife throws (doesn't work)", function(Self, state)
-			ignoreknifethrow = state
-		end,}
-	})
-	
-	
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"God mode (Very, VERY UNSTABLE)", function(Self) -- Credits to EdgeIY, Infinite Yield
-			local Cam = workspace.CurrentCamera
-			local Pos, Char = Cam.CFrame, localplayer.Character
-			local Human = Char and Char.FindFirstChildWhichIsA(Char, "Humanoid")
-			local nHuman = Human.Clone(Human)
-			nHuman.Parent, localplayer.Character = Char, nil
-			nHuman.SetStateEnabled(nHuman, 15, false)
-			nHuman.SetStateEnabled(nHuman, 1, false)
-			nHuman.SetStateEnabled(nHuman, 0, false)
-			nHuman.BreakJointsOnDeath, Human = true, Human.Destroy(Human)
-			localplayer.Character, Cam.CameraSubject, Cam.CFrame = Char, nHuman, wait() and Pos
-			nHuman.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
-			local Script = Char.FindFirstChild(Char, "Animate")
-			if Script then
-				Script.Disabled = true
-				wait()
-				Script.Disabled = false
-			end
-			nHuman.Health = nHuman.MaxHealth
-		end,}
-	})
-	
-	
-	
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Kill closest player as murderer", function()
-			if findMurderer() ~= localplayer then fu.notification("You're not murderer.") return end
-	
-			if not localplayer.Character:FindFirstChild("Knife") then
-				local hum = localplayer.Character:FindFirstChild("Humanoid")
-				if localplayer.Backpack:FindFirstChild("Knife") then
-					localplayer.Character:FindFirstChild("Humanoid"):EquipTool(localplayer.Backpack:FindFirstChild("Knife"))
-				else
-					fu.notification("You don't have the knife..?")
-					return
-				end
-			end
-	
-			local NearestPlayer = findNearestPlayer()
-	
-			if not NearestPlayer or not NearestPlayer.Character then
-				fu.notification("Can't find a player!?")
-				return
-			end
-			local nearestHRP = NearestPlayer.Character:FindFirstChild("HumanoidRootPart")
-			if not nearestHRP then
-				fu.notification("Can't find the player's pivot.")
-			end
-	
-			if not localplayer.Character:FindFirstChild("HumanoidRootPart") then fu.notification("You're not a valid character.") return end
-			if not simulateKnifeThrow then
-				nearestHRP.Anchored = true
-				nearestHRP.CFrame = localplayer.Character:FindFirstChild("HumanoidRootPart").CFrame + localplayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 2
-				task.wait(0.1)
-				local args = {
-					[1] = "Slash"
-				}
-	
-				localplayer.Character.Knife.Stab:FireServer(unpack(args))
-				return
-			else
-				local lpknife = localplayer.Character:FindFirstChild("Knife")
-				if not lpknife then return end
-	
-				local raycastParams = RaycastParams.new()
-				raycastParams.FilterType = Enum.RaycastFilterType.Exclude
-				raycastParams.FilterDescendantsInstances = {localplayer.Character}
-				local rayResult = workspace:Raycast(lpknife:GetPivot().Position, (nearestHRP.Position - localplayer.Character:FindFirstChild("HumanoidRootPart").Position).Unit * 350, raycastParams)
-				local toThrow = nearestHRP.Position
-				--if rayResult then
-				--	toThrow = rayResult.Position
-				--end
-				--if math.random(0, 10) == 5 then -- idk what the fuk im doing
-				--	toThrow = nearestHRP.Position
-				--end
-				local args = {
-					[1] = lpknife:GetPivot(), 
-					[2] = toThrow
-				}
-	
-				localplayer.Character.Knife.Throw:FireServer(unpack(args))
-				return
-			end
-	
-	
-		end,}
-	})
-	
-	-- table.insert(module, {
-	-- 	Type = "Toggle",
-	-- 	Args = {"Simulate knife throw for killing nearest", function(Self, state)
-	-- 		simulateKnifeThrow = state
-	-- 		if state then
-	-- 			fu.notification("Simulating a knife throw can make you look legitimate. However, note that it's less reliable and may miss the target.")
-	-- 		end
-	-- 	end,}
-	-- })
-	
-	local killAuraCon = nil
-	
-	table.insert(module, {
-		Type = "Toggle",
-		Args = {"Murderer kill aura", function(Self, state)
-			if state then
-				if killAuraCon then killAuraCon:Disconnect() end
-			else
-				killAuraCon = game:GetService("RunService").Heartbeat:Connect(function()
-					for _, player in ipairs(game.Players:GetPlayers()) do
-						if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player ~= localplayer then
-							local hrp = player.Character:FindFirstChild("HumanoidRootPart")
-							if (hrp.Position - localplayer.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude < 7 then
-								hrp.Anchored = true
-								hrp.CFrame = localplayer.Character:FindFirstChild("HumanoidRootPart").CFrame + localplayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 2
-	
-								task.wait(0.1)
-								local args = {
-									[1] = "Slash"
-								}
-	
-								localplayer.Character.Knife.Stab:FireServer(unpack(args))
-								return	
-							end
-						end
-					end
-				end)
-			end
-		end,}
-	})
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Kill EVERYONE as murderer", function()
-			if findMurderer() ~= localplayer then fu.notification("You're not murderer.") return end
-	
-			if not localplayer.Character:FindFirstChild("Knife") then
-				local hum = localplayer.Character:FindFirstChild("Humanoid")
-				if localplayer.Backpack:FindFirstChild("Knife") then
-					localplayer.Character:FindFirstChild("Humanoid"):EquipTool(localplayer.Backpack:FindFirstChild("Knife"))
-				else
-					fu.notification("You don't have the knife..?")
-					return
-				end
-			end
-	
-			for _, player in ipairs(game.Players:GetPlayers()) do
-				if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player ~= localplayer then
-					player.Character:FindFirstChild("HumanoidRootPart").Anchored = true
-					player.Character:FindFirstChild("HumanoidRootPart").CFrame = localplayer.Character:FindFirstChild("HumanoidRootPart").CFrame + localplayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 1 
-	
-				end	
-			end
-	
-			local args = {
-				[1] = "Slash"
-			}
-			localplayer.Character.Knife.Stab:FireServer(unpack(args))
-		end,}
-	})
-	
-	--table.insert(module, {
-	--	Type = "Text",
-	--	Args = {"Coin farming"}
-	--})
-	
-	
-	--local Players = game:GetService("Players")
-	--local RunService = game:GetService("RunService")
-	
-	--local coinFarming = false
-	--local coinFarmConnection = nil
-	--local coinCollected = 0
-	--local coinBag = 0
-	--local coinLimit = 50
-	--local coinBlacklists = {}
-	
-	--game.ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Gameplay"):WaitForChild("CoinCollected").OnClientEvent:Connect(function(arg1, arg2, arg3)
-	--	local amount = tonumber(arg1) or tonumber(arg2)
-	--	local limit = tonumber(arg2) or tonumber(arg3)
-	--	if amount then coinBag = amount end
-	--	if limit then coinLimit = limit end
-	--end)
-	
-	--local FARM_SPEED = 30
-	
-	--local function isPlayerInLobby()
-	--	local coinFolder = workspace:FindFirstChild("CoinContainer", true) or workspace:FindFirstChild("CoinVisuals", true) or workspace:FindFirstChild("Coins", true)
-	--	if not coinFolder then return true end
-	
-	--	local lobby = workspace:FindFirstChild("Lobby")
-	--	if lobby and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-	--		local dist = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - lobby:GetPivot().Position).Magnitude
-	--		if dist < 200 then return true end
-	--	end
-	--	return false
-	--end
-	
-	--local function getNearestCoin(hrp)
-	--	local container = workspace:FindFirstChild("CoinContainer", true) or workspace:FindFirstChild("CoinVisuals", true) or workspace:FindFirstChild("Coins", true)
-	--	if not container then return nil end
-	
-	--	local nearest, minDist = nil, math.huge
-	--	for _, coin in ipairs(container:GetChildren()) do
-	--		if coin:IsA("BasePart") and not coinBlacklists[coin] and (coin.Name == "Coin_Server" or coin:FindFirstChildWhichIsA("TouchTransmitter")) then
-	--			local visual = coin:FindFirstChild("CoinVisual")
-	--			if not visual or visual.Transparency == 0 then
-	--				local dist = (hrp.Position - coin.Position).Magnitude
-	--				if dist < minDist then
-	--					minDist = dist
-	--					nearest = coin
-	--				end
-	--			end
-	--		end
-	--	end
-	--	return nearest
-	--end
-	
-	--local function startCoinFarm()
-	--	if coinFarming then fu.notification("Already coin farming.") return end
-	
-	--	coinFarming = true
-	
-	--	coinFarmConnection = RunService.Heartbeat:Connect(function()
-	--		local char = Players.LocalPlayer.Character
-	--		local hrp = char and char:FindFirstChild("HumanoidRootPart")
-	--		local hum = char and char:FindFirstChild("Humanoid")
-	
-	--		if not hrp or not hum or hum.Health <= 0 then return end 
-	
-	--		if isPlayerInLobby() then 
-	--			coinBag = 0
-	--			coinBlacklists = {}
-	--			hrp.Velocity = Vector3.zero
-	--			fu.dialog("Coin farming | IN LOBBY", `{coinCollected} coins collected.`, {})
-	--			return 
-	--		end
-	
-	--		if coinBag >= coinLimit then
-	--			hrp.Velocity = Vector3.zero
-	--			fu.dialog("Coin farming | COIN MAX", `{coinCollected} coins collected.`, {})
-	--			return
-	--		end
-	
-	--		local target = getNearestCoin(hrp)
-	
-	--		if target then
-	--			for _, part in ipairs(char:GetDescendants()) do
-	--				if part:IsA("BasePart") then part.CanCollide = false end
-	--			end
-	
-	--			local direction = (target.Position - hrp.Position).Unit
-	--			hrp.Velocity = direction * FARM_SPEED
-	--			hrp.CFrame = CFrame.new(hrp.Position, target.Position)
-	
-	--			local distance = (target.Position - hrp.Position).Magnitude
-	--			if distance < 3 then
-	--				local touch = target:FindFirstChildWhichIsA("TouchTransmitter", true) or target
-	--				if firetouchinterest then
-	--					firetouchinterest(hrp, touch.Parent or touch, 0)
-	
-	--					task.spawn(function()
-	--						task.wait()
-	--						firetouchinterest(hrp, touch.Parent or touch, 1)
-	--					end)
-	--				end
-	
-	--				coinCollected += 1
-	--				coinBlacklists[target] = true
-	--			end
-	--		else
-	--			hrp.Velocity = Vector3.zero
-	--		end
-	
-	--		fu.dialog("Coin farming", `{coinBag} / {coinLimit} in bag. Total: {coinCollected}`, {})
-	--	end)
-	--end
-	
-	--table.insert(module, {
-	--	Type = "Button",
-	--	Args = {"Start coin farming", function()
-	--		startCoinFarm()
-	--	end,}
-	--})
-	
-	--table.insert(module, {
-	--	Type = "Button",
-	--	Args = {"Stop coin farming", function()
-	--		if not coinFarming then fu.notification("You're not coin farming.") return end
-	--		fu.notification("Stopped coin farming. Collected " .. coinCollected .. " coins.")
-	
-	--		coinFarming = false
-	--		if coinFarmConnection then 
-	--			coinFarmConnection:Disconnect() 
-	--			coinFarmConnection = nil 
-	--		end
-	
-	--		coinCollected = 0
-	--		coinBlacklists = {}
-	--		coinBag = 0
-	--		fu.closedialog()
-	
-	--		local char = game.Players.LocalPlayer.Character
-	--		if char then
-	--			for _, part in ipairs(char:GetDescendants()) do
-	--				if part:IsA("BasePart") then part.CanCollide = true end
-	--			end
-	--			local hrp = char:FindFirstChild("HumanoidRootPart")
-	--			if hrp then hrp.Velocity = Vector3.zero end
-	--		end
-	--	end,}
-	--})
-	
-	-- no i give up im srry this ass
-	
-	-- any smarties wanna fixthis ass code please do
-	
-	
-	table.insert(module, {
-		Type = "Text",
-		Args = {"Fun"}
-	})
-	
-	table.insert(module, {
-		Type = "Button",
-		Args = {"Hold everyone hostage", function()
-			if findMurderer() ~= localplayer then fu.notification("You're not murderer. This'll only be useful if you're the murderer.") return end
-	
-			for _, player in ipairs(game.Players:GetPlayers()) do
-				if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player ~= localplayer then
-					player.Character:FindFirstChild("HumanoidRootPart").Anchored = true
-					player.Character:FindFirstChild("HumanoidRootPart").CFrame = localplayer.Character:FindFirstChild("HumanoidRootPart").CFrame + localplayer.Character:FindFirstChild("HumanoidRootPart").CFrame.LookVector * 5
-				end	
-			end
-	
-			fu.notification("Placed every single player in a single point. Kill everyone at once once you decide to.")
-		end,}
-	})
-	
-	repeat task.wait() until getgenv().Modules
-	getgenv().Modules[3] = module
-	fu.refreshlist()
-end
-local function ONOAH_routine() -- Routine: StarterGui.YARHM.Open.InitOpen
-    local script = Instance.new("LocalScript")
-    script.Name = "InitOpen"
-    script.Parent = Converted["_Open"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+        -- Scripts/values can't live in Workspace (not a container for code)
+        if action.type == "create_script" and (parent == "Workspace") then
+            table.insert(errors, ("Action %d (script '%s'): parented to Workspace. Use ServerScriptService or StarterPlayerScripts instead."):format(
+                i, action.name or "?"
+            ))
         end
-        return req(obj)
-    end
-
-
-	local ts = game:GetService("TweenService")
-	
-	
-	local stroke = Instance.new("UIStroke")
-	stroke.Parent = script.Parent
-	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	stroke.Color = Color3.fromRGB(255,255,255)
-	
-	
-	script.Parent.Position = UDim2.fromScale(0.5, -1)
-	ts:Create(script.Parent, TweenInfo.new(1.5, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {
-		Position = UDim2.fromScale(0.5, 0.063)
-	}):Play()
-	
-	
-	task.wait(5)
-	ts:Create(script.Parent, TweenInfo.new(5), {
-		TextTransparency = 1
-	}):Play()
-	--ts:Create(stroke, TweenInfo.new(5), {
-	--	Transparency = 1
-	--}):Play()
-end
-local function JFQXCG_routine() -- Routine: StarterGui.YARHM.Open.OnClick
-    local script = Instance.new("LocalScript")
-    script.Name = "OnClick"
-    script.Parent = Converted["_Open"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+        -- Script references a part not yet created
+        if action.type == "create_script" and action.source then
+            for ref in action.source:gmatch(':WaitForChild%("([^"]+)"%)') do
+                local refLower = ref:lower()
+                if not VALIDATION_SKIP_REFS[refLower] and not createdNames[refLower] then
+                    local exists = findByName(ref)
+                    if not exists then
+                        table.insert(errors, ("Action %d (script '%s'): references '%s' which doesn't exist. Create it in a PRIOR action."):format(
+                            i, action.name or "?", ref
+                        ))
+                    end
+                end
+            end
+            for ref in action.source:gmatch(':FindFirstChild%("([^"]+)"%)') do
+                local refLower = ref:lower()
+                if not VALIDATION_SKIP_REFS[refLower] and not createdNames[refLower] then
+                    local exists = findByName(ref)
+                    if not exists then
+                        table.insert(errors, ("Action %d (script '%s'): references FindFirstChild('%s') which doesn't exist. Create it first."):format(
+                            i, action.name or "?", ref
+                        ))
+                    end
+                end
+            end
         end
-        return req(obj)
-    end
-
-
-	local ts = game:GetService("TweenService")
-	
-	local clickCount = 0
-	local lastClickTime = tick()
-	script.Parent.MouseButton1Click:Connect(function()
-		local currentTime = tick()
-		
-		script.Parent.TextTransparency = 1
-		ts:Create(script.Parent, TweenInfo.new(1),
-			{TextTransparency = 1}
-		):Play()
-		
-		-- Check if the time since the last click is within a certain threshold
-		if currentTime - lastClickTime < 0.5 then
-			clickCount = clickCount + 1
-		else
-			
-			clickCount = 1
-		end
-	
-		lastClickTime = currentTime
-	
-		if clickCount == 3 then
-			-- Triple-click detected
-	
-			ts:Create(getgenv().YARHM.Menu, TweenInfo.new(0.7, Enum.EasingStyle.Back, Enum.EasingDirection.Out), 
-				{Position = UDim2.fromScale(0.499, 0.041), Size = UDim2.fromOffset(441, 268)}
-			):Play()
-		end
-	end)
-	
-end
-local function EJGX_routine() -- Routine: StarterGui.YARHM.Open.Resizer
-    local script = Instance.new("LocalScript")
-    script.Name = "Resizer"
-    script.Parent = Converted["_Open"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+        -- create_challenge_system validation
+        if action.type == "create_challenge_system" then
+            local validTypes = { reach = true, survive = true, kill = true, collect = true }
+            local ct = action.challengeType
+            if ct and not validTypes[ct:lower()] then
+                table.insert(errors, ("Action %d (challenge '%s'): invalid challengeType '%s'. Valid: reach, survive, kill, collect"):format(
+                    i, action.name or "?", ct
+                ))
+            end
+            local tc = tonumber(action.targetCount)
+            if tc and (tc < 1 or tc > 1000) then
+                table.insert(errors, ("Action %d (challenge '%s'): targetCount must be 1-1000, got %s"):format(
+                    i, action.name or "?", tostring(tc)
+                ))
+            end
+            local w = tonumber(action.width)
+            local d = tonumber(action.depth)
+            local h = tonumber(action.height)
+            if w and (w < 1 or w > 500) then
+                table.insert(errors, ("Action %d (challenge '%s'): width must be 1-500, got %s"):format(i, action.name or "?", tostring(w)))
+            end
+            if d and (d < 1 or d > 500) then
+                table.insert(errors, ("Action %d (challenge '%s'): depth must be 1-500, got %s"):format(i, action.name or "?", tostring(d)))
+            end
+            if h and (h < 1 or h > 200) then
+                table.insert(errors, ("Action %d (challenge '%s'): height must be 1-200, got %s"):format(i, action.name or "?", tostring(h)))
+            end
         end
-        return req(obj)
-    end
-
-
-
-	local guiObject = script.Parent
-	local userInputService = game:GetService("UserInputService")
-	local ts = game:GetService("TweenService")
-	
-	local resizing = false
-	local initialMousePosition = nil
-	local initialSize = nil
-	local touchCount = 0
-	
-	-- Define the minimum width (50 pixels) and maximum width (initial width)
-	local MIN_WIDTH = 100
-	local MAX_WIDTH = guiObject.Size.X.Offset
-	
-	local function onInputBegan(input, gameProcessed)
-		if input.UserInputType == Enum.UserInputType.Touch then
-			touchCount = touchCount + 1
-		end
-	
-		if touchCount == 2 then
-			resizing = false
-			return
-		end
-	
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			resizing = true
-			initialMousePosition = input.Position
-			initialSize = guiObject.Size
-		end
-	end
-	
-	local function onInputEnded(input, gameProcessed)
-		if input.UserInputType == Enum.UserInputType.Touch then
-			touchCount = touchCount - 1
-		end
-	
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then		
-			resizing = false
-			initialMousePosition = nil
-			initialSize = nil
-			--ts:Create(guiObject.UIStroke, TweenInfo.new(1.2, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-			--	Transparency = 1
-			--}):Play()
-		end
-	end
-	
-	local function onInputChanged(input, gameProcessed)
-		if touchCount == 2 then
-			return
-		end
-	
-		if resizing and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-			local delta = input.Position - initialMousePosition
-			if math.abs(delta.X) > 50 then
-				local newWidth = math.clamp(initialSize.X.Offset + delta.X, MIN_WIDTH, MAX_WIDTH)
-				local newSize = UDim2.new(
-					initialSize.X.Scale,
-					newWidth,
-					initialSize.Y.Scale,
-					initialSize.Y.Offset
-				)
-				ts:Create(guiObject, TweenInfo.new(0.8, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-					Size = newSize
-				}):Play()
-				--guiObject.UIStroke.Transparency = 0
-			end
-		end
-	end
-	
-	guiObject.InputBegan:Connect(onInputBegan)
-	guiObject.InputEnded:Connect(onInputEnded)
-	userInputService.InputChanged:Connect(onInputChanged)
-	
-end
-local function FRPPL_routine() -- Routine: StarterGui.YARHM.FloatingButton.Keybinding
-    local script = Instance.new("LocalScript")
-    script.Name = "Keybinding"
-    script.Parent = Converted["_FloatingButton"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+        -- deeper script validation: detect workspace.X dot-access (forbidden by prompt rules)
+        if action.type == "create_script" and action.source then
+            local src = action.source
+            -- pattern: workspace.Something (dot-access)
+            for matchPos, _ in src:gmatch("()workspace%.%a") do
+                local contextStart = math.max(1, matchPos - 15)
+                local contextEnd = math.min(#src, matchPos + 25)
+                local snippet = src:sub(contextStart, contextEnd):gsub("\n", "\\n")
+                table.insert(errors, ("Action %d (script '%s'): uses 'workspace.X' dot-access at pos %d (\"...%s...\"). Use script.Parent:WaitForChild('X') instead."):format(
+                    i, action.name or "?", matchPos, snippet
+                ))
+                break
+            end
+            -- pattern: game.Workspace.Something
+            for matchPos, _ in src:gmatch("()game%.Workspace%.%a") do
+                local contextStart = math.max(1, matchPos - 15)
+                local contextEnd = math.min(#src, matchPos + 30)
+                local snippet = src:sub(contextStart, contextEnd):gsub("\n", "\\n")
+                table.insert(errors, ("Action %d (script '%s'): uses 'game.Workspace.X' dot-access at pos %d (\"...%s...\"). Use script.Parent:WaitForChild('X') instead."):format(
+                    i, action.name or "?", matchPos, snippet
+                ))
+                break
+            end
         end
-        return req(obj)
     end
 
-
-	
-end
-local function VOBA_routine() -- Routine: StarterGui.YARHM.FloatingButton.Invisible
-    local script = Instance.new("LocalScript")
-    script.Name = "Invisible"
-    script.Parent = Converted["_FloatingButton"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+    -- cross-action ordering check: scripts referencing parts must come after those parts are created
+    do
+        local createdByAction = {}
+        for i, action in ipairs(actions) do
+            if (action.type == "create_instance" or action.type == "create_compound") and action.name then
+                createdByAction[action.name:lower()] = i
+            end
+            if action.type == "create_enclosure" and action.name then
+                createdByAction[action.name:lower()] = i
+            end
+            if action.type == "create_challenge_system" and action.name then
+                createdByAction[action.name:lower()] = i
+            end
+            if action.type == "create_multiple" and action.namePrefix then
+                createdByAction[action.namePrefix:lower()] = i
+            end
         end
-        return req(obj)
-    end
-
-
-	--local ts = game:GetService("TweenService")
-	
-	--local holding = false
-	--local invisible = false
-	
-	
-	
-	--script.Parent.MouseButton1Down:Connect(function()
-	--	holding = true
-	--	task.wait(0.5)
-	--	if holding then
-	--		if not invisible then 
-	--			invisible = true
-	--			ts:Create(script.Parent, TweenInfo.new(1, Enum.EasingStyle.Cubic, Enum.EasingDirection.InOut), {
-	--				BackgroundTransparency = 1,
-	--				TextTransparency = 1
-	--			}):Play()
-	--			ts:Create(script.Parent.UIStroke, TweenInfo.new(1, Enum.EasingStyle.Cubic, Enum.EasingDirection.InOut), {
-	--				Transparency = 0.7
-	--			}):Play()
-	--		else
-	--			invisible = false
-	--			ts:Create(script.Parent, TweenInfo.new(1, Enum.EasingStyle.Cubic, Enum.EasingDirection.InOut), {
-	--				BackgroundTransparency = 0,
-	--				TextTransparency = 0
-	--			}):Play()
-	--			ts:Create(script.Parent.UIStroke, TweenInfo.new(1, Enum.EasingStyle.Cubic, Enum.EasingDirection.InOut), {
-	--				Transparency = 0
-	--			}):Play()
-	--		end
-	--	end
-	--end)
-	
-	--script.Parent.MouseButton1Up:Connect(function()
-	--	holding = false
-	--end)
-end
-local function SZSARYI_routine() -- Routine: StarterGui.YARHM.AddCustomModule.Add.LocalScript
-    local script = Instance.new("LocalScript")
-    script.Name = "LocalScript"
-    script.Parent = Converted["_Add"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+        for i, action in ipairs(actions) do
+            if action.type == "create_script" and action.source then
+                for ref in action.source:gmatch(':WaitForChild%("([^"]+)"%)') do
+                    local refLower = ref:lower()
+                    if not VALIDATION_SKIP_REFS[refLower] and createdByAction[refLower] and createdByAction[refLower] > i then
+                        table.insert(errors, ("Action %d (script '%s'): references part '%s' via WaitForChild, but that part is created LATER in action %d. Parts must be created BEFORE scripts that reference them."):format(
+                            i, action.name or "?", ref, createdByAction[refLower]
+                        ))
+                    end
+                end
+                for ref in action.source:gmatch(':FindFirstChild%("([^"]+)"%)') do
+                    local refLower = ref:lower()
+                    if not VALIDATION_SKIP_REFS[refLower] and createdByAction[refLower] and createdByAction[refLower] > i then
+                        table.insert(errors, ("Action %d (script '%s'): references FindFirstChild('%s'), but that part is created LATER in action %d. Reorder: create first, then script."):format(
+                            i, action.name or "?", ref, createdByAction[refLower]
+                        ))
+                    end
+                end
+            end
         end
-        return req(obj)
     end
 
-
-	local ts = game:GetService("TweenService")
-	
-	local function loadModule(modulelink)
-		if script.Parent.Parent.TextBox.Text == "" and not modulelink then return end
-		ts:Create(script.Parent.Parent.Parent.Menu.UIScale, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Scale = 1
-		}):Play()
-		ts:Create(script.Parent.Parent, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Position = UDim2.fromScale(0.5, -0.5)
-		}):Play()
-	
-	
-		local lastmodule = getgenv().Modules[#getgenv().Modules]
-		require(script.Parent.Parent.Parent.FUNCTIONS).notification("Module is loading...")
-	
-		local moduleload = modulelink
-		if script.Parent.Parent.TextBox.Text ~= "" then
-			moduleload = script.Parent.Parent.TextBox.Text
-		end
-	
-		local moduleEx = loadstring(game:HttpGet(moduleload))
-		--setfenv(moduleEx, {FUNCTIONS = require(script.Parent.Parent.Parent.FUNCTIONS)})
-	
-		local newmodule = moduleEx()
-		if newmodule["BG_TASK"] then
-			coroutine.wrap(newmodule["BG_TASK"])()
-		end
-		if getgenv().Modules[#getgenv().Modules] ~= lastmodule then
-			local newmodule = getgenv().Modules[#getgenv().Modules]
-			require(script.Parent.Parent.Parent.FUNCTIONS).notification("New module added: " .. newmodule["Name"])
-			require(script.Parent.Parent.Parent.FUNCTIONS).refreshlist()
-		else
-			require(script.Parent.Parent.Parent.FUNCTIONS).notification("Module failed to load...")
-		end
-	end
-	script.Parent.MouseButton1Click:Connect(function() loadModule() end)
-	
-	-- Additional plugin modules
-	task.wait(1.5)
-	if game.gameId == 5794311181 then loadModule("https://yarhm.mhi.im/static/cnasim.yrmdl") end -- CNA Simulator
-end
-local function UVBTWP_routine() -- Routine: StarterGui.YARHM.AddCustomModule.Cancel.LocalScript
-    local script = Instance.new("LocalScript")
-    script.Name = "LocalScript"
-    script.Parent = Converted["_Cancel"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+    -- ⚠️ فحص تنظيم: لو فيه أكثر من create_instance بدون containerName للقطع
+    -- اللي مش GUI أو Script (لأن GUI عنده ScreenGui اللي هو container أصلاً)
+    do
+        local guiClasses = { ScreenGui = true, Frame = true, TextLabel = true, TextButton = true,
+            ImageLabel = true, ScrollingFrame = true, BillboardGui = true, ViewportFrame = true }
+        local noContainerCount = 0
+        local containerNamesUsed = {}
+        for _, action in ipairs(actions) do
+            if action.type == "create_instance" and not guiClasses[action.className] and action.className ~= "Script" and action.className ~= "LocalScript" then
+                if not action.containerName or action.containerName == "" then
+                    noContainerCount = noContainerCount + 1
+                else
+                    containerNamesUsed[action.containerName] = (containerNamesUsed[action.containerName] or 0) + 1
+                end
+            end
         end
-        return req(obj)
-    end
-
-
-	local ts = game:GetService("TweenService")
-	
-	script.Parent.MouseButton1Click:Connect(function()
-		ts:Create(script.Parent.Parent.Parent.Menu.UIScale, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Scale = 1
-		}):Play()
-		ts:Create(script.Parent.Parent, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Position = UDim2.fromScale(0.5, -0.5)
-		}):Play()
-	end)
-end
-local function HCWF_routine() -- Routine: StarterGui.YARHM.Menu.UIStroke.UIGradient.Animator
-    local script = Instance.new("LocalScript")
-    script.Name = "Animator"
-    script.Parent = Converted["_UIGradient4"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+        local distinctContainers = 0
+        for _ in pairs(containerNamesUsed) do distinctContainers = distinctContainers + 1 end
+        if noContainerCount >= 3 then
+            table.insert(errors, ("You created %d separate parts via create_instance without any containerName. Per the ORGANIZATION RULE, give them all the SAME containerName so they group under one Folder instead of scattering loose parts in the Explorer."):format(noContainerCount))
+        elseif distinctContainers > 1 and noContainerCount == 0 then
+            table.insert(errors, "You used multiple different containerName values for parts that appear to belong to the same build. Use ONE consistent containerName for all parts of a single logical build.")
         end
-        return req(obj)
     end
 
-
-	local ts = game:GetService("TweenService")
-	
-	ts:Create(script.Parent, TweenInfo.new(
-		10, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut,
-		math.huge, false), {
-			Rotation = -180
-		}):Play()
+    return errors
 end
-local function AWDPHWS_routine() -- Routine: StarterGui.YARHM.Menu.CloseArea.CloseOpen
-    local script = Instance.new("LocalScript")
-    script.Name = "CloseOpen"
-    script.Parent = Converted["_CloseArea"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+
+local function requestPlan(question, retryCount, accumUsage)
+    retryCount = retryCount or 0
+    accumUsage = accumUsage or { prompt_tokens = 0, completion_tokens = 0, total_tokens = 0 }
+    local maxRetries = 2
+
+    local messages = {}
+    if CURRENT_PROVIDER ~= "nvidia" then
+        table.insert(messages, { role = "system", content = SYSTEM_PROMPT })
+    end
+
+    -- Only send history and scene if they have content (saves tokens)
+    local hasScene = next(sceneState) ~= nil
+    if hasScene then
+        for _, histMsg in ipairs(buildHistoryMessages()) do
+            table.insert(messages, histMsg)
         end
-        return req(obj)
     end
 
+    local sceneJson = ""
+    if hasScene then
+        sceneJson = buildSceneTree()
+    end
+    local enrichedQuestion = question
+    if sceneJson ~= "" then
+        enrichedQuestion = question .. "\n\n[current_scene]\n" .. sceneJson .. "\n[/current_scene]"
+    end
 
-	local TweenService = game:GetService("TweenService")
-	local RunService = game:GetService("RunService")
-	local UserInputService = game:GetService("UserInputService")
-	
-	local menu = script.Parent.Parent
-	local Spring = require(menu.Parent.Spring)
-	local DraggableObject = require(menu.Parent.DraggableObject)
-	local Bezier = require(menu.Parent.Bezier)
-	
-	-- Tween the TextLabel transparency
-	--TweenService:Create(script.Parent.TextLabel, TweenInfo.new(20, Enum.EasingStyle.Linear), {
-	--	TextTransparency = 1,
-	--	BackgroundTransparency = 1
-	--}):Play()
-	
-	local closed = false
-	local springing = false
-	
-	local closing
-	
-	local lastPos = UDim2.fromScale(0.5, 0.5)
-	local closedLastPos = UDim2.fromScale(0.5, 0.1)
-	
-	-- Initialize springs for menu position and size
-	local MenuPosXScale = Spring.new(0.7, 30, 160, menu.Position.X.Scale, 0, menu.Position.X.Scale)
-	local MenuPosYScale = Spring.new(0.7, 45, 190, 0.05, 0, 0.05)
-	local MenuPosXOffset = Spring.new(0.7, 30, 160, 0, 0)
-	local MenuPosYOffset = Spring.new(0.7, 45, 190, 0, 0)
-	local MenuSizeXOffset = Spring.new(1, 25, 120, menu.Size.X.Offset, 0, menu.Size.X.Offset)
-	local MenuSizeYOffset = Spring.new(1, 25, 120, menu.Size.Y.Offset, 0, menu.Size.Y.Offset)
-	
-	local MenuRotation = Spring.new(1, 18, 100, menu.Rotation, 0, menu.Rotation)
-	
-	
-	-- Functions to update spring goals and offsets
-	local function setSpringPosGoal(udim2)
-		MenuPosXScale:SetGoal(udim2.X.Scale)
-		MenuPosYScale:SetGoal(udim2.Y.Scale)
-		MenuPosXOffset:SetGoal(udim2.X.Offset)
-		MenuPosYOffset:SetGoal(udim2.Y.Offset)
-	end
-	
-	local function setSpringSizeGoal(udim2)
-		MenuSizeXOffset:SetGoal(udim2.X.Offset)
-		MenuSizeYOffset:SetGoal(udim2.Y.Offset)
-	end
-	
-	-- Render step to update menu position and size based on spring values
-	RunService.RenderStepped:Connect(function()
-		if springing then
-			menu.Position = UDim2.new(MenuPosXScale.Offset, MenuPosXOffset.Offset, MenuPosYScale.Offset, MenuPosYOffset.Offset)
-			menu.Size = UDim2.fromOffset(MenuSizeXOffset.Offset, MenuSizeYOffset.Offset)
-			menu.Rotation = MenuRotation.Offset
-			MenuRotation:SetGoal(0)
-		end
-	end)
-	
-	-- Initialize draggable menu
-	local MenuDrag = DraggableObject.new(script.Parent, menu, false, true)
-	MenuDrag:Enable()
-	
-	local OpenerMenuDrag = DraggableObject.new(script.Parent.Parent.CanvasGroup.Opener, menu, false, true)
-	OpenerMenuDrag:Enable()
-	local OpenerDraggable = true
-	
-	textHidden = false
-	
-	
-	-- Dragging behavior
-	local deltaFrom = menu.Position
-	MenuDrag.Dragged = function(pos)
-		--if not textHidden then
-		--	textHidden = true
-		--	TweenService:Create(script.Parent.TextLabel, TweenInfo.new(1, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-		--		TextTransparency = 1,
-		--		BackgroundTransparency = 1
-		--	}):Play()
-		--end
-		local delta = pos - deltaFrom
-		deltaFrom = pos
-		MenuRotation:SetGoal(delta.X.Offset * 0.5)
-		setSpringPosGoal(pos)
-		TweenService:Create(menu.UIScale, TweenInfo.new(0.6, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-			Scale = 0.95
-		}):Play()
-	end
-	
-	OpenerMenuDrag.Dragged = function(pos)
-		if OpenerDraggable then
-			closedLastPos = pos
-			setSpringPosGoal(pos)
-		end
-	end
-	
-	script.Parent.MouseButton1Click:Connect(function()
-		if not textHidden then
-			textHidden = true
-			TweenService:Create(script.Parent.TextLabel, TweenInfo.new(1, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-				TextTransparency = 1,
-				BackgroundTransparency = 1
-			}):Play()
-		end
-		TweenService:Create(menu, TweenInfo.new(2, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-			AnchorPoint = Vector2.new(0.5, 0.5)
-		}):Play()
-		springing = true
-		setSpringPosGoal(closedLastPos)
-		setSpringSizeGoal(UDim2.fromOffset(60, 60))
-		--script.Parent.ZIndex = script.Parent.ZIndex - 2
-		if not menu.Area:FindFirstChildWhichIsA("UICorner") then
-			Instance.new("UICorner", menu.Area)
-		end
-		menu.Area:FindFirstChildWhichIsA("UICorner").CornerRadius = UDim.new(0, 16)
-		task.spawn(function() task.wait(0.05) menu.List.Visible = false end)
-		menu.CanvasGroup.Visible = true
-		OpenerDraggable = true
-		if closing then closing:Cancel() end
-		TweenService:Create(menu.CanvasGroup, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-			GroupTransparency = 0
-		}):Play()
-	end)
-	
-	MenuDrag.DragEnded = function(vel)
-		TweenService:Create(
-			menu.UIScale,
-			TweenInfo.new(0.6, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out),
-			{ Scale = 1 }
-		):Play()
-	
-		if math.abs(vel.Y) > 10 then
-			local thrownPosition = menu.Position
-	
-			if not textHidden then
-				textHidden = true
-				TweenService:Create(
-					script.Parent.TextLabel,
-					TweenInfo.new(1, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out),
-					{
-						TextTransparency = 1,
-						BackgroundTransparency = 1
-					}
-				):Play()
-			end
-	
-			TweenService:Create(
-				menu,
-				TweenInfo.new(2, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out),
-				{ AnchorPoint = Vector2.new(0.5, 0.5) }
-			):Play()
-			
-			local farPos = Vector3.new(thrownPosition.X.Offset + vel.X * 10, thrownPosition.Y.Offset + vel.Y * 10, 0)
-	
-			springing = true
-			
-			local bezierCurve = Bezier.new(
-				Vector3.new(thrownPosition.X.Offset, thrownPosition.Y.Offset, 0),
-				farPos,
-				Vector3.new(closedLastPos.X.Offset, closedLastPos.Y.Offset, 0)
-			)
-			local points = bezierCurve:GetPath(0.5)
-	
-			--setSpringPosGoal(UDim2.new(closedLastPos.X.Scale, farPos.X, closedLastPos.Y.Scale, farPos.Y))
-			setSpringPosGoal(UDim2.new(closedLastPos.X.Scale, points[math.ceil(#points/2)].X, closedLastPos.Y.Scale, points[math.ceil(#points/2)].Y))
-			setSpringSizeGoal(UDim2.fromOffset(60 - vel.Y * 2, 60 - vel.Y * 2))
-	
-			task.wait(0.1)
-	
-			--task.spawn(function()
-			--	for _, point in bezierCurve:GetPath(0.08) do
-			--		setSpringPosGoal(UDim2.new(closedLastPos.X.Scale, point.X, closedLastPos.Y.Scale, point.Y))
-			--		task.wait()
-			--	end
-			--end)
-	
-			setSpringSizeGoal(UDim2.fromOffset(60, 60))
-			setSpringPosGoal(UDim2.new(closedLastPos.X.Scale, closedLastPos.X.Offset, closedLastPos.Y.Scale, closedLastPos.Y.Offset))
-			menu.Area.UICorner.CornerRadius = UDim.new(0, 16)
-			task.delay(0.25, function() menu.List.Visible = false end)
-			menu.CanvasGroup.Visible = true
-	
-			OpenerDraggable = true
-	
-			if closing then closing:Cancel() end
-	
-			TweenService:Create(
-				menu.CanvasGroup,
-				TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out),
-				{ GroupTransparency = 0 }
-			):Play()
-		else
-			lastPos = menu.Position
-		end
-	end
-	
-	
-	-- Opener button behavior
-	local function sign(n) if n>0 then return 1 elseif n<0 then return -1 else return 0 end end
-	local function openMenu()
-		TweenService:Create(menu, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-			AnchorPoint = Vector2.new(0.5, 0)
-		}):Play()
-	
-		local bezierCurve = Bezier.new(
-			Vector3.new(closedLastPos.X.Offset, closedLastPos.Y.Offset, 0),
-			Vector3.new(
-				(closedLastPos.X.Offset + lastPos.X.Offset) / 2,
-				lastPos.Y.Offset + (math.abs(lastPos.Y.Offset - closedLastPos.Y.Offset) * 2.5 * -math.sign(closedLastPos.Y.Offset - lastPos.Y.Offset)),
-				0
-			),
-			Vector3.new(lastPos.X.Offset, lastPos.Y.Offset, 0)
-		)
-	
-		task.spawn(function()
-			for _, point in bezierCurve:GetPath(0.2) do
-				setSpringPosGoal(UDim2.new(closedLastPos.X.Scale, point.X, closedLastPos.Y.Scale, point.Y))
-				task.wait() task.wait() -- 2 heartbeats uwu
-			end
-		end)
-		--setSpringPosGoal(lastPos)
-		setSpringSizeGoal(UDim2.fromOffset(441, 268))
-		OpenerDraggable = false
-		--script.Parent.ZIndex = script.Parent.ZIndex + 2
-		menu.Area.UICorner.CornerRadius = UDim.new(0, 0)
-		menu.List.Visible = true
-		closing = TweenService:Create(menu.CanvasGroup, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-			GroupTransparency = 1
-		})
-		closing:Play()
-		closing.Completed:Once(function(state)
-			menu.CanvasGroup.Visible = false
-		end)
-	end
-	menu.CanvasGroup.Opener.MouseButton1Click:Connect(openMenu)
-	UserInputService.InputBegan:Connect(function(inp, proc)
-		if proc then return end
-	
-		if UserInputService:IsKeyDown(Enum.KeyCode.LeftAlt) and inp.KeyCode == Enum.KeyCode.Y then
-			openMenu()
-		end
-	end)
-	
-	-- Parallax camera offset
-	local RunService = game:GetService("RunService")
-	local cam = workspace.CurrentCamera
-	
-	local lastLook = cam.CFrame.LookVector
-	local uiOffset = Vector2.new(0, 0)
-	local prevUiOffset = Vector2.new(0, 0)
-	
-	local function normalizeAngle(angle)
-		while angle > math.pi do angle = angle - 2 * math.pi end
-		while angle <= -math.pi do angle = angle + 2 * math.pi end
-		return angle
-	end
-	
-	RunService.RenderStepped:Connect(function(dt)
-		local look = cam.CFrame.LookVector
-	
-		local oldYaw   = math.atan2(lastLook.X, lastLook.Z)        
-		local newYaw   = math.atan2(look.X, look.Z)
-	
-		local oldPitch = math.asin(math.clamp(lastLook.Y, -1, 1))
-		local newPitch = math.asin(math.clamp(look.Y, -1, 1))
-	
-		local deltaYaw   = normalizeAngle(newYaw - oldYaw)
-		local deltaPitch = newPitch - oldPitch  
-	
-		local targetOffset = Vector2.new(deltaYaw * 15, deltaPitch * 15)
-	
-		uiOffset = uiOffset:Lerp(targetOffset, 0.2)
-		--uiOffset = uiOffset * Vector2.new(-1, 1)
-	
-		
-		if not OpenerDraggable then
-			MenuPosXOffset:SetGoal((MenuPosXOffset.Goal - prevUiOffset.X) + uiOffset.X)
-			MenuPosYOffset:SetGoal((MenuPosYOffset.Goal - prevUiOffset.Y) + uiOffset.Y)
-		end
-		prevUiOffset = uiOffset
-		
-		lastLook = look
-	end)
-	
-	
-	
-	script.Parent.AllowForSpring.Event:Wait()
-	springing = true
-end
-local function VTLALB_routine() -- Routine: StarterGui.YARHM.Menu.List.AutoSetup
-    local script = Instance.new("LocalScript")
-    script.Name = "AutoSetup"
-    script.Parent = Converted["_List"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+    if CURRENT_PROVIDER == "nvidia" then
+        enrichedQuestion = "[System Instructions]\n" .. SYSTEM_PROMPT .. "\n\n[User Request]\n" .. enrichedQuestion
+    end
+    if retryCount > 0 then
+        local retryMsg = "⚠️ Your last response had issues."
+        if _lastValidationErrors then
+            retryMsg = retryMsg .. "\nFix these errors in your actions:\n- " .. table.concat(_lastValidationErrors, "\n- ")
+            _lastValidationErrors = nil
+        else
+            retryMsg = retryMsg .. " Send only valid JSON without extra text."
         end
-        return req(obj)
+        enrichedQuestion = enrichedQuestion .. "\n\n" .. retryMsg
+    end
+    table.insert(messages, { role = "user", content = enrichedQuestion })
+
+    local effort = classifyEffort(question)
+    local raw, err, usage = callAI(messages, nil, effort)
+    if usage and type(usage) == "table" then
+        accumUsage.prompt_tokens = accumUsage.prompt_tokens + (tonumber(usage.prompt_tokens) or 0)
+        accumUsage.completion_tokens = accumUsage.completion_tokens + (tonumber(usage.completion_tokens) or 0)
+        accumUsage.total_tokens = accumUsage.total_tokens + (tonumber(usage.total_tokens) or 0)
+    end
+    if not raw then
+        return nil, err, accumUsage
     end
 
-
-	--local ts = game:GetService("TweenService")
-	
-	
-	--local States = {}
-	
-	--local FloatingButtonConnectionsMouse = {}
-	--local FloatingButtonConnectionsTouch = {}
-	
-	--task.wait(0.1)
-	
-	--AREA = script.Parent.Parent.Area
-	
-	--local function calculateWidth(n)
-	--	if n <= 3 then
-	--		return 30
-	--	else
-	--		local base = 30
-	--		local additional = math.floor((n - 3) / 3) * 30
-	--		return base + additional
-	--	end
-	--end
-	
-	----local listlayout = Instance.new("UIListLayout")
-	----listlayout.Parent = AREA
-	----listlayout.Padding = UDim.new(0, 10)
-	----listlayout.FillDirection = Enum.FillDirection.Vertical
-	----listlayout.SortOrder = Enum.SortOrder.LayoutOrder
-	----listlayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	
-	
-	
-	
-	--task.wait(.5) -- magic number to wait modules to load lmao
-	--task.spawn(function()
-	--	require(script.Parent.Parent.Parent.FUNCTIONS).refreshlist()
-	--	--for i = 1, 10 do
-	--	--	task.wait(.1)
-	--	--	require(script.Parent.Parent.Parent.FUNCTIONS).refreshlist()
-	--	--end
-	--end)
-end
-local function TVLRH_routine() -- Routine: StarterGui.YARHM.Menu.List.AddCustomModule.LocalScript
-    local script = Instance.new("LocalScript")
-    script.Name = "LocalScript"
-    script.Parent = Converted["_AddCustomModule1"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+    local plan = tryExtractJson(raw)
+    if not plan then
+        logToFile("Impure JSON response (request: " .. question .. ")", raw)
+        if retryCount < maxRetries then
+            return requestPlan(question, retryCount + 1, accumUsage)
         end
-        return req(obj)
+        return nil, "❌ Could not parse AI plan (not valid JSON). Raw response saved to: " .. LOG_FILE, accumUsage
     end
 
-
-	local ts = game:GetService("TweenService")
-	
-	script.Parent.MouseButton1Click:Connect(function()
-		ts:Create(script.Parent.Parent.Parent.UIScale, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Scale = 0.9
-		}):Play()
-		ts:Create(script.Parent.Parent.Parent.Parent.AddCustomModule, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Position = UDim2.fromScale(0.5, 0.5)
-		}):Play()
-	end)
-end
-local function KUFNO_routine() -- Routine: StarterGui.YARHM.FloatingButtonSetting.ControlBarContainer.ControlBar.Visibility.LocalScript
-    local script = Instance.new("LocalScript")
-    script.Name = "LocalScript"
-    script.Parent = Converted["_Visibility"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+    if plan.actions and type(plan.actions) == "table" and retryCount < maxRetries then
+        local validationErrors = validateActions(plan.actions)
+        if #validationErrors > 0 then
+            logToFile("Validation errors (request: " .. question .. ")", table.concat(validationErrors, "\n"))
+            _lastValidationErrors = validationErrors
+            return requestPlan(question, retryCount + 1, accumUsage)
         end
-        return req(obj)
     end
-
-
-	script.Parent.MouseButton1Click:Connect(function()
-		getgenv().YARHMFUNCTIONS.ftToggleVisibility()
-	end)
+    return plan, nil, accumUsage
 end
-local function XLYNZG_routine() -- Routine: StarterGui.YARHM.FloatingButtonSetting.ControlBarContainer.ControlBar.Lock.LocalScript
-    local script = Instance.new("LocalScript")
-    script.Name = "LocalScript"
-    script.Parent = Converted["_Lock1"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+
+local function addLog(msg, isErr)
+    if not displayArea or not displayArea.Parent then return end
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, -10, 0, 20)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = msg
+    lbl.TextColor3 = isErr and C.red or C.yellow
+    lbl.TextSize = 10
+    lbl.Font = Enum.Font.Code
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = displayArea
+    table.insert(_logLabels, lbl)
+    task.wait()
+    if displayArea and displayArea.Parent then
+        displayArea.CanvasPosition = Vector2.new(0, displayArea.CanvasSize.Y.Offset)
+    end
+    return lbl
+end
+
+local function _runRequest(question)
+    if not question or question == "" then
+        _processingRequest = false
+        return
+    end
+    _processingRequest = true
+    CURRENT_REQUEST_TEXT = question
+    _batchCreated = {}
+    _batchPlacedGrid = nil
+
+    task.spawn(function()
+        local loading = Instance.new("TextLabel")
+        local runOk, runErr = pcall(function()
+            loading.Size = UDim2.new(1, -10, 0, 30)
+            loading.BackgroundTransparency = 1
+            local modelShort = (CURRENT_MODEL_LABEL or "?"):match("^%s*(.-)%s*$")
+            if modelShort then modelShort = modelShort:sub(1,20) else modelShort = "?" end
+            loading.Text = "🧠 Planning [" .. modelShort .. "] ."
+            loading.TextColor3 = C.textDim
+            loading.TextSize = 11
+            loading.Font = Enum.Font.Gotham
+            loading.Parent = displayArea
+
+            -- Simple dot animation (no Heartbeat — saves CPU)
+            task.spawn(function()
+                local step = 0
+                while loading and loading.Parent do
+                    step = step + 1
+                    local dots = string.rep(".", (step % 3) + 1)
+                    loading.Text = "🧠 Planning [" .. modelShort .. "] " .. dots
+                    task.wait(0.4)
+                end
+            end)
+            local startTime = tick()
+            addLog("📡 Sending to " .. CURRENT_PROVIDER:upper() .. "...")
+            local plan, err, usage = requestPlan(question)
+            addLog("📦 Parsing response...")
+            local elapsed = tick() - startTime
+
+
+            local function showCostLine()
+                if usage and type(usage) == "table" and (usage.prompt_tokens or 0) + (usage.completion_tokens or 0) > 0 then
+                    local pIn = usage.prompt_tokens or 0
+                    local pOut = usage.completion_tokens or 0
+                    -- للـ OpenCode: مجاني دائماً — السعر صفر
+                    local cost = 0
+                    local costStr
+                    if CURRENT_PROVIDER == "nvidia" then
+                        cost = (pIn / 1000000) * PRICE_PER_1M_INPUT + (pOut / 1000000) * PRICE_PER_1M_OUTPUT
+                        costStr = ("💰 $%.6f"):format(cost)
+                    else
+                        costStr = "💚 Free"
+                    end
+                    addMessage(("⏱️ %.1fs | 🔤 %d in / %d out | %s"):format(elapsed, pIn, pOut, costStr), false, false, true)
+                else
+                    addMessage(("⏱️ %.1fs | 🔤 token usage not reported by server"):format(elapsed), false, false, true)
+                end
+            end
+
+            if not plan then
+                addMessage(err or "❌ Unknown error", false, true)
+                pushHistory(question, "Failed to execute request (error: " .. tostring(err) .. ")")
+                showCostLine()
+                return
+            end
+
+            if plan.thought and type(plan.thought) == "string" and plan.thought ~= "" then
+                addMessage("🧠 " .. plan.thought, false, false, true)
+            end
+
+            if plan.reply and type(plan.reply) == "string" and plan.reply ~= "" then
+                addMessage("🤖 " .. plan.reply, false)
+            end
+
+            showCostLine()
+
+            local actions = plan.actions
+            if type(actions) ~= "table" or #actions == 0 then
+                return
+            end
+
+            local summaryParts = {}
+            local totalActions = #actions
+            -- FIX v1.4: لا delay أبداً للباتشات الكبيرة — نستخدم task.wait فقط للباتشات الصغيرة (بصرياً)
+            local visualDelay = totalActions > 20 and 0 or (totalActions > 8 and 0.01 or 0.04)
+
+            addLog("⚙️ Executing " .. #actions .. " action(s)...")
+            for actionIdx, action in ipairs(actions) do
+                if type(action) ~= "table" or not action.type then
+                    addMessage("⚠️ Skipped invalid action from AI", false, false, true)
+                else
+                    _lastClickInstance = nil
+                    addLog("  [" .. actionIdx .. "/" .. totalActions .. "] " .. (action.type or "?") .. " → " .. (action.name or action.className or ""))
+                    local successOk, didSucceed, resultMessage = pcall(executeAction, action)
+                    local clickInst = _lastClickInstance
+                    if successOk then
+                        addMessage(resultMessage or "✅ Done", false, not didSucceed, true, clickInst)
+                        if didSucceed then
+                            local detail = tostring(action.type)
+                            if action.className then detail = detail .. "(" .. tostring(action.className) .. ")" end
+                            if action.name then detail = detail .. " name=" .. tostring(action.name) end
+                            if action.namePrefix then detail = detail .. " prefix=" .. tostring(action.namePrefix) end
+                            if action.containerName then detail = detail .. " container=" .. tostring(action.containerName) end
+                            if action.count then detail = detail .. " count=" .. tostring(action.count) end
+                            table.insert(summaryParts, detail)
+                        end
+                    else
+                        addMessage("❌ Execution error: " .. tostring(didSucceed), false, true)
+                        table.insert(summaryParts, tostring(action.type) .. " failed: " .. tostring(didSucceed))
+                    end
+                    if actionIdx < totalActions then
+                        task.wait(visualDelay)
+                    end
+                end
+            end
+
+            local summary
+            if #summaryParts > 0 then
+                summary = "Executed: " .. table.concat(summaryParts, " | ")
+            else
+                summary = "No actions succeeded for this request."
+            end
+
+            if #_batchCreated > 0 then
+                table.insert(undoStack, {
+                    instances = _batchCreated,
+                    summary = summary
+                })
+                while #undoStack > undoLimit do
+                    table.remove(undoStack, 1)
+                end
+            end
+
+            pushHistory(question, summary)
+        end)
+
+        if not runOk then
+            addMessage("❌ " .. tostring(runErr), false, true)
         end
-        return req(obj)
-    end
-
-
-	script.Parent.MouseButton1Click:Connect(function()
-		getgenv().YARHMFUNCTIONS.ftToggleLock()
-	end)
-end
-local function XAPKH_routine() -- Routine: StarterGui.YARHM.FloatingButtonSetting.ControlBarContainer.ControlBar.Exit.LocalScript
-    local script = Instance.new("LocalScript")
-    script.Name = "LocalScript"
-    script.Parent = Converted["_Exit"]
-    local req = require
-    local require = function(obj)
-        local routine = routine_module_scripts[obj]
-        if routine then
-            return routine()
+        pcall(function()
+            if loading and loading.Parent then
+                loading:Destroy()
+            end
+        end)
+        pcall(function()
+            for _, lbl in ipairs(_logLabels) do
+                if lbl and lbl.Parent then lbl:Destroy() end
+            end
+            _logLabels = {}
+        end)
+        if #_requestQueue > 0 then
+            local nextQ = table.remove(_requestQueue, 1)
+            task.spawn(function() _runRequest(nextQ) end)
+        else
+            _processingRequest = false
         end
-        return req(obj)
-    end
-
-
-	script.Parent.MouseButton1Click:Connect(function()
-		getgenv().YARHMFUNCTIONS.closeFinetuneFB()
-	end)
+    end)
 end
 
-coroutine.wrap(WMYX_routine)()
-coroutine.wrap(CEBY_routine)()
-coroutine.wrap(DSZIHQM_routine)()
-coroutine.wrap(EXEKBZ_routine)()
-coroutine.wrap(XXZOB_routine)()
-coroutine.wrap(ONOAH_routine)()
-coroutine.wrap(JFQXCG_routine)()
-coroutine.wrap(EJGX_routine)()
-coroutine.wrap(FRPPL_routine)()
-coroutine.wrap(VOBA_routine)()
-coroutine.wrap(SZSARYI_routine)()
-coroutine.wrap(UVBTWP_routine)()
-coroutine.wrap(HCWF_routine)()
-coroutine.wrap(AWDPHWS_routine)()
-coroutine.wrap(VTLALB_routine)()
-coroutine.wrap(TVLRH_routine)()
-coroutine.wrap(KUFNO_routine)()
-coroutine.wrap(XLYNZG_routine)()
-coroutine.wrap(XAPKH_routine)()
+local function sendQuestion()
+    local question = inputBox.Text
+    if question == "" then return end
+
+    if question == "/undo" or question == "undo" then
+        inputBox.Text = ""
+        if #undoStack == 0 then
+            addMessage("⚠️ Nothing to undo.", false, true)
+            return
+        end
+        local lastBatch = table.remove(undoStack)
+        local removed = 0
+        for _, entry in ipairs(lastBatch.instances) do
+            if type(entry) == "table" and entry._markedForDestroy then
+                addMessage("⚠️ Cannot restore: " .. tostring(entry._name) .. " (was already deleted)", false, false, true)
+            else
+                local inst = entry
+                if inst and inst.Parent then
+                    inst:Destroy()
+                    removed += 1
+                end
+            end
+        end
+        addMessage("↩️ Undone: " .. lastBatch.summary .. " (removed " .. removed .. " items)", false, false, true)
+        pushHistory("/undo", "Undid: " .. lastBatch.summary)
+        return
+    end
+
+    local findPrefix = "/find "
+    if question:lower():sub(1, #findPrefix) == findPrefix then
+        inputBox.Text = ""
+        local searchName = question:sub(#findPrefix + 1)
+        if searchName == "" then
+            addMessage("❌ Usage: /find Name", false, true)
+            return
+        end
+        local results = findAllByName(searchName)
+        if #results == 0 then
+            addMessage("❌ No instances found containing \"" .. searchName .. "\"", false, true)
+            return
+        end
+        local msg = "🔍 Found " .. #results .. " instance(s) for \"" .. searchName .. "\":"
+        for i, res in ipairs(results) do
+            msg = msg .. "\n  " .. i .. ". " .. res.Name .. " (" .. (res.ClassName or "?") .. ") → " .. getInstancePath(res)
+        end
+        addMessage(msg, false, false, true)
+        pushHistory("/find " .. searchName, "Found " .. #results .. " instances")
+        return
+    end
+
+    if question:lower() == "/diag" then
+        inputBox.Text = ""
+        addMessage("🧑 " .. question, true)
+        -- Real diagnostic test: create a test LocalScript, parent it to Workspace,
+        -- write Source, wait, read it back, and compare — raw result, no embellishment.
+        local testSource = "--diag test " .. tostring(os.time())
+        local testOk, testInst = pcall(function() return Instance.new("LocalScript") end)
+        if not testOk or not testInst then
+            addMessage("❌ Instance.new(\"LocalScript\") itself failed: " .. tostring(testInst), false, true)
+            return
+        end
+        testInst.Name = "SkillAI_DiagTest"
+        local p1ok = pcall(function() testInst.Source = testSource end)
+        local r1ok, r1val = pcall(function() return testInst.Source end)
+        local beforeParent = "Before parenting to game: write_ok=" .. tostring(p1ok) .. " read_ok=" .. tostring(r1ok)
+            .. " match=" .. tostring(r1ok and r1val == testSource)
+
+        testInst.Parent = Workspace
+        task.wait()
+        local p2ok = pcall(function() testInst.Source = testSource end)
+        task.wait()
+        local r2ok, r2val = pcall(function() return testInst.Source end)
+        local afterParent = "After parenting to game: write_ok=" .. tostring(p2ok) .. " read_ok=" .. tostring(r2ok)
+            .. " match=" .. tostring(r2ok and r2val == testSource)
+            .. " length=" .. tostring(r2ok and r2val and #r2val or 0)
+
+        local writefileAvail = "writefile available: " .. tostring(writefile ~= nil)
+        local setclipboardAvail = "setclipboard available: " .. tostring(setclipboard ~= nil)
+
+        testInst:Destroy()
+
+        -- Additional check: verify StarterPlayerScripts/StarterCharacterScripts are
+        -- the correct types (not fake Folders with the same name — the real root cause
+        -- of "Not Found" even when Source writing succeeds).
+        local spsClass = StarterPlayerScripts and StarterPlayerScripts.ClassName or "nil"
+        local scsClass = StarterCharacterScripts and StarterCharacterScripts.ClassName or "nil"
+        local spsCheck = "StarterPlayerScripts type: " .. spsClass
+            .. (spsClass == "StarterPlayerScripts" and " ✅ correct" or " ❌ wrong! Expected StarterPlayerScripts, not " .. spsClass)
+        local scsCheck = "StarterCharacterScripts type: " .. scsClass
+            .. (scsClass == "StarterCharacterScripts" and " ✅ correct" or " ❌ wrong! Expected StarterCharacterScripts, not " .. scsClass)
+
+        -- Real end-to-end test: create an actual LocalScript inside StarterPlayerScripts and verify we find it
+        local spsTestMsg = "Skipped (StarterPlayerScripts unavailable)"
+        if StarterPlayerScripts then
+            local sp2ok, sp2inst = pcall(function() return Instance.new("LocalScript") end)
+            if sp2ok and sp2inst then
+                sp2inst.Name = "SkillAI_DiagTest2"
+                sp2inst.Parent = StarterPlayerScripts
+                pcall(function() sp2inst.Source = testSource end)
+                task.wait()
+                local foundBack = StarterPlayerScripts:FindFirstChild("SkillAI_DiagTest2")
+                spsTestMsg = "Script inside StarterPlayerScripts found afterward: " .. tostring(foundBack ~= nil)
+                if foundBack then foundBack:Destroy() end
+            end
+        end
+
+        local finalVerdict
+        if r2ok and r2val == testSource and spsClass == "StarterPlayerScripts" then
+            finalVerdict = "✅ Result: Source writing works, and StarterPlayerScripts is the correct type. If you still see issues, tell me exactly what happens."
+        elseif spsClass ~= "StarterPlayerScripts" then
+            finalVerdict = "❌ Result: Found the root cause! StarterPlayerScripts is NOT the correct type in this session — this explains 'Not Found'. Try /diag after restarting the script with this update."
+        else
+            finalVerdict = "❌ Result: This Executor definitely blocks Source writing after parenting (confirmed by actual test, not guesswork)."
+        end
+
+        addMessage("🔬 Diagnostic result:\n" .. beforeParent .. "\n" .. afterParent .. "\n" .. writefileAvail .. "\n" .. setclipboardAvail
+            .. "\n" .. spsCheck .. "\n" .. scsCheck .. "\n" .. spsTestMsg .. "\n\n" .. finalVerdict, false, false, true)
+        pushHistory("/diag", "Ran Source-write diagnostic")
+        return
+    end
+
+    if question:lower() == "/clear" then
+        conversationHistory = {}
+        addMessage("🧹 History cleared. AI starts fresh.", false)
+        return
+    end
+
+    -- FIX: أمر /export — يصدّر تاريخ المحادثة كملف نصي أو ينسخه للـ clipboard
+    if question:lower() == "/export" then
+        inputBox.Text = ""
+        if #conversationHistory == 0 then
+            addMessage("⚠️ No conversation history to export.", false, false, true)
+            return
+        end
+        local lines = { "=== Skill-AI v1.3 Conversation Export ===" }
+        local ts = os.date and os.date("%Y-%m-%d %H:%M") or tostring(os.time())
+        table.insert(lines, "Date: " .. ts)
+        table.insert(lines, "Model: " .. CURRENT_MODEL_LABEL)
+        table.insert(lines, "Turns: " .. #conversationHistory)
+        table.insert(lines, "")
+        for i, turn in ipairs(conversationHistory) do
+            table.insert(lines, ("[%d] User: %s"):format(i, turn.user or ""))
+            table.insert(lines, ("    AI: %s"):format(turn.summary or ""))
+            table.insert(lines, "")
+        end
+        local exportStr = table.concat(lines, "\n")
+        local saved = false
+        -- محاولة حفظ ملف
+        if writefile then
+            local exportFile = "SkillAI_Export_" .. tostring(os.time()) .. ".txt"
+            pcall(function()
+                writefile(exportFile, exportStr)
+                addMessage("✅ Exported " .. #conversationHistory .. " turn(s) to: " .. exportFile, false, false, true)
+                saved = true
+            end)
+        end
+        -- نسخ للـ clipboard كبديل
+        if not saved and setclipboard then
+            local ok = pcall(function() setclipboard(exportStr) end)
+            if ok then
+                addMessage("📋 Copied " .. #conversationHistory .. " turn(s) to clipboard (no writefile available)", false, false, true)
+                saved = true
+            end
+        end
+        if not saved then
+            addMessage("⚠️ Export: writefile and setclipboard both unavailable in this executor.", false, false, true)
+        end
+        pushHistory("/export", "Exported " .. #conversationHistory .. " conversation turns")
+        return
+    end
+
+    if question:lower() == "/cleanup" or question:lower() == "/clearfiles" then
+        local cleaned = {}
+        if writefile and delfile then
+            pcall(function()
+                if isfile and isfile(LOG_FILE) then
+                    delfile(LOG_FILE)
+                    table.insert(cleaned, LOG_FILE)
+                end
+            end)
+            pcall(function()
+                local filesToDel = {}
+                if listfiles then
+                    for _, f in ipairs(listfiles("/")) do
+                        if type(f) == "string" and (f:find("SkillAI", 1, true) or f:find("skillai", 1, true)) then
+                            table.insert(filesToDel, f)
+                        end
+                    end
+                end
+                for _, f in ipairs(filesToDel) do
+                    pcall(function() delfile(f) end)
+                    table.insert(cleaned, f)
+                end
+            end)
+        end
+        -- clean up test instances in workspace
+        local removedCount = 0
+        for _, obj in ipairs(Workspace:GetDescendants()) do
+            if obj.Name:find("SkillAI_Diag", 1, true) or obj.Name:find("SkillAI_Test", 1, true) then
+                pcall(function() obj:Destroy() end)
+                removedCount = removedCount + 1
+            end
+        end
+        local msg = "🧹 Cleanup done."
+        if #cleaned > 0 then
+            msg = msg .. " Deleted " .. #cleaned .. " file(s): " .. table.concat(cleaned, ", ")
+        else
+            msg = msg .. " No files to delete (writefile/delfile not available)."
+        end
+        if removedCount > 0 then
+            msg = msg .. " Destroyed " .. removedCount .. " leftover test instance(s)."
+        end
+        addMessage(msg, false, false, true)
+        return
+    end
+
+    inputBox.Text = ""
+    addMessage("🧑 " .. question, true)
+    CURRENT_REQUEST_TEXT = question
+
+    -- request queue: if already processing, add to queue
+    if _processingRequest then
+        table.insert(_requestQueue, question)
+        addMessage("⏳ Queued... (" .. #_requestQueue .. " waiting)", false, false, true)
+        return
+    end
+    _processingRequest = true
+
+    task.spawn(function() _runRequest(question) end)
+end
+
+sendBtn.MouseButton1Click:Connect(sendQuestion)
+
+inputBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then sendQuestion() end
+end)
+
+task.spawn(function()
+    task.wait(1)
+    pcall(setupRespawnReRunner)
+    addMessage("🤖 Skill-AI v1.4\n📡 Model: " .. CURRENT_MODEL_LABEL .. "\n💡 /export لتصدير المحادثة | /clear | /undo | /find | /diag", false)
+end)
+
+print("[Skill-AI v1.4] Loaded | Timeout+Cache+SceneGC+FastRetry+HeightFix+BatchDelay fixes")
