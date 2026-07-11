@@ -1,4795 +1,4395 @@
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
+repeat
+    task.wait()
+until game:IsLoaded()
+
+-- ==================== UNIFIED SERVICE DECLARATIONS ====================
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+local HttpService = game:GetService("HttpService")
 local UserInputService = game:GetService("UserInputService")
-local Workspace = game:GetService("Workspace")
-
-local AIMLOCK_BIND_NAME = "__PlayerToolsAimlock"
-local FLY_BIND_NAME = "__PlayerToolsFly"
-local VEHICLE_FLY_BIND_NAME = "__PlayerToolsVehicleFly"
-
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
-local Global = (getgenv and getgenv()) or _G
+local Workspace = game:GetService("Workspace")
+local StarterGui = game:GetService("StarterGui")
+local Camera = Workspace.CurrentCamera
+local TextChatService = game:GetService("TextChatService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualUser = game:GetService("VirtualUser")
+local TeleportService = game:GetService("TeleportService")
 
-if type(Global.__PlayerToolsCleanup) == "function" then
-	pcall(Global.__PlayerToolsCleanup)
-elseif type(Global.__AxiomCleanup) == "function" then
-	pcall(Global.__AxiomCleanup)
-elseif type(Global.__ProjectESPCleanup) == "function" then
-	pcall(Global.__ProjectESPCleanup)
+local cloneref = (cloneref or clonereference or function(i) return i end)
+
+-- ==================== THEME SETUP ====================
+WindUI:AddTheme({
+    ["Name"] = "Dark",
+    ["Accent"] = "#18181b",
+    ["Dialog"] = "#18181b",
+    ["Outline"] = "#FFFFFF",
+    ["Text"] = "#FFFFFF",
+    ["Placeholder"] = "#999999",
+    ["Background"] = "#0e0e10",
+    ["Button"] = "#52525b",
+    ["Icon"] = "#a1a1aa"
+})
+
+WindUI:AddTheme({
+    ["Name"] = "Light",
+    ["Accent"] = "#f4f4f5",
+    ["Dialog"] = "#f4f4f5",
+    ["Outline"] = "#000000",
+    ["Text"] = "#000000",
+    ["Placeholder"] = "#666666",
+    ["Background"] = "#ffffff",
+    ["Button"] = "#e4e4e7",
+    ["Icon"] = "#52525b"
+})
+
+WindUI:AddTheme({
+    ["Name"] = "Gray",
+    ["Accent"] = "#374151",
+    ["Dialog"] = "#374151",
+    ["Outline"] = "#d1d5db",
+    ["Text"] = "#f9fafb",
+    ["Placeholder"] = "#9ca3af",
+    ["Background"] = "#1f2937",
+    ["Button"] = "#4b5563",
+    ["Icon"] = "#d1d5db"
+})
+
+WindUI:AddTheme({
+    ["Name"] = "Blue",
+    ["Accent"] = "#1e40af",
+    ["Dialog"] = "#1e3a8a",
+    ["Outline"] = "#93c5fd",
+    ["Text"] = "#f0f9ff",
+    ["Placeholder"] = "#60a5fa",
+    ["Background"] = "#1e293b",
+    ["Button"] = "#3b82f6",
+    ["Icon"] = "#93c5fd"
+})
+
+WindUI:AddTheme({
+    ["Name"] = "Green",
+    ["Accent"] = "#059669",
+    ["Dialog"] = "#047857",
+    ["Outline"] = "#6ee7b7",
+    ["Text"] = "#ecfdf5",
+    ["Placeholder"] = "#34d399",
+    ["Background"] = "#064e3b",
+    ["Button"] = "#10b981",
+    ["Icon"] = "#6ee7b7"
+})
+
+WindUI:AddTheme({
+    ["Name"] = "Purple",
+    ["Accent"] = "#7c3aed",
+    ["Dialog"] = "#6d28d9",
+    ["Outline"] = "#c4b5fd",
+    ["Text"] = "#faf5ff",
+    ["Placeholder"] = "#a78bfa",
+    ["Background"] = "#581c87",
+    ["Button"] = "#8b5cf6",
+    ["Icon"] = "#c4b5fd"
+})
+
+WindUI:SetNotificationLower(true)
+
+-- ==================== NEXORA NOTIFICATION LOADER ====================
+local function LoadNexora()
+    local url = "https://raw.githubusercontent.com/UniversalScripter1/ProjectNexora/refs/heads/main/Notification"
+    local success, result = pcall(function()
+        return game:HttpGet(url)
+    end)
+    if success and result and result ~= "" then
+        local func, err = loadstring(result)
+        if func then
+            return func()
+        else
+            warn("Nexora Loader: Syntax Error in External Script - " .. tostring(err))
+        end
+    else
+        warn("Nexora Loader: Connection Error. Could not fetch from GitHub.")
+    end
+    return nil
 end
 
-local Google = loadstring(game:HttpGet("https://raw.githubusercontent.com/Toluwerr/Google-UI/refs/heads/main/main.lua"))()
-Google.SetTheme("DarkBlue")
+local notif = LoadNexora()
 
-local Settings = {
-	Enabled = false,
-	TeamCheck = true,
-	Highlight = true,
-	ThroughWalls = true,
-	ShowName = true,
-	ShowHealth = true,
-	ShowDistance = true,
-	MaxDistance = 1500,
-	FillTransparency = 0.74,
-	Color = Color3.fromRGB(255, 255, 255)
+local function ExtractAssetId(icon)
+    if not icon then return nil end
+    if type(icon) == "number" then return icon end
+    local s = tostring(icon)
+    local id = s:match("(%d+)")
+    return tonumber(id)
+end
+
+local function SendNexoraNotification(title, text, duration, icon)
+    duration = duration or 5
+    if notif and type(notif.Notification) == "function" then
+        local iconId = ExtractAssetId(icon) or 54952350
+        local ok, _ = pcall(function()
+            notif:Notification(
+                title or "Project Nexora",
+                text or "",
+                "GothamBold",
+                "Gotham",
+                duration,
+                iconId,
+                nil,
+                "light"
+            )
+        end)
+        if not ok then
+            StarterGui:SetCore("SendNotification", {
+                ["Title"] = title or "Project Nexora",
+                ["Text"] = text or "",
+                ["Duration"] = duration,
+                ["Icon"] = icon or "rbxassetid://89804924525665"
+            })
+        end
+    else
+        StarterGui:SetCore("SendNotification", {
+            ["Title"] = title or "Eliana Hub",
+            ["Text"] = text or "",
+            ["Duration"] = duration,
+            ["Icon"] = icon or "rbxassetid://89804924525665"
+        })
+    end
+end
+
+-- ==================== THEME MANAGEMENT ====================
+local ThemesList = {
+    "Dark",
+    "Light",
+    "Gray",
+    "Blue",
+    "Green",
+    "Purple"
 }
 
-local ColorState = {
-	H = 0,
-	S = 0,
-	V = 1
-}
-
-local MovementSettings = {
-	Enabled = false,
-	Speed = 16,
-	InfiniteJump = false,
-	Noclip = false,
-	Humanoid = nil,
-	OriginalSpeed = nil,
-	Updating = false,
-	WatchConnection = nil,
-	NoclipConnection = nil,
-	CollisionStates = setmetatable({}, {__mode = "k"})
-}
-
-local ClickTeleportSettings = {
-	Enabled = false,
-	Cooldown = 0.12,
-	LastTeleport = 0
-}
-
-local PlatformSettings = {
-	Enabled = false,
-	Part = nil,
-	Connection = nil,
-	UpHeld = false,
-	DownHeld = false,
-	ForwardHeld = false,
-	MoveSpeed = 42,
-	TrackHorizontalSpeed = 220,
-	TrackUpSpeed = 150,
-	TrackDownSpeed = 460,
-	TrackSwoopSpeed = 760,
-	TrackSnapDistance = 120,
-	Size = Vector3.new(12, 1, 12)
-}
-
-local PartRingSettings = {
-	Enabled = false,
-	TargetUserId = nil,
-	TargetPickerEnabled = false,
-	HoveredPlayer = nil,
-	PickerHighlight = nil,
-	PickerRenderConnection = nil,
-	PickerInputConnection = nil,
-	ScanRadius = 70,
-	Radius = 12,
-	Height = 4,
-	Speed = 3.5,
-	RotationSpeed = 18,
-	PullGain = 14,
-	MinimumPullSpeed = 18,
-	MaximumPullSpeed = 220,
-	MaximumDynamicSpeed = 6000,
-	MaximumAssemblyMass = 300,
-	MaximumAssemblySize = 50,
-	RescanInterval = 0.75,
-	Parts = {},
-	PartStates = setmetatable({}, {__mode = "k"}),
-	Connection = nil,
-	NextRescan = 0,
-	CollisionStates = setmetatable({}, {__mode = "k"})
-}
-
-local PartRing = {}
-
-
-local AimlockSettings = {
-	Enabled = false,
-	TeamCheck = true,
-	Holding = false,
-	CursorRadius = 180,
-	MaxDistance = 2500,
-	TargetPlayer = nil,
-	TargetCharacter = nil,
-	TargetHumanoid = nil,
-	TargetPart = nil
-}
-
-local FlingSettings = {
-	Enabled = false,
-	Power = 100,
-	WorkerToken = 0,
-	AntiFling = false,
-	AntiFlingConnections = {},
-	CollisionStates = setmetatable({}, {__mode = "k"})
-}
-
-local FlySettings = {
-	Enabled = false,
-	Speed = 50,
-	Acceleration = 8,
-	Deceleration = 12,
-	Root = nil,
-	Humanoid = nil,
-	BodyVelocity = nil,
-	BodyGyro = nil,
-	CurrentVelocity = Vector3.zero,
-	CurrentOrientation = nil,
-	OriginalAutoRotate = nil,
-	OriginalPlatformStand = nil,
-	AnimationConnection = nil,
-	AnimateScript = nil,
-	OriginalAnimateDisabled = nil
-}
-
-local VehicleSettings = {
-	Speed = 60,
-	SteeringStrength = 8,
-	CurrentSeat = nil,
-	CurrentModel = nil,
-	CurrentRoot = nil,
-	OriginalMaxSpeed = setmetatable({}, {__mode = "k"}),
-	OriginalTurnSpeed = setmetatable({}, {__mode = "k"}),
-	SeatedConnection = nil,
-	SpeedWatchConnection = nil,
-	BoostConnection = nil,
-	FlipGyro = nil,
-	FlipRoot = nil,
-	Updating = false
-}
-
-local VehicleFlySettings = {
-	Enabled = false,
-	Speed = 60,
-	Acceleration = 8,
-	Deceleration = 12,
-	Root = nil,
-	Seat = nil,
-	BodyVelocity = nil,
-	BodyGyro = nil,
-	CurrentVelocity = Vector3.zero,
-	CurrentOrientation = nil
-}
-
-local VehicleJumpSettings = {
-	Power = 90,
-	Cooldown = 0.65,
-	LastJump = 0,
-	Stabilizer = nil,
-	StabilizerToken = 0
-}
-
-local VehicleTeleportSettings = {
-	Enabled = false,
-	Cooldown = 0.12,
-	LastTeleport = 0,
-	ReinforceDuration = 1.5,
-	NearbyRadius = 70,
-	ReinforceConnection = nil,
-	ReinforceToken = 0,
-	ReinforceRoot = nil,
-	ReinforceSeat = nil,
-	ReinforceParts = nil,
-	ReinforceOffsets = nil
-}
-
-local VehicleFlingSettings = {
-	Enabled = false,
-	Power = 100,
-	WorkerToken = 0
-}
-
-local VehicleSpeedBoostSettings = {
-	Power = 160,
-	Cooldown = 0.65,
-	Duration = 0.42,
-	LastBoost = 0,
-	ActiveUntil = 0
-}
-
-local InterfaceSettings = {
-	Hidden = false
-}
-
-local stopVehicleFlyRuntime
-local restartVehicleFly
-
-local HIGHLIGHT_NAME = "__ProjectESPHighlight"
-local TAG_NAME = "__ProjectESPLabel"
-local TEXT_NAME = "__ProjectESPText"
-
-local running = true
-local connections = {}
-local activePicker = nil
-local aimStatusLabel = nil
-
-local function track(connection)
-	table.insert(connections, connection)
-	return connection
-end
-
-local function disconnect(connection)
-	if connection then
-		pcall(function()
-			connection:Disconnect()
-		end)
-	end
-end
-
-local function addCorner(instance, radius)
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, radius)
-	corner.Parent = instance
-	return corner
-end
-
-local function addStroke(instance, color, transparency)
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = color
-	stroke.Transparency = transparency or 0
-	stroke.Thickness = 1
-	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	stroke.Parent = instance
-	return stroke
-end
-
-local function getRoot(character)
-	if not character then
-		return nil
-	end
-
-	return character:FindFirstChild("HumanoidRootPart")
-		or character:FindFirstChild("UpperTorso")
-		or character:FindFirstChild("Torso")
-end
-
-do
-	PartRing.getTargetOption = function()
-		if not PartRingSettings.TargetUserId then
-			return "Me"
-		end
-
-		local player = Players:GetPlayerByUserId(PartRingSettings.TargetUserId)
-
-		return player and player.Name or "Me"
-	end
-
-	PartRing.getTargetRoot = function()
-		local player = LocalPlayer
-
-		if PartRingSettings.TargetUserId then
-			player = Players:GetPlayerByUserId(PartRingSettings.TargetUserId)
-
-			if not player then
-				PartRingSettings.TargetUserId = nil
-
-				if type(PartRing.OnTargetChanged) == "function" then
-					PartRing.OnTargetChanged("Me")
-				end
-
-				player = LocalPlayer
-			end
-		end
-
-		local character = player and player.Character
-		local root = getRoot(character)
-
-		if root and root.Parent then
-			return root
-		end
-
-		return nil
-	end
-
-	local function updatePartRingStatus(text)
-		if type(PartRing.OnStatusChanged) == "function" then
-			PartRing.OnStatusChanged(text)
-		end
-	end
-
-	local function getPlayerFromPart(part)
-		local current = part
-
-		while current and current ~= Workspace do
-			if current:IsA("Model") then
-				local player = Players:GetPlayerFromCharacter(current)
-
-				if player then
-					return player
-				end
-			end
-
-			current = current.Parent
-		end
-
-		return nil
-	end
-
-	local function clearPartRingPickerHighlight()
-		local highlight = PartRingSettings.PickerHighlight
-		PartRingSettings.PickerHighlight = nil
-		PartRingSettings.HoveredPlayer = nil
-
-		if highlight and highlight.Parent then
-			pcall(function()
-				highlight:Destroy()
-			end)
-		end
-	end
-
-	local function showPartRingPickerHighlight(player)
-		local character = player and player.Character
-
-		if not character or not character.Parent then
-			clearPartRingPickerHighlight()
-			return
-		end
-
-		local highlight = PartRingSettings.PickerHighlight
-
-		if not highlight or not highlight.Parent then
-			highlight = Instance.new("Highlight")
-			highlight.Name = "__PlayerToolsPartRingTarget"
-			highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-			highlight.FillColor = Color3.fromRGB(66, 133, 244)
-			highlight.FillTransparency = 0.62
-			highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-			highlight.OutlineTransparency = 0.08
-			highlight.Parent = Workspace
-			PartRingSettings.PickerHighlight = highlight
-		end
-
-		highlight.Adornee = character
-		highlight.Enabled = true
-		PartRingSettings.HoveredPlayer = player
-	end
-
-	PartRing.getHoveredPlayer = function()
-		local unitRay = Mouse and Mouse.UnitRay
-
-		if not unitRay then
-			local directPart = Mouse and Mouse.Target
-			local directPlayer = getPlayerFromPart(directPart)
-
-			return directPlayer ~= LocalPlayer and directPlayer or nil
-		end
-
-		local filter = {}
-		local seen = {}
-
-		local function addFilter(instance)
-			if instance and instance.Parent and not seen[instance] then
-				seen[instance] = true
-				table.insert(filter, instance)
-			end
-		end
-
-		if LocalPlayer.Character then
-			addFilter(LocalPlayer.Character)
-		end
-
-		for _, root in ipairs(PartRingSettings.Parts) do
-			addFilter(root)
-
-			pcall(function()
-				for _, connected in ipairs(root:GetConnectedParts(true)) do
-					addFilter(connected)
-				end
-			end)
-		end
-
-		local params = RaycastParams.new()
-		params.FilterType = Enum.RaycastFilterType.Exclude
-		params.FilterDescendantsInstances = filter
-		params.IgnoreWater = false
-
-		local result = Workspace:Raycast(
-			unitRay.Origin,
-			unitRay.Direction * 10000,
-			params
-		)
-		local player = getPlayerFromPart(result and result.Instance)
-
-		return player ~= LocalPlayer and player or nil
-	end
-
-	local function updatePartRingTargetPicker()
-		if not running or not PartRingSettings.TargetPickerEnabled then
-			return
-		end
-
-		local player = PartRing.getHoveredPlayer()
-
-		if player then
-			showPartRingPickerHighlight(player)
-		else
-			clearPartRingPickerHighlight()
-		end
-	end
-
-	PartRing.stopTargetPicker = function()
-		disconnect(PartRingSettings.PickerRenderConnection)
-		disconnect(PartRingSettings.PickerInputConnection)
-		PartRingSettings.PickerRenderConnection = nil
-		PartRingSettings.PickerInputConnection = nil
-		clearPartRingPickerHighlight()
-	end
-
-	PartRing.setTarget = function(value)
-		if value == "Me" or not value then
-			PartRingSettings.TargetUserId = nil
-		else
-			local player = nil
-
-			if typeof(value) == "Instance" and value:IsA("Player") then
-				player = value
-			else
-				player = Players:FindFirstChild(tostring(value))
-			end
-
-			PartRingSettings.TargetUserId = player and player.UserId or nil
-		end
-
-		if type(PartRing.OnTargetChanged) == "function" then
-			PartRing.OnTargetChanged(PartRing.getTargetOption())
-		end
-
-		if PartRingSettings.Enabled then
-			PartRing.refresh()
-		end
-	end
-
-	PartRing.setPickerEnabled = function(value)
-		local enabled = value and true or false
-
-		PartRing.stopTargetPicker()
-		PartRingSettings.TargetPickerEnabled = enabled
-
-		if type(PartRing.OnPickerEnabledChanged) == "function" then
-			pcall(PartRing.OnPickerEnabledChanged, enabled)
-		end
-
-		if not enabled then
-			return
-		end
-
-		PartRingSettings.PickerRenderConnection = RunService.RenderStepped:Connect(
-			updatePartRingTargetPicker
-		)
-
-		PartRingSettings.PickerInputConnection = UserInputService.InputBegan:Connect(
-			function(input, gameProcessedEvent)
-				if gameProcessedEvent
-					or not PartRingSettings.TargetPickerEnabled
-					or UserInputService:GetFocusedTextBox() then
-					return
-				end
-
-				if input.UserInputType ~= Enum.UserInputType.MouseButton1 then
-					return
-				end
-
-				local player = PartRingSettings.HoveredPlayer
-					or PartRing.getHoveredPlayer()
-
-				if player then
-					PartRing.setTarget(player)
-					PartRing.setPickerEnabled(false)
-				end
-			end
-		)
-	end
-
-	local function hasPartRingDisallowedAncestor(part)
-		local current = part
-
-		while current and current ~= Workspace do
-			if current:IsA("Tool") then
-				return true
-			end
-
-			if current:IsA("Model")
-				and current:FindFirstChildOfClass("Humanoid") then
-				return true
-			end
-
-			current = current.Parent
-		end
-
-		return false
-	end
-
-	local function getPartRingSearchRadius()
-		local configuredRadius = math.clamp(
-			tonumber(PartRingSettings.ScanRadius) or 70,
-			15,
-			5000
-		)
-		local ringRadius = math.clamp(
-			tonumber(PartRingSettings.Radius) or 12,
-			3,
-			150
-		)
-
-		return math.clamp(
-			math.max(configuredRadius, ringRadius + 30),
-			15,
-			5000
-		)
-	end
-
-
-	local function canRingPart(part, targetRoot)
-		if not part
-			or not part:IsA("BasePart")
-			or not part.Parent
-			or part.Anchored
-			or part:IsA("Seat")
-			or part:IsA("VehicleSeat")
-			or part.AssemblyRootPart ~= part then
-			return false
-		end
-
-		if LocalPlayer.Character and part:IsDescendantOf(LocalPlayer.Character) then
-			return false
-		end
-
-		if VehicleSettings.CurrentModel
-			and VehicleSettings.CurrentModel.Parent
-			and part:IsDescendantOf(VehicleSettings.CurrentModel) then
-			return false
-		end
-
-		if hasPartRingDisallowedAncestor(part) then
-			return false
-		end
-
-		local maximumAssemblyMass = math.clamp(
-			tonumber(PartRingSettings.MaximumAssemblyMass) or 300,
-			1,
-			100000
-		)
-		local maximumAssemblySize = math.clamp(
-			tonumber(PartRingSettings.MaximumAssemblySize) or 50,
-			1,
-			10000
-		)
-
-		if part.AssemblyMass > maximumAssemblyMass
-			or part.Size.Magnitude > maximumAssemblySize then
-			return false
-		end
-
-		return (part.Position - targetRoot.Position).Magnitude
-			<= getPartRingSearchRadius()
-	end
-
-	local function getPartRingAssemblyParts(root)
-		local parts = {}
-		local seen = {}
-
-		local function addPart(part)
-			if not part
-				or not part:IsA("BasePart")
-				or not part.Parent
-				or seen[part]
-				or part.AssemblyRootPart ~= root then
-				return
-			end
-
-			seen[part] = true
-			table.insert(parts, part)
-		end
-
-		addPart(root)
-
-		pcall(function()
-			for _, part in ipairs(root:GetConnectedParts(true)) do
-				addPart(part)
-			end
-		end)
-
-		return parts
-	end
-
-	local function removeLegacyPartRingConstraints(root)
-		for _, name in ipairs({
-			"__PlayerToolsPartRingAlign",
-			"__PlayerToolsPartRingAttachment"
-		}) do
-			local object = root:FindFirstChild(name)
-
-			if object then
-				pcall(function()
-					object:Destroy()
-				end)
-			end
-		end
-	end
-
-	local function getPartRingState(root)
-		local state = PartRingSettings.PartStates[root]
-
-		if state then
-			return state
-		end
-
-		state = {
-			CollisionParts = {}
-		}
-		PartRingSettings.PartStates[root] = state
-
-		return state
-	end
-
-	local function restorePartRingPart(root)
-		local state = PartRingSettings.PartStates[root]
-		local controlledParts = state and state.CollisionParts or {root}
-
-		removeLegacyPartRingConstraints(root)
-
-		for _, part in ipairs(controlledParts) do
-			local originalCollision = PartRingSettings.CollisionStates[part]
-
-			if part and part.Parent then
-				pcall(function()
-					if originalCollision ~= nil then
-						part.CanCollide = originalCollision
-					end
-
-					part.AssemblyLinearVelocity = Vector3.zero
-					part.AssemblyAngularVelocity = Vector3.zero
-				end)
-			end
-
-			PartRingSettings.CollisionStates[part] = nil
-		end
-
-		PartRingSettings.PartStates[root] = nil
-	end
-
-	local function preparePartForRing(root)
-		removeLegacyPartRingConstraints(root)
-
-		local state = getPartRingState(root)
-		local known = {}
-
-		for _, part in ipairs(state.CollisionParts) do
-			known[part] = true
-		end
-
-		for _, part in ipairs(getPartRingAssemblyParts(root)) do
-			if not known[part] then
-				known[part] = true
-				table.insert(state.CollisionParts, part)
-			end
-
-			if PartRingSettings.CollisionStates[part] == nil then
-				PartRingSettings.CollisionStates[part] = part.CanCollide
-			end
-
-			pcall(function()
-				part.CanCollide = false
-			end)
-		end
-	end
-
-	local function clearPartRingParts()
-		for _, part in ipairs(PartRingSettings.Parts) do
-			restorePartRingPart(part)
-		end
-
-		PartRingSettings.Parts = {}
-		PartRingSettings.PartStates = setmetatable({}, {__mode = "k"})
-		PartRingSettings.CollisionStates = setmetatable({}, {__mode = "k"})
-	end
-
-	PartRing.refresh = function()
-		local targetRoot = PartRing.getTargetRoot()
-
-		if not targetRoot or not targetRoot.Parent then
-			clearPartRingParts()
-			updatePartRingStatus("Target unavailable")
-			return
-		end
-
-		local overlap = OverlapParams.new()
-		overlap.FilterType = Enum.RaycastFilterType.Exclude
-
-		local filter = {}
-
-		if LocalPlayer.Character then
-			table.insert(filter, LocalPlayer.Character)
-		end
-
-		local targetPlayer = PartRingSettings.TargetUserId
-			and Players:GetPlayerByUserId(PartRingSettings.TargetUserId)
-			or LocalPlayer
-
-		if targetPlayer
-			and targetPlayer.Character
-			and targetPlayer.Character ~= LocalPlayer.Character then
-			table.insert(filter, targetPlayer.Character)
-		end
-
-		overlap.FilterDescendantsInstances = filter
-		overlap.MaxParts = 0
-
-		local nearby = {}
-
-		pcall(function()
-			nearby = Workspace:GetPartBoundsInRadius(
-				targetRoot.Position,
-				getPartRingSearchRadius(),
-				overlap
-			)
-		end)
-
-		local candidates = {}
-		local candidateSet = {}
-
-		for _, part in ipairs(nearby) do
-			if canRingPart(part, targetRoot) and not candidateSet[part] then
-				candidateSet[part] = true
-				table.insert(candidates, part)
-			end
-		end
-
-		table.sort(candidates, function(first, second)
-			return (first.Position - targetRoot.Position).Magnitude
-				< (second.Position - targetRoot.Position).Magnitude
-		end)
-
-		local nextParts = {}
-		local selected = {}
-
-		for _, part in ipairs(PartRingSettings.Parts) do
-			if candidateSet[part] and canRingPart(part, targetRoot) then
-				selected[part] = true
-				table.insert(nextParts, part)
-			else
-				restorePartRingPart(part)
-			end
-		end
-
-		for _, part in ipairs(candidates) do
-			if not selected[part] then
-				selected[part] = true
-				table.insert(nextParts, part)
-			end
-		end
-
-		PartRingSettings.Parts = nextParts
-
-		for _, part in ipairs(nextParts) do
-			preparePartForRing(part)
-		end
-
-		PartRingSettings.NextRescan = os.clock() + PartRingSettings.RescanInterval
-
-		if #nextParts > 0 then
-			updatePartRingStatus(
-				"Ringing " .. tostring(#nextParts) .. " eligible physics parts"
-			)
-		else
-			updatePartRingStatus("No eligible loose parts")
-		end
-	end
-
-	PartRing.stop = function()
-		disconnect(PartRingSettings.Connection)
-		PartRingSettings.Connection = nil
-		clearPartRingParts()
-		PartRingSettings.NextRescan = 0
-		updatePartRingStatus("Part Ring off")
-	end
-
-	local function updatePartRing(deltaTime)
-		if not running or not PartRingSettings.Enabled then
-			return
-		end
-
-		local targetRoot = PartRing.getTargetRoot()
-
-		if not targetRoot or not targetRoot.Parent then
-			return
-		end
-
-		local now = os.clock()
-
-		if now >= PartRingSettings.NextRescan then
-			PartRing.refresh()
-		end
-
-		local parts = PartRingSettings.Parts
-		local count = #parts
-
-		if count == 0 then
-			return
-		end
-
-		local radius = math.clamp(
-			tonumber(PartRingSettings.Radius) or 12,
-			3,
-			150
-		)
-		local height = math.clamp(
-			tonumber(PartRingSettings.Height) or 4,
-			-10,
-			25
-		)
-		local spinSpeed = math.clamp(
-			tonumber(PartRingSettings.Speed) or 3.5,
-			0,
-			20
-		)
-		local rotationSpeed = math.clamp(
-			tonumber(PartRingSettings.RotationSpeed) or 18,
-			0,
-			300
-		)
-		local pullGain = math.clamp(
-			tonumber(PartRingSettings.PullGain) or 11,
-			1,
-			40
-		)
-		local minimumPullSpeed = math.clamp(
-			tonumber(PartRingSettings.MinimumPullSpeed) or 18,
-			1,
-			300
-		)
-		local baseMaximumPullSpeed = math.clamp(
-			tonumber(PartRingSettings.MaximumPullSpeed) or 220,
-			minimumPullSpeed,
-			1000
-		)
-		local maximumDynamicSpeed = math.clamp(
-			tonumber(PartRingSettings.MaximumDynamicSpeed) or 6000,
-			baseMaximumPullSpeed,
-			9000
-		)
-		local orbitVelocity = radius * spinSpeed
-		local maximumPullSpeed = math.clamp(
-			math.max(
-				baseMaximumPullSpeed,
-				orbitVelocity * 2 + 200,
-				radius * 4 + 100
-			),
-			baseMaximumPullSpeed,
-			maximumDynamicSpeed
-		)
-		local rootVelocity = targetRoot.AssemblyLinearVelocity
-		local carry = Vector3.new(
-			rootVelocity.X,
-			0,
-			rootVelocity.Z
-		) * 0.35
-		local baseAngle = now * spinSpeed
-
-		for index = count, 1, -1 do
-			local part = parts[index]
-
-			if not canRingPart(part, targetRoot) then
-				restorePartRingPart(part)
-				table.remove(parts, index)
-			else
-				local angle = baseAngle
-					+ ((index - 1) / count) * math.pi * 2
-				local targetPosition = targetRoot.Position + Vector3.new(
-					math.cos(angle) * radius,
-					height,
-					math.sin(angle) * radius
-				)
-				local delta = targetPosition - part.Position
-				local distance = delta.Magnitude
-				local correctionVelocity = Vector3.zero
-
-				if distance > 0.001 then
-					local correctionSpeed = math.clamp(
-						distance * pullGain,
-						minimumPullSpeed,
-						maximumPullSpeed
-					)
-					correctionVelocity = delta.Unit * correctionSpeed
-				end
-
-				local tangentVelocity = Vector3.new(
-					-math.sin(angle) * orbitVelocity,
-					0,
-					math.cos(angle) * orbitVelocity
-				)
-				local desiredVelocity = correctionVelocity
-					+ tangentVelocity
-					+ carry
-
-				if desiredVelocity.Magnitude > maximumPullSpeed then
-					desiredVelocity = desiredVelocity.Unit
-						* maximumPullSpeed
-				end
-
-				pcall(function()
-					part.CanCollide = false
-					part.AssemblyLinearVelocity = desiredVelocity
-					part.AssemblyAngularVelocity = Vector3.new(
-						math.sin(angle * 1.7) * rotationSpeed * 0.3,
-						rotationSpeed,
-						math.cos(angle * 1.3) * rotationSpeed * 0.3
-					)
-				end)
-			end
-		end
-	end
-
-	PartRing.setEnabled = function(value)
-		local enabled = value and true or false
-
-		if not enabled then
-			PartRing.setPickerEnabled(false)
-		end
-
-		PartRing.stop()
-		PartRingSettings.Enabled = enabled
-
-		if type(PartRing.OnEnabledChanged) == "function" then
-			pcall(PartRing.OnEnabledChanged, enabled)
-		end
-
-		if not enabled then
-			return
-		end
-
-		PartRing.refresh()
-		PartRingSettings.Connection = RunService.Heartbeat:Connect(updatePartRing)
-	end
-
-end
-
-local function isAimTeammate(player)
-	return AimlockSettings.TeamCheck
-		and LocalPlayer.Team ~= nil
-		and player.Team == LocalPlayer.Team
-end
-
-local function updateAimStatus()
-	if not aimStatusLabel then
-		return
-	end
-
-	if AimlockSettings.TargetPlayer then
-		aimStatusLabel:Set("Target: " .. AimlockSettings.TargetPlayer.DisplayName)
-	else
-		aimStatusLabel:Set("Target: None")
-	end
-end
-
-local function clearAimTarget()
-	AimlockSettings.TargetPlayer = nil
-	AimlockSettings.TargetCharacter = nil
-	AimlockSettings.TargetHumanoid = nil
-	AimlockSettings.TargetPart = nil
-	updateAimStatus()
-end
-
-local function getAimCursorDistance(camera, screenPosition, character)
-	local closestDistance = nil
-	local candidateNames = {
-		"Head",
-		"UpperTorso",
-		"Torso",
-		"HumanoidRootPart",
-		"LowerTorso"
-	}
-
-	for _, name in ipairs(candidateNames) do
-		local part = character:FindFirstChild(name)
-
-		if part and part:IsA("BasePart") then
-			local projected, onScreen = camera:WorldToViewportPoint(part.Position)
-
-			if onScreen and projected.Z > 0 then
-				local distance = (
-					Vector2.new(projected.X, projected.Y)
-					- screenPosition
-				).Magnitude
-
-				if not closestDistance or distance < closestDistance then
-					closestDistance = distance
-				end
-			end
-		end
-	end
-
-	return closestDistance
-end
-
-local function getPlayerUnderPointer()
-	local camera = Workspace.CurrentCamera
-	local localRoot = getRoot(LocalPlayer.Character)
-
-	if not camera then
-		return nil
-	end
-
-	local mouseLocation = UserInputService:GetMouseLocation()
-	local screenPosition = Vector2.new(mouseLocation.X, mouseLocation.Y)
-	local closestPlayer = nil
-	local closestCharacter = nil
-	local closestHumanoid = nil
-	local closestTargetPart = nil
-	local closestDistance = AimlockSettings.CursorRadius
-
-	for _, player in ipairs(Players:GetPlayers()) do
-		if player ~= LocalPlayer and not isAimTeammate(player) then
-			local character = player.Character
-			local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-			local targetPart = character and (
-				character:FindFirstChild("Head")
-				or getRoot(character)
-			)
-			local root = character and getRoot(character)
-
-			if humanoid
-				and humanoid.Health > 0
-				and targetPart
-				and targetPart:IsA("BasePart")
-				and root
-				and root:IsA("BasePart") then
-				local worldDistance = localRoot
-					and (root.Position - localRoot.Position).Magnitude
-					or (root.Position - camera.CFrame.Position).Magnitude
-
-				if worldDistance <= AimlockSettings.MaxDistance then
-					local cursorDistance = getAimCursorDistance(
-						camera,
-						screenPosition,
-						character
-					)
-
-					if cursorDistance and cursorDistance <= closestDistance then
-						closestPlayer = player
-						closestCharacter = character
-						closestHumanoid = humanoid
-						closestTargetPart = targetPart
-						closestDistance = cursorDistance
-					end
-				end
-			end
-		end
-	end
-
-	return closestPlayer, closestCharacter, closestHumanoid, closestTargetPart
-end
-
-local function beginAimlock()
-	if not running
-		or not AimlockSettings.Enabled
-		or AimlockSettings.Holding then
-		return
-	end
-
-	AimlockSettings.Holding = true
-	clearAimTarget()
-
-	local player, character, humanoid, targetPart = getPlayerUnderPointer()
-
-	if player then
-		AimlockSettings.TargetPlayer = player
-		AimlockSettings.TargetCharacter = character
-		AimlockSettings.TargetHumanoid = humanoid
-		AimlockSettings.TargetPart = targetPart
-		updateAimStatus()
-	end
-end
-
-local function endAimlock()
-	AimlockSettings.Holding = false
-	clearAimTarget()
-end
-
-local function setAimlockEnabled(value)
-	AimlockSettings.Enabled = value and true or false
-
-	if not AimlockSettings.Enabled then
-		endAimlock()
-	else
-		updateAimStatus()
-	end
-end
-
-local function updateAimlockCamera()
-	if not running
-		or not AimlockSettings.Enabled
-		or not AimlockSettings.Holding
-		or not AimlockSettings.TargetPlayer then
-		return
-	end
-
-	local player = AimlockSettings.TargetPlayer
-	local character = AimlockSettings.TargetCharacter
-	local humanoid = AimlockSettings.TargetHumanoid
-	local targetPart = AimlockSettings.TargetPart
-
-	if player.Parent ~= Players
-		or not character
-		or not character.Parent
-		or not humanoid
-		or not humanoid.Parent
-		or humanoid.Health <= 0
-		or not targetPart
-		or not targetPart.Parent then
-		clearAimTarget()
-		return
-	end
-
-	local camera = Workspace.CurrentCamera
-	if camera then
-		camera.CFrame = CFrame.lookAt(camera.CFrame.Position, targetPart.Position)
-	end
-end
-
-local function removeESP(character)
-	if not character then
-		return
-	end
-
-	local highlight = character:FindFirstChild(HIGHLIGHT_NAME)
-	if highlight then
-		highlight:Destroy()
-	end
-
-	local tag = character:FindFirstChild(TAG_NAME)
-	if tag then
-		tag:Destroy()
-	end
-end
-
-local function isTeammate(player)
-	return Settings.TeamCheck
-		and LocalPlayer.Team ~= nil
-		and player.Team == LocalPlayer.Team
-end
-
-local function ensureESP(character, root)
-	local highlight = character:FindFirstChild(HIGHLIGHT_NAME)
-
-	if highlight and not highlight:IsA("Highlight") then
-		highlight:Destroy()
-		highlight = nil
-	end
-
-	if not highlight then
-		highlight = Instance.new("Highlight")
-		highlight.Name = HIGHLIGHT_NAME
-		highlight.Parent = character
-	end
-
-	local tag = character:FindFirstChild(TAG_NAME)
-
-	if tag and not tag:IsA("BillboardGui") then
-		tag:Destroy()
-		tag = nil
-	end
-
-	if not tag then
-		tag = Instance.new("BillboardGui")
-		tag.Name = TAG_NAME
-		tag.Size = UDim2.fromOffset(220, 64)
-		tag.StudsOffsetWorldSpace = Vector3.new(0, 3.2, 0)
-		tag.LightInfluence = 0
-		tag.Parent = character
-	end
-
-	local label = tag:FindFirstChild(TEXT_NAME)
-
-	if label and not label:IsA("TextLabel") then
-		label:Destroy()
-		label = nil
-	end
-
-	if not label then
-		label = Instance.new("TextLabel")
-		label.Name = TEXT_NAME
-		label.BackgroundTransparency = 1
-		label.Size = UDim2.fromScale(1, 1)
-		label.Font = Enum.Font.GothamBold
-		label.TextSize = 13
-		label.TextWrapped = true
-		label.TextXAlignment = Enum.TextXAlignment.Center
-		label.TextYAlignment = Enum.TextYAlignment.Center
-		label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-		label.TextStrokeTransparency = 0.25
-		label.Parent = tag
-	end
-
-	highlight.Adornee = character
-	tag.Adornee = root
-
-	return highlight, tag, label
-end
-
-local function updatePlayer(player)
-	if player == LocalPlayer then
-		return
-	end
-
-	local character = player.Character
-
-	if not Settings.Enabled or not character or isTeammate(player) then
-		removeESP(character)
-		return
-	end
-
-	local humanoid = character:FindFirstChildOfClass("Humanoid")
-	local root = getRoot(character)
-	local localRoot = getRoot(LocalPlayer.Character)
-
-	if not humanoid or humanoid.Health <= 0 or not root or not localRoot then
-		removeESP(character)
-		return
-	end
-
-	local distance = (root.Position - localRoot.Position).Magnitude
-
-	if distance > Settings.MaxDistance then
-		removeESP(character)
-		return
-	end
-
-	local showLabels = Settings.ShowName or Settings.ShowHealth or Settings.ShowDistance
-
-	if not Settings.Highlight and not showLabels then
-		removeESP(character)
-		return
-	end
-
-	local highlight, tag, label = ensureESP(character, root)
-
-	highlight.Enabled = Settings.Highlight
-	highlight.FillColor = Settings.Color
-	highlight.OutlineColor = Settings.Color
-	highlight.FillTransparency = Settings.FillTransparency
-	highlight.OutlineTransparency = 0
-	highlight.DepthMode = Settings.ThroughWalls
-		and Enum.HighlightDepthMode.AlwaysOnTop
-		or Enum.HighlightDepthMode.Occluded
-
-	tag.Enabled = showLabels
-	tag.AlwaysOnTop = Settings.ThroughWalls
-	label.TextColor3 = Settings.Color
-
-	local lines = {}
-
-	if Settings.ShowName then
-		table.insert(lines, player.DisplayName ~= "" and player.DisplayName or player.Name)
-	end
-
-	if Settings.ShowHealth then
-		table.insert(lines, string.format(
-			"%d / %d HP",
-			math.floor(humanoid.Health + 0.5),
-			math.floor(humanoid.MaxHealth + 0.5)
-		))
-	end
-
-	if Settings.ShowDistance then
-		table.insert(lines, string.format("%d studs", math.floor(distance + 0.5)))
-	end
-
-	label.Text = table.concat(lines, "\n")
-end
-
-local function refreshAll()
-	for _, player in ipairs(Players:GetPlayers()) do
-		updatePlayer(player)
-	end
-end
-
-local function clearSpeedWatcher()
-	disconnect(MovementSettings.WatchConnection)
-	MovementSettings.WatchConnection = nil
-end
-
-local function applySpeed()
-	local humanoid = MovementSettings.Humanoid
-
-	if not running
-		or not MovementSettings.Enabled
-		or not humanoid
-		or not humanoid.Parent then
-		return
-	end
-
-	if humanoid.WalkSpeed == MovementSettings.Speed then
-		return
-	end
-
-	MovementSettings.Updating = true
-	humanoid.WalkSpeed = MovementSettings.Speed
-	MovementSettings.Updating = false
-end
-
-local function watchSpeed()
-	clearSpeedWatcher()
-
-	local humanoid = MovementSettings.Humanoid
-	if not humanoid or not humanoid.Parent then
-		return
-	end
-
-	MovementSettings.WatchConnection = humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
-		if running
-			and MovementSettings.Enabled
-			and not MovementSettings.Updating
-			and humanoid.WalkSpeed ~= MovementSettings.Speed then
-			task.defer(applySpeed)
-		end
-	end)
-end
-
-local function applyNoclip()
-	if not running or not MovementSettings.Noclip then
-		return
-	end
-
-	local character = LocalPlayer.Character
-
-	if not character or not character.Parent then
-		return
-	end
-
-	for _, object in ipairs(character:GetDescendants()) do
-		if object:IsA("BasePart") then
-			if MovementSettings.CollisionStates[object] == nil then
-				MovementSettings.CollisionStates[object] = object.CanCollide
-			end
-
-			if object.CanCollide then
-				object.CanCollide = false
-			end
-		end
-	end
-end
-
-local function clearNoclip()
-	disconnect(MovementSettings.NoclipConnection)
-	MovementSettings.NoclipConnection = nil
-
-	for part, originalCanCollide in pairs(MovementSettings.CollisionStates) do
-		if part and part.Parent then
-			pcall(function()
-				part.CanCollide = originalCanCollide
-			end)
-		end
-	end
-
-	MovementSettings.CollisionStates = setmetatable({}, {__mode = "k"})
-end
-
-local function setNoclipEnabled(value)
-	MovementSettings.Noclip = value and true or false
-
-	clearNoclip()
-
-	if not MovementSettings.Noclip then
-		return
-	end
-
-	applyNoclip()
-
-	MovementSettings.NoclipConnection = RunService.Stepped:Connect(function()
-		applyNoclip()
-	end)
-end
-
-local function clearPlatform()
-	disconnect(PlatformSettings.Connection)
-	PlatformSettings.Connection = nil
-
-	local platform = PlatformSettings.Part
-	PlatformSettings.Part = nil
-	PlatformSettings.UpHeld = false
-	PlatformSettings.DownHeld = false
-	PlatformSettings.ForwardHeld = false
-
-	if platform and platform.Parent then
-		pcall(function()
-			platform:Destroy()
-		end)
-	end
-end
-
-local function getPlatformCharacterData()
-	local character = LocalPlayer.Character
-
-	if not character or not character.Parent then
-		return nil, nil, nil
-	end
-
-	local humanoid = character:FindFirstChildOfClass("Humanoid")
-	local root = getRoot(character)
-
-	if not humanoid
-		or not humanoid.Parent
-		or not root
-		or not root.Parent then
-		return nil, nil, nil
-	end
-
-	return character, humanoid, root
-end
-
-local function getPlatformStartCFrame()
-	local _, humanoid, root = getPlatformCharacterData()
-
-	if not humanoid or not root then
-		return nil
-	end
-
-	local platformHalfHeight = PlatformSettings.Size.Y * 0.5
-	local offset = humanoid.HipHeight + root.Size.Y * 0.5 + platformHalfHeight
-
-	return CFrame.new(root.Position - Vector3.new(0, offset, 0))
-end
-
-local function shouldCarryCharacter(platform, root, humanoid)
-	if not platform
-		or not platform.Parent
-		or not root
-		or not root.Parent
-		or not humanoid
-		or not humanoid.Parent then
-		return false
-	end
-
-	local point = platform.CFrame:PointToObjectSpace(root.Position)
-	local expectedY = humanoid.HipHeight
-		+ root.Size.Y * 0.5
-		+ platform.Size.Y * 0.5
-
-	return math.abs(point.X) <= platform.Size.X * 0.5 + 1
-		and math.abs(point.Z) <= platform.Size.Z * 0.5 + 1
-		and math.abs(point.Y - expectedY) <= 6
-end
-
-local function movePlatformBy(offset)
-	local platform = PlatformSettings.Part
-
-	if not platform or not platform.Parent then
-		return
-	end
-
-	local nextCFrame = platform.CFrame + offset
-	platform.CFrame = nextCFrame
-
-	local _, humanoid, root = getPlatformCharacterData()
-
-	if shouldCarryCharacter(platform, root, humanoid) then
-		root.CFrame = root.CFrame + offset
-		root.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-	end
-end
-
-local function getPlatformMoveDirection()
-	local direction = Vector3.new(0, 0, 0)
-
-	if PlatformSettings.UpHeld then
-		direction += Vector3.new(0, 1, 0)
-	end
-
-	if PlatformSettings.DownHeld then
-		direction -= Vector3.new(0, 1, 0)
-	end
-
-	if PlatformSettings.ForwardHeld then
-		local camera = Workspace.CurrentCamera
-		local look = camera and camera.CFrame.LookVector or Vector3.new(0, 0, -1)
-		local forward = Vector3.new(look.X, 0, look.Z)
-
-		if forward.Magnitude > 0.001 then
-			direction += forward.Unit
-		end
-	end
-
-	return direction
-end
-
-local function updatePlatform(deltaTime)
-	if not running
-		or not PlatformSettings.Enabled
-		or not PlatformSettings.Part
-		or not PlatformSettings.Part.Parent then
-		return
-	end
-
-	local duration = math.max(tonumber(deltaTime) or 0, 0)
-
-	if duration <= 0 then
-		return
-	end
-
-	local direction = getPlatformMoveDirection()
-
-	if direction.Magnitude > 0.001 then
-		movePlatformBy(direction.Unit * PlatformSettings.MoveSpeed * duration)
-	end
-
-	local platform = PlatformSettings.Part
-	local _, humanoid, root = getPlatformCharacterData()
-
-	if not platform
-		or not platform.Parent
-		or not humanoid
-		or not root then
-		return
-	end
-
-	local footOffset = humanoid.HipHeight
-		+ root.Size.Y * 0.5
-		+ platform.Size.Y * 0.5
-	local targetPosition = root.Position - Vector3.new(0, footOffset, 0)
-	local currentPosition = platform.Position
-	local horizontalDelta = Vector3.new(
-		targetPosition.X - currentPosition.X,
-		0,
-		targetPosition.Z - currentPosition.Z
-	)
-	local horizontalDistance = horizontalDelta.Magnitude
-	local verticalDelta = targetPosition.Y - currentPosition.Y
-
-	if horizontalDistance > PlatformSettings.TrackSnapDistance
-		or math.abs(verticalDelta) > PlatformSettings.TrackSnapDistance then
-		platform.CFrame = CFrame.new(targetPosition)
-		return
-	end
-
-	local horizontalOffset = Vector3.new(0, 0, 0)
-
-	if horizontalDistance > 0.001 then
-		local horizontalStep = math.min(
-			horizontalDistance,
-			PlatformSettings.TrackHorizontalSpeed * duration
-		)
-		horizontalOffset = horizontalDelta.Unit * horizontalStep
-	end
-
-	local downwardVelocity = math.max(-root.AssemblyLinearVelocity.Y, 0)
-	local verticalSpeed = PlatformSettings.TrackUpSpeed
-
-	if verticalDelta < 0 then
-		verticalSpeed = PlatformSettings.TrackDownSpeed + downwardVelocity * 5
-
-		if root.Position.Y < currentPosition.Y - 3 then
-			verticalSpeed = math.max(
-				verticalSpeed,
-				PlatformSettings.TrackSwoopSpeed + downwardVelocity * 6
-			)
-		end
-	end
-
-	local verticalOffset = math.clamp(
-		verticalDelta,
-		-verticalSpeed * duration,
-		verticalSpeed * duration
-	)
-
-	if horizontalOffset.Magnitude > 0.001
-		or math.abs(verticalOffset) > 0.001 then
-		platform.CFrame = platform.CFrame + horizontalOffset
-			+ Vector3.new(0, verticalOffset, 0)
-	end
-end
-
-local function startPlatformForCharacter()
-	clearPlatform()
-
-	if not running or not PlatformSettings.Enabled then
-		return
-	end
-
-	local cframe = getPlatformStartCFrame()
-
-	if not cframe then
-		return
-	end
-
-	local platform = Instance.new("Part")
-	platform.Name = "__PlayerToolsPlatform"
-	platform.Anchored = true
-	platform.CanCollide = true
-	platform.CanTouch = true
-	platform.CanQuery = false
-	platform.Size = PlatformSettings.Size
-	platform.CFrame = cframe
-	platform.Material = Enum.Material.Plastic
-	platform.Color = Color3.fromRGB(90, 130, 205)
-	platform.TopSurface = Enum.SurfaceType.Studs
-	platform.Parent = Workspace
-
-	PlatformSettings.Part = platform
-	PlatformSettings.Connection = RunService.Heartbeat:Connect(function(deltaTime)
-		local ok = pcall(updatePlatform, deltaTime)
-
-		if not ok then
-			clearPlatform()
-		end
-	end)
-end
-
-local function setPlatformEnabled(value)
-	PlatformSettings.Enabled = value and true or false
-
-	if not PlatformSettings.Enabled then
-		clearPlatform()
-		return
-	end
-
-	startPlatformForCharacter()
-end
-
-local function clearVehicleSeatedConnection()
-	disconnect(VehicleSettings.SeatedConnection)
-	VehicleSettings.SeatedConnection = nil
-end
-
-local function clearVehicleSpeedWatch()
-	disconnect(VehicleSettings.SpeedWatchConnection)
-	VehicleSettings.SpeedWatchConnection = nil
-end
-
-local function clearVehicleBoost()
-	disconnect(VehicleSettings.BoostConnection)
-	VehicleSettings.BoostConnection = nil
-end
-
-local function findVehicleModel(seat)
-	local current = seat and seat.Parent
-
-	while current and current ~= Workspace do
-		if current:IsA("Model") then
-			return current
-		end
-
-		current = current.Parent
-	end
-
-	return nil
-end
-
-local function getVehicleRoot(seat, model)
-	if seat and seat:IsA("BasePart") then
-		local assemblyRoot = seat.AssemblyRootPart
-
-		if assemblyRoot and assemblyRoot:IsA("BasePart") then
-			return assemblyRoot
-		end
-	end
-
-	if model and model.PrimaryPart and model.PrimaryPart:IsA("BasePart") then
-		return model.PrimaryPart
-	end
-
-	if model then
-		for _, object in ipairs(model:GetDescendants()) do
-			if object:IsA("BasePart") then
-				local assemblyRoot = object.AssemblyRootPart
-
-				if assemblyRoot and assemblyRoot:IsA("BasePart") then
-					return assemblyRoot
-				end
-
-				return object
-			end
-		end
-	end
-
-	return seat
-end
-
-local function isVehicleSeatPart(seat)
-	return seat
-		and seat:IsA("BasePart")
-		and (seat:IsA("Seat") or seat:IsA("VehicleSeat"))
-end
-
-local function clearVehicleJumpStabilizer()
-	VehicleJumpSettings.StabilizerToken += 1
-
-	if VehicleJumpSettings.Stabilizer then
-		pcall(function()
-			VehicleJumpSettings.Stabilizer:Destroy()
-		end)
-	end
-
-	VehicleJumpSettings.Stabilizer = nil
-end
-
-local function clearVehicleFlipAssist()
-	if VehicleSettings.FlipGyro then
-		pcall(function()
-			VehicleSettings.FlipGyro:Destroy()
-		end)
-	end
-
-	VehicleSettings.FlipGyro = nil
-	VehicleSettings.FlipRoot = nil
-end
-
-local function getVehicleUprightCFrame(root, seat)
-	local heading = Vector3.new(seat.CFrame.LookVector.X, 0, seat.CFrame.LookVector.Z)
-
-	if heading.Magnitude < 0.001 then
-		heading = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
-	end
-
-	if heading.Magnitude < 0.001 then
-		heading = Vector3.zAxis
-	else
-		heading = heading.Unit
-	end
-
-	return CFrame.lookAt(root.Position, root.Position + heading, Vector3.yAxis)
-end
-
-local function clearVehicleTeleportReinforcement()
-	VehicleTeleportSettings.ReinforceToken += 1
-	disconnect(VehicleTeleportSettings.ReinforceConnection)
-	VehicleTeleportSettings.ReinforceConnection = nil
-	VehicleTeleportSettings.ReinforceRoot = nil
-	VehicleTeleportSettings.ReinforceSeat = nil
-	VehicleTeleportSettings.ReinforceParts = nil
-	VehicleTeleportSettings.ReinforceOffsets = nil
-end
-
-local function restoreVehicleSpeed()
-	clearVehicleSpeedWatch()
-	clearVehicleBoost()
-	clearVehicleJumpStabilizer()
-	clearVehicleFlipAssist()
-	clearVehicleTeleportReinforcement()
-
-	if stopVehicleFlyRuntime then
-		stopVehicleFlyRuntime()
-	end
-
-	local seat = VehicleSettings.CurrentSeat
-
-	if seat
-		and seat.Parent
-		and seat:IsA("VehicleSeat") then
-		pcall(function()
-			if VehicleSettings.OriginalMaxSpeed[seat] ~= nil then
-				seat.MaxSpeed = VehicleSettings.OriginalMaxSpeed[seat]
-			end
-
-			if VehicleSettings.OriginalTurnSpeed[seat] ~= nil then
-				seat.TurnSpeed = VehicleSettings.OriginalTurnSpeed[seat]
-			end
-		end)
-	end
-
-	VehicleSettings.CurrentSeat = nil
-	VehicleSettings.CurrentModel = nil
-	VehicleSettings.CurrentRoot = nil
-	VehicleSettings.Updating = false
-end
-
-local function applyVehicleSeatSpeed()
-	local seat = VehicleSettings.CurrentSeat
-
-	if not running
-		or not seat
-		or not seat.Parent
-		or not seat:IsA("VehicleSeat") then
-		return
-	end
-
-	local speed = math.clamp(tonumber(VehicleSettings.Speed) or 60, 0, 500)
-
-	pcall(function()
-		if VehicleSettings.OriginalMaxSpeed[seat] == nil then
-			VehicleSettings.OriginalMaxSpeed[seat] = seat.MaxSpeed
-		end
-
-		if seat.MaxSpeed ~= speed then
-			VehicleSettings.Updating = true
-			seat.MaxSpeed = speed
-			VehicleSettings.Updating = false
-		end
-	end)
-end
-
-local function applyVehicleSeatSteering()
-	local seat = VehicleSettings.CurrentSeat
-
-	if not running
-		or not seat
-		or not seat.Parent
-		or not seat:IsA("VehicleSeat") then
-		return
-	end
-
-	local strength = math.clamp(tonumber(VehicleSettings.SteeringStrength) or 8, 0, 50)
-
-	pcall(function()
-		if VehicleSettings.OriginalTurnSpeed[seat] == nil then
-			VehicleSettings.OriginalTurnSpeed[seat] = seat.TurnSpeed
-		end
-
-		if seat.TurnSpeed ~= strength then
-			VehicleSettings.Updating = true
-			seat.TurnSpeed = strength
-			VehicleSettings.Updating = false
-		end
-	end)
-end
-
-local function getVehicleSteer(seat)
-	if seat and seat:IsA("VehicleSeat") then
-		local steer = 0
-
-		pcall(function()
-			steer = tonumber(seat.SteerFloat) or 0
-		end)
-
-		if math.abs(steer) > 0.01 then
-			return math.clamp(steer, -1, 1)
-		end
-
-		pcall(function()
-			steer = tonumber(seat.Steer) or 0
-		end)
-
-		if math.abs(steer) > 0.01 then
-			return math.clamp(steer, -1, 1)
-		end
-	end
-
-	local steer = 0
-
-	if UserInputService:IsKeyDown(Enum.KeyCode.D)
-		or UserInputService:IsKeyDown(Enum.KeyCode.Right) then
-		steer += 1
-	end
-
-	if UserInputService:IsKeyDown(Enum.KeyCode.A)
-		or UserInputService:IsKeyDown(Enum.KeyCode.Left) then
-		steer -= 1
-	end
-
-	return math.clamp(steer, -1, 1)
-end
-
-local function stabilizeVehicle(root, seat, deltaTime)
-	if VehicleFlySettings.Enabled then
-		clearVehicleFlipAssist()
-		return
-	end
-
-	local upVector = root.CFrame.UpVector
-	local needsCorrection = upVector.Y < 0.35
-	local gyro = VehicleSettings.FlipGyro
-
-	if not needsCorrection and gyro and upVector.Y >= 0.88 then
-		clearVehicleFlipAssist()
-		return
-	end
-
-	if not needsCorrection and not gyro then
-		return
-	end
-
-	if not gyro
-		or not gyro.Parent
-		or VehicleSettings.FlipRoot ~= root then
-		clearVehicleFlipAssist()
-
-		gyro = Instance.new("BodyGyro")
-		gyro.Name = "__PlayerToolsVehicleFlipStabilizer"
-		gyro.MaxTorque = Vector3.new(1e9, 1e9, 1e9)
-		gyro.P = 50000
-		gyro.D = 2200
-		gyro.Parent = root
-
-		VehicleSettings.FlipGyro = gyro
-		VehicleSettings.FlipRoot = root
-	end
-
-	gyro.CFrame = getVehicleUprightCFrame(root, seat)
-
-	local angularVelocity = root.AssemblyAngularVelocity
-	root.AssemblyAngularVelocity = Vector3.new(
-		angularVelocity.X * 0.2,
-		angularVelocity.Y * 0.8,
-		angularVelocity.Z * 0.2
-	)
-end
-
-local function getVehicleThrottle(seat)
-	if seat and seat:IsA("VehicleSeat") then
-		local throttle = 0
-
-		pcall(function()
-			throttle = tonumber(seat.ThrottleFloat) or 0
-		end)
-
-		if math.abs(throttle) > 0.01 then
-			return math.clamp(throttle, -1, 1)
-		end
-
-		pcall(function()
-			throttle = tonumber(seat.Throttle) or 0
-		end)
-
-		if math.abs(throttle) > 0.01 then
-			return math.clamp(throttle, -1, 1)
-		end
-	end
-
-	local throttle = 0
-
-	if UserInputService:IsKeyDown(Enum.KeyCode.W)
-		or UserInputService:IsKeyDown(Enum.KeyCode.Up) then
-		throttle += 1
-	end
-
-	if UserInputService:IsKeyDown(Enum.KeyCode.S)
-		or UserInputService:IsKeyDown(Enum.KeyCode.Down) then
-		throttle -= 1
-	end
-
-	return math.clamp(throttle, -1, 1)
-end
-
-local function isVehicleSpeedBoostActive()
-	return os.clock() < VehicleSpeedBoostSettings.ActiveUntil
-end
-
-local function updateVehicleBoost(deltaTime)
-	if not running then
-		return
-	end
-
-	local seat = VehicleSettings.CurrentSeat
-	local root = VehicleSettings.CurrentRoot
-	local humanoid = MovementSettings.Humanoid
-
-	if not seat
-		or not seat.Parent
-		or not root
-		or not root.Parent
-		or not humanoid
-		or not humanoid.Parent
-		or not isVehicleSeatPart(seat)
-		or seat.Occupant ~= humanoid then
-		clearVehicleFlipAssist()
-		return
-	end
-
-	local delta = math.max(tonumber(deltaTime) or 0, 0)
-
-	if not VehicleFlySettings.Enabled then
-		applyVehicleSeatSpeed()
-		applyVehicleSeatSteering()
-
-		local forward = Vector3.new(seat.CFrame.LookVector.X, 0, seat.CFrame.LookVector.Z)
-
-		if forward.Magnitude > 0.001 then
-			forward = forward.Unit
-
-			local throttle = getVehicleThrottle(seat)
-			local speed = math.clamp(tonumber(VehicleSettings.Speed) or 60, 0, 500)
-			local velocity = root.AssemblyLinearVelocity
-			local forwardSpeed = velocity:Dot(forward)
-			local targetSpeed = throttle * speed
-
-			if isVehicleSpeedBoostActive() then
-				targetSpeed = math.max(
-					targetSpeed,
-					math.clamp(tonumber(VehicleSpeedBoostSettings.Power) or 160, 20, 600)
-				)
-			end
-
-			local alpha = 1 - math.exp(-18 * delta)
-			local nextForwardSpeed = forwardSpeed + (targetSpeed - forwardSpeed) * alpha
-			local lateralVelocity = velocity - forward * forwardSpeed
-
-			root.AssemblyLinearVelocity = lateralVelocity + forward * nextForwardSpeed
-
-			local steer = getVehicleSteer(seat)
-			local horizontalSpeed = Vector3.new(velocity.X, 0, velocity.Z).Magnitude
-			local movementFactor = math.clamp(horizontalSpeed / math.max(speed, 1), 0, 1)
-			local targetYaw = -steer
-				* math.clamp(tonumber(VehicleSettings.SteeringStrength) or 8, 0, 50)
-				* movementFactor
-			local angularVelocity = root.AssemblyAngularVelocity
-			local steeringAlpha = 1 - math.exp(-14 * delta)
-
-			root.AssemblyAngularVelocity = Vector3.new(
-				angularVelocity.X,
-				angularVelocity.Y + (targetYaw - angularVelocity.Y) * steeringAlpha,
-				angularVelocity.Z
-			)
-		end
-	end
-
-	local jumpStabilizer = VehicleJumpSettings.Stabilizer
-
-	if jumpStabilizer and jumpStabilizer.Parent then
-		jumpStabilizer.CFrame = getVehicleUprightCFrame(root, seat)
-	end
-
-	stabilizeVehicle(root, seat, delta)
-end
-
-local function canVehicleJump()
-	local seat = VehicleSettings.CurrentSeat
-	local root = VehicleSettings.CurrentRoot
-	local humanoid = MovementSettings.Humanoid
-
-	return running
-		and seat
-		and seat.Parent
-		and root
-		and root.Parent
-		and humanoid
-		and humanoid.Parent
-		and isVehicleSeatPart(seat)
-		and seat.Occupant == humanoid
-end
-
-local function jumpVehicle()
-	if not canVehicleJump() then
-		return
-	end
-
-	local now = os.clock()
-
-	if now - VehicleJumpSettings.LastJump < VehicleJumpSettings.Cooldown then
-		return
-	end
-
-	VehicleJumpSettings.LastJump = now
-
-	local seat = VehicleSettings.CurrentSeat
-	local root = VehicleSettings.CurrentRoot
-	local power = math.clamp(tonumber(VehicleJumpSettings.Power) or 90, 20, 250)
-	local velocity = root.AssemblyLinearVelocity
-	local forward = Vector3.new(seat.CFrame.LookVector.X, 0, seat.CFrame.LookVector.Z)
-
-	if forward.Magnitude > 0.001 then
-		forward = forward.Unit
-	else
-		forward = Vector3.zero
-	end
-
-	local horizontalSpeed = Vector3.new(velocity.X, 0, velocity.Z).Magnitude
-	local forwardKick = math.clamp(horizontalSpeed * 0.12, power * 0.08, power * 0.28)
-	local upwardSpeed = math.max(velocity.Y, power)
-
-	root.AssemblyLinearVelocity = Vector3.new(
-		velocity.X,
-		upwardSpeed,
-		velocity.Z
-	) + forward * forwardKick
-
-	local angularVelocity = root.AssemblyAngularVelocity
-	root.AssemblyAngularVelocity = Vector3.new(
-		0,
-		angularVelocity.Y * 0.55,
-		0
-	)
-
-	if not VehicleFlySettings.Enabled then
-		clearVehicleJumpStabilizer()
-
-		local heading = Vector3.new(seat.CFrame.LookVector.X, 0, seat.CFrame.LookVector.Z)
-
-		if heading.Magnitude < 0.001 then
-			heading = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
-		end
-
-		if heading.Magnitude > 0.001 then
-			heading = heading.Unit
-
-			local stabilizer = Instance.new("BodyGyro")
-			stabilizer.Name = "__PlayerToolsVehicleJumpStabilizer"
-			stabilizer.MaxTorque = Vector3.new(1e8, 0, 1e8)
-			stabilizer.P = 30000
-			stabilizer.D = 1600
-			stabilizer.CFrame = CFrame.lookAt(
-				root.Position,
-				root.Position + heading,
-				Vector3.yAxis
-			)
-			stabilizer.Parent = root
-
-			VehicleJumpSettings.Stabilizer = stabilizer
-			local token = VehicleJumpSettings.StabilizerToken
-			local holdTime = 0.45 + math.clamp(power / 250, 0, 1) * 0.55
-
-			task.delay(holdTime, function()
-				if VehicleJumpSettings.StabilizerToken == token
-					and VehicleJumpSettings.Stabilizer == stabilizer then
-					VehicleJumpSettings.Stabilizer = nil
-					pcall(function()
-						stabilizer:Destroy()
-					end)
-				end
-			end)
-		end
-	end
-end
-
-local function canClickTeleport()
-	local character = LocalPlayer.Character
-	local root = getRoot(character)
-	local humanoid = MovementSettings.Humanoid
-
-	return running
-		and ClickTeleportSettings.Enabled
-		and character
-		and character.Parent
-		and root
-		and root.Parent
-		and humanoid
-		and humanoid.Parent
-end
-
-local function getClickTeleportTarget(screenPosition)
-	local camera = Workspace.CurrentCamera
-	local character = LocalPlayer.Character
-
-	if not camera then
-		return nil
-	end
-
-	local position = screenPosition or UserInputService:GetMouseLocation()
-	local ray = camera:ViewportPointToRay(position.X, position.Y)
-	local params = RaycastParams.new()
-	params.FilterType = Enum.RaycastFilterType.Exclude
-	params.FilterDescendantsInstances = character and {character} or {}
-	params.IgnoreWater = false
-
-	local result = Workspace:Raycast(ray.Origin, ray.Direction * 10000, params)
-
-	if not result then
-		return nil
-	end
-
-	return result.Position
-end
-
-local function teleportCharacterToMouse(screenPosition)
-	if not canClickTeleport() then
-		return
-	end
-
-	local now = os.clock()
-
-	if now - ClickTeleportSettings.LastTeleport < ClickTeleportSettings.Cooldown then
-		return
-	end
-
-	local destination = getClickTeleportTarget(screenPosition)
-
-	if not destination then
-		return
-	end
-
-	local root = getRoot(LocalPlayer.Character)
-
-	if not root or not root.Parent then
-		return
-	end
-
-	local look = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
-
-	if look.Magnitude < 0.001 then
-		look = Vector3.zAxis
-	else
-		look = look.Unit
-	end
-
-	local lift = math.max(root.Size.Y * 0.5 + 2, 3)
-	local position = destination + Vector3.yAxis * lift
-
-	root.CFrame = CFrame.lookAt(position, position + look)
-	root.AssemblyLinearVelocity = Vector3.zero
-	root.AssemblyAngularVelocity = Vector3.zero
-	ClickTeleportSettings.LastTeleport = now
-end
-
-local function canVehicleSpeedBoost()
-	local seat = VehicleSettings.CurrentSeat
-	local root = VehicleSettings.CurrentRoot
-	local humanoid = MovementSettings.Humanoid
-
-	return running
-		and seat
-		and seat.Parent
-		and root
-		and root.Parent
-		and humanoid
-		and humanoid.Parent
-		and not VehicleFlySettings.Enabled
-		and not VehicleFlingSettings.Enabled
-		and not VehicleTeleportSettings.ReinforceConnection
-		and isVehicleSeatPart(seat)
-		and seat.Occupant == humanoid
-end
-
-local function boostVehicleSpeed()
-	if not canVehicleSpeedBoost() then
-		return
-	end
-
-	local now = os.clock()
-
-	if now - VehicleSpeedBoostSettings.LastBoost < VehicleSpeedBoostSettings.Cooldown then
-		return
-	end
-
-	local seat = VehicleSettings.CurrentSeat
-	local root = VehicleSettings.CurrentRoot
-	local forward = Vector3.new(seat.CFrame.LookVector.X, 0, seat.CFrame.LookVector.Z)
-
-	if forward.Magnitude < 0.001 then
-		return
-	end
-
-	forward = forward.Unit
-
-	local power = math.clamp(tonumber(VehicleSpeedBoostSettings.Power) or 160, 20, 600)
-	local velocity = root.AssemblyLinearVelocity
-	local forwardSpeed = velocity:Dot(forward)
-	local lateralVelocity = velocity - forward * forwardSpeed
-	local targetSpeed = math.max(forwardSpeed, power)
-
-	root.AssemblyLinearVelocity = lateralVelocity + forward * targetSpeed
-	VehicleSpeedBoostSettings.LastBoost = now
-	VehicleSpeedBoostSettings.ActiveUntil = now + VehicleSpeedBoostSettings.Duration
-end
-
-local function canVehicleFling()
-	local seat = VehicleSettings.CurrentSeat
-	local root = VehicleSettings.CurrentRoot
-	local humanoid = MovementSettings.Humanoid
-
-	return running
-		and VehicleFlingSettings.Enabled
-		and seat
-		and seat.Parent
-		and root
-		and root.Parent
-		and humanoid
-		and humanoid.Parent
-		and isVehicleSeatPart(seat)
-		and seat.Occupant == humanoid
-end
-
-local function setVehicleFlingEnabled(value)
-	local enabled = value and true or false
-
-	if VehicleFlingSettings.Enabled == enabled then
-		return
-	end
-
-	VehicleFlingSettings.Enabled = enabled
-	VehicleFlingSettings.WorkerToken += 1
-
-	if not enabled then
-		return
-	end
-
-	local workerToken = VehicleFlingSettings.WorkerToken
-
-	task.spawn(function()
-		local verticalJitter = 0.1
-
-		while running
-			and VehicleFlingSettings.Enabled
-			and workerToken == VehicleFlingSettings.WorkerToken do
-			RunService.Heartbeat:Wait()
-
-			if not running
-				or not VehicleFlingSettings.Enabled
-				or workerToken ~= VehicleFlingSettings.WorkerToken then
-				break
-			end
-
-			if not VehicleFlySettings.Enabled
-				and not VehicleTeleportSettings.ReinforceConnection
-				and canVehicleFling() then
-				local root = VehicleSettings.CurrentRoot
-
-				if root and root.Parent then
-					local savedVelocity = root.AssemblyLinearVelocity
-					local power = math.clamp(
-						tonumber(VehicleFlingSettings.Power) or 100,
-						1,
-						1000
-					)
-
-					root.AssemblyLinearVelocity = savedVelocity * power
-						+ Vector3.new(0, power, 0)
-
-					RunService.RenderStepped:Wait()
-
-					if running
-						and VehicleFlingSettings.Enabled
-						and workerToken == VehicleFlingSettings.WorkerToken
-						and root
-						and root.Parent
-						and VehicleSettings.CurrentRoot == root then
-						root.AssemblyLinearVelocity = savedVelocity
-					end
-
-					RunService.Stepped:Wait()
-
-					if running
-						and VehicleFlingSettings.Enabled
-						and workerToken == VehicleFlingSettings.WorkerToken
-						and root
-						and root.Parent
-						and VehicleSettings.CurrentRoot == root then
-						root.AssemblyLinearVelocity = savedVelocity
-							+ Vector3.new(0, verticalJitter, 0)
-						verticalJitter = -verticalJitter
-					end
-				end
-			end
-		end
-	end)
-end
-
-local function canVehicleTeleport()
-	local seat = VehicleSettings.CurrentSeat
-	local root = VehicleSettings.CurrentRoot
-	local humanoid = MovementSettings.Humanoid
-
-	return running
-		and VehicleTeleportSettings.Enabled
-		and seat
-		and seat.Parent
-		and root
-		and root.Parent
-		and humanoid
-		and humanoid.Parent
-		and isVehicleSeatPart(seat)
-		and seat.Occupant == humanoid
-end
-
-local function getVehicleTeleportTarget(screenPosition)
-	local root = VehicleSettings.CurrentRoot
-	local model = VehicleSettings.CurrentModel
-	local target = Mouse.Target
-
-	if target
-		and target:IsA("BasePart")
-		and root
-		and root.Parent
-		and (not model or not target:IsDescendantOf(model))
-		and target.AssemblyRootPart ~= root.AssemblyRootPart
-		and Mouse.Hit then
-		return Mouse.Hit.Position
-	end
-
-	local camera = Workspace.CurrentCamera
-
-	if not camera then
-		return nil
-	end
-
-	local position = screenPosition or UserInputService:GetMouseLocation()
-	local ray = camera:ViewportPointToRay(position.X, position.Y)
-	local filter = {}
-
-	if LocalPlayer.Character then
-		table.insert(filter, LocalPlayer.Character)
-	end
-
-	if model then
-		table.insert(filter, model)
-	end
-
-	local params = RaycastParams.new()
-	params.FilterType = Enum.RaycastFilterType.Exclude
-	params.FilterDescendantsInstances = filter
-	params.IgnoreWater = false
-
-	local result = Workspace:Raycast(ray.Origin, ray.Direction * 10000, params)
-
-	return result and result.Position or nil
-end
-
-local function hasHumanoidAncestor(instance)
-	local current = instance
-
-	while current and current ~= Workspace do
-		if current:IsA("Model") and current:FindFirstChildOfClass("Humanoid") then
-			return true
-		end
-
-		current = current.Parent
-	end
-
-	return false
-end
-
-local function countModelBaseParts(model, limit)
-	local count = 0
-
-	for _, object in ipairs(model:GetDescendants()) do
-		if object:IsA("BasePart") then
-			count += 1
-
-			if limit and count > limit then
-				return count
-			end
-		end
-	end
-
-	return count
-end
-
-local function collectVehicleTeleportModels(root, model)
-	local models = {}
-	local seen = {}
-
-	local function addModel(candidate)
-		if candidate
-			and candidate:IsA("Model")
-			and candidate.Parent
-			and not seen[candidate]
-			and not hasHumanoidAncestor(candidate) then
-			seen[candidate] = true
-			table.insert(models, candidate)
-		end
-	end
-
-	local current = root
-
-	while current and current ~= Workspace do
-		if current:IsA("Model") then
-			local partCount = countModelBaseParts(current, 450)
-
-			if partCount <= 450 then
-				addModel(current)
-			elseif #models > 0 then
-				break
-			end
-		end
-
-		current = current.Parent
-	end
-
-	if model and model.Parent then
-		addModel(model)
-	end
-
-	return models
-end
-
-local function collectVehicleTeleportParts(root, model)
-	local parts = {}
-	local seen = {}
-	local queue = {}
-	local nearbyRadius = math.clamp(
-		tonumber(VehicleTeleportSettings.NearbyRadius) or 70,
-		25,
-		150
-	)
-
-	local function addPart(part)
-		if part
-			and part:IsA("BasePart")
-			and part.Parent
-			and not seen[part]
-			and not hasHumanoidAncestor(part) then
-			seen[part] = true
-			table.insert(parts, part)
-			table.insert(queue, part)
-		end
-	end
-
-	addPart(root)
-
-	for _, vehicleModel in ipairs(collectVehicleTeleportModels(root, model)) do
-		for _, object in ipairs(vehicleModel:GetDescendants()) do
-			if object:IsA("BasePart") then
-				addPart(object)
-			end
-		end
-	end
-
-	local queueIndex = 1
-
-	while queueIndex <= #queue do
-		local part = queue[queueIndex]
-		queueIndex += 1
-
-		pcall(function()
-			for _, connected in ipairs(part:GetConnectedParts(true)) do
-				addPart(connected)
-			end
-		end)
-	end
-
-	local overlap = OverlapParams.new()
-	overlap.FilterType = Enum.RaycastFilterType.Exclude
-	overlap.FilterDescendantsInstances = LocalPlayer.Character and {LocalPlayer.Character} or {}
-	overlap.MaxParts = 0
-
-	local nearbyParts = {}
-
-	pcall(function()
-		nearbyParts = Workspace:GetPartBoundsInRadius(
-			root.Position,
-			nearbyRadius,
-			overlap
-		)
-	end)
-
-	for _, part in ipairs(nearbyParts) do
-		if part
-			and part:IsA("BasePart")
-			and not part.Anchored
-			and not hasHumanoidAncestor(part)
-			and (part.Position - root.Position).Magnitude <= nearbyRadius then
-			addPart(part)
-		end
-	end
-
-	queueIndex = 1
-
-	while queueIndex <= #queue do
-		local part = queue[queueIndex]
-		queueIndex += 1
-
-		pcall(function()
-			for _, connected in ipairs(part:GetConnectedParts(true)) do
-				addPart(connected)
-			end
-		end)
-	end
-
-	return parts
-end
-
-local function captureVehicleTeleportOffsets(root, parts)
-	local offsets = {}
-
-	for _, part in ipairs(parts) do
-		if part and part.Parent then
-			offsets[part] = root.CFrame:ToObjectSpace(part.CFrame)
-		end
-	end
-
-	return offsets
-end
-
-local function applyVehicleTeleportState(root, desiredRoot, parts, offsets)
-	if not root or not root.Parent then
-		return
-	end
-
-	local movingParts = {}
-	local targetCFrames = {}
-
-	for _, part in ipairs(parts) do
-		local offset = offsets[part]
-
-		if part
-			and part.Parent
-			and offset then
-			table.insert(movingParts, part)
-			table.insert(targetCFrames, desiredRoot * offset)
-		end
-	end
-
-	local moved = false
-
-	if #movingParts > 0 then
-		moved = pcall(function()
-			Workspace:BulkMoveTo(
-				movingParts,
-				targetCFrames,
-				Enum.BulkMoveMode.FireCFrameChanged
-			)
-		end)
-	end
-
-	if not moved then
-		for index, part in ipairs(movingParts) do
-			pcall(function()
-				part.CFrame = targetCFrames[index]
-			end)
-		end
-	end
-
-	for _, part in ipairs(movingParts) do
-		pcall(function()
-			part.AssemblyLinearVelocity = Vector3.zero
-			part.AssemblyAngularVelocity = Vector3.zero
-		end)
-	end
-
-	pcall(function()
-		root.CFrame = desiredRoot
-		root.AssemblyLinearVelocity = Vector3.zero
-		root.AssemblyAngularVelocity = Vector3.zero
-	end)
-end
-
-local function startVehicleTeleportReinforcement(root, seat, desiredRoot, parts, offsets)
-	clearVehicleTeleportReinforcement()
-
-	VehicleTeleportSettings.ReinforceRoot = root
-	VehicleTeleportSettings.ReinforceSeat = seat
-	VehicleTeleportSettings.ReinforceParts = parts
-	VehicleTeleportSettings.ReinforceOffsets = offsets
-
-	local token = VehicleTeleportSettings.ReinforceToken
-	local expiresAt = os.clock() + VehicleTeleportSettings.ReinforceDuration
-
-	VehicleTeleportSettings.ReinforceConnection = RunService.Heartbeat:Connect(function()
-		local humanoid = MovementSettings.Humanoid
-
-		if not running
-			or not VehicleTeleportSettings.Enabled
-			or token ~= VehicleTeleportSettings.ReinforceToken
-			or os.clock() >= expiresAt
-			or not root
-			or not root.Parent
-			or not seat
-			or not seat.Parent
-			or not humanoid
-			or not humanoid.Parent
-			or VehicleSettings.CurrentRoot ~= root
-			or VehicleSettings.CurrentSeat ~= seat
-			or seat.Occupant ~= humanoid then
-			clearVehicleTeleportReinforcement()
-			return
-		end
-
-		applyVehicleTeleportState(root, desiredRoot, parts, offsets)
-	end)
-
-	applyVehicleTeleportState(root, desiredRoot, parts, offsets)
-end
-
-local function teleportVehicleToMouse(screenPosition)
-	if not canVehicleTeleport() then
-		return
-	end
-
-	local now = os.clock()
-
-	if now - VehicleTeleportSettings.LastTeleport < VehicleTeleportSettings.Cooldown then
-		return
-	end
-
-	local destination = getVehicleTeleportTarget(screenPosition)
-
-	if not destination then
-		return
-	end
-
-	local seat = VehicleSettings.CurrentSeat
-	local root = VehicleSettings.CurrentRoot
-	local model = VehicleSettings.CurrentModel
-	local lift = math.max(root.Size.Y * 0.5 + 1, 2)
-
-	if model and model.Parent then
-		local ok, _, size = pcall(function()
-			return model:GetBoundingBox()
-		end)
-
-		if ok and size then
-			lift = math.max(size.Y * 0.5 + 1, lift)
-		end
-	end
-
-	local upright = getVehicleUprightCFrame(root, seat)
-	local desiredRoot = CFrame.new(destination + Vector3.yAxis * lift)
-		* (upright - upright.Position)
-	local parts = collectVehicleTeleportParts(root, model)
-	local offsets = captureVehicleTeleportOffsets(root, parts)
-
-	clearVehicleFlipAssist()
-	startVehicleTeleportReinforcement(root, seat, desiredRoot, parts, offsets)
-	VehicleTeleportSettings.LastTeleport = now
-end
-
-local function setVehicleTeleportEnabled(value)
-	VehicleTeleportSettings.Enabled = value and true or false
-
-	if not VehicleTeleportSettings.Enabled then
-		clearVehicleTeleportReinforcement()
-	end
-end
-
-local function startVehicleBoost()
-	clearVehicleBoost()
-
-	VehicleSettings.BoostConnection = RunService.Heartbeat:Connect(updateVehicleBoost)
-end
-
-local function setVehicleSeat(seat)
-	if seat == VehicleSettings.CurrentSeat then
-		applyVehicleSeatSpeed()
-		return
-	end
-
-	restoreVehicleSpeed()
-
-	if not isVehicleSeatPart(seat) then
-		return
-	end
-
-	VehicleSettings.CurrentSeat = seat
-	VehicleSettings.CurrentModel = findVehicleModel(seat)
-	VehicleSettings.CurrentRoot = getVehicleRoot(seat, VehicleSettings.CurrentModel)
-
-	if not VehicleSettings.CurrentRoot or not VehicleSettings.CurrentRoot:IsA("BasePart") then
-		restoreVehicleSpeed()
-		return
-	end
-
-	if seat:IsA("VehicleSeat") then
-		VehicleSettings.OriginalMaxSpeed[seat] = seat.MaxSpeed
-		VehicleSettings.OriginalTurnSpeed[seat] = seat.TurnSpeed
-
-		VehicleSettings.SpeedWatchConnection = seat:GetPropertyChangedSignal("MaxSpeed"):Connect(function()
-			if running
-				and VehicleSettings.CurrentSeat == seat
-				and not VehicleSettings.Updating
-				and seat.MaxSpeed ~= VehicleSettings.Speed then
-				task.defer(applyVehicleSeatSpeed)
-			end
-		end)
-	end
-
-	applyVehicleSeatSpeed()
-	applyVehicleSeatSteering()
-	startVehicleBoost()
-
-	if restartVehicleFly then
-		restartVehicleFly()
-	end
-end
-
-local function bindVehicleHumanoid(humanoid)
-	clearVehicleSeatedConnection()
-	restoreVehicleSpeed()
-
-	if not running or not humanoid or not humanoid.Parent then
-		return
-	end
-
-	VehicleSettings.SeatedConnection = humanoid.Seated:Connect(function(isSeated, seatPart)
-		if isSeated then
-			setVehicleSeat(seatPart)
-		else
-			setVehicleSeat(nil)
-		end
-	end)
-
-	setVehicleSeat(humanoid.SeatPart)
-end
-
-local function bindMovementCharacter(character)
-	clearSpeedWatcher()
-	MovementSettings.Humanoid = nil
-	MovementSettings.OriginalSpeed = nil
-
-	if not character then
-		return
-	end
-
-	local humanoid = character:FindFirstChildOfClass("Humanoid")
-	if not humanoid then
-		humanoid = character:WaitForChild("Humanoid", 10)
-	end
-
-	if not running or not humanoid or not humanoid:IsA("Humanoid") then
-		return
-	end
-
-	MovementSettings.Humanoid = humanoid
-	bindVehicleHumanoid(humanoid)
-
-	if MovementSettings.Noclip then
-		applyNoclip()
-	end
-
-	if PlatformSettings.Enabled then
-		task.defer(function()
-			if running
-				and PlatformSettings.Enabled
-				and LocalPlayer.Character == character then
-				startPlatformForCharacter()
-			end
-		end)
-	end
-
-	if MovementSettings.Enabled then
-		MovementSettings.OriginalSpeed = humanoid.WalkSpeed
-		applySpeed()
-		watchSpeed()
-	end
-end
-
-local function setSpeedEnabled(value)
-	MovementSettings.Enabled = value and true or false
-
-	local humanoid = MovementSettings.Humanoid
-
-	if not MovementSettings.Enabled then
-		clearSpeedWatcher()
-
-		if humanoid
-			and humanoid.Parent
-			and MovementSettings.OriginalSpeed ~= nil then
-			MovementSettings.Updating = true
-			humanoid.WalkSpeed = MovementSettings.OriginalSpeed
-			MovementSettings.Updating = false
-		end
-
-		MovementSettings.OriginalSpeed = nil
-		return
-	end
-
-	if not humanoid or not humanoid.Parent then
-		bindMovementCharacter(LocalPlayer.Character)
-		humanoid = MovementSettings.Humanoid
-	end
-
-	if humanoid and humanoid.Parent then
-		MovementSettings.OriginalSpeed = humanoid.WalkSpeed
-		applySpeed()
-		watchSpeed()
-	end
-end
-
-local function clearFlyAnimationLock()
-	disconnect(FlySettings.AnimationConnection)
-	FlySettings.AnimationConnection = nil
-
-	local animateScript = FlySettings.AnimateScript
-
-	if animateScript
-		and animateScript.Parent
-		and FlySettings.OriginalAnimateDisabled ~= nil then
-		pcall(function()
-			animateScript.Disabled = FlySettings.OriginalAnimateDisabled
-		end)
-	end
-
-	FlySettings.AnimateScript = nil
-	FlySettings.OriginalAnimateDisabled = nil
-end
-
-local function stopFlyAnimationTrack(track)
-	if track then
-		pcall(function()
-			track:Stop(0)
-		end)
-	end
-end
-
-local function lockFlyAnimations(character, humanoid)
-	clearFlyAnimationLock()
-
-	if not character
-		or not character.Parent
-		or not humanoid
-		or not humanoid.Parent then
-		return
-	end
-
-	local animateScript = character:FindFirstChild("Animate")
-
-	if animateScript and animateScript:IsA("LocalScript") then
-		FlySettings.AnimateScript = animateScript
-		FlySettings.OriginalAnimateDisabled = animateScript.Disabled
-		animateScript.Disabled = true
-	end
-
-	local animator = humanoid:FindFirstChildOfClass("Animator")
-
-	if not animator then
-		local candidate = humanoid:FindFirstChild("Animator")
-
-		if candidate and candidate:IsA("Animator") then
-			animator = candidate
-		end
-	end
-
-	if not animator then
-		return
-	end
-
-	for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
-		stopFlyAnimationTrack(track)
-	end
-
-	FlySettings.AnimationConnection = animator.AnimationPlayed:Connect(function(track)
-		if running
-			and FlySettings.Enabled
-			and FlySettings.Humanoid == humanoid then
-			task.defer(stopFlyAnimationTrack, track)
-		end
-	end)
-end
-
-local function destroyFlyBodyMovers()
-	if FlySettings.BodyVelocity then
-		pcall(function()
-			FlySettings.BodyVelocity:Destroy()
-		end)
-	end
-
-	if FlySettings.BodyGyro then
-		pcall(function()
-			FlySettings.BodyGyro:Destroy()
-		end)
-	end
-
-	FlySettings.BodyVelocity = nil
-	FlySettings.BodyGyro = nil
-end
-
-local function stopFlyRuntime()
-	pcall(function()
-		RunService:UnbindFromRenderStep(FLY_BIND_NAME)
-	end)
-
-	clearFlyAnimationLock()
-
-	local root = FlySettings.Root
-	local humanoid = FlySettings.Humanoid
-	local carriedVelocity = FlySettings.CurrentVelocity
-
-	destroyFlyBodyMovers()
-
-	if root and root.Parent then
-		root.AssemblyLinearVelocity = carriedVelocity * 0.15
-		root.AssemblyAngularVelocity = Vector3.zero
-	end
-
-	if humanoid and humanoid.Parent then
-		if FlySettings.OriginalAutoRotate ~= nil then
-			humanoid.AutoRotate = FlySettings.OriginalAutoRotate
-		end
-
-		if FlySettings.OriginalPlatformStand ~= nil then
-			humanoid.PlatformStand = FlySettings.OriginalPlatformStand
-		end
-
-		if humanoid.Health > 0 then
-			humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-		end
-	end
-
-	FlySettings.Root = nil
-	FlySettings.Humanoid = nil
-	FlySettings.CurrentVelocity = Vector3.zero
-	FlySettings.CurrentOrientation = nil
-	FlySettings.OriginalAutoRotate = nil
-	FlySettings.OriginalPlatformStand = nil
-end
-
-local function getFlyInput(camera)
-	if UserInputService:GetFocusedTextBox() then
-		return Vector3.zero, 0, 0
-	end
-
-	local forwardInput = 0
-	local strafeInput = 0
-	local verticalInput = 0
-
-	if UserInputService:IsKeyDown(Enum.KeyCode.W) then
-		forwardInput += 1
-	end
-
-	if UserInputService:IsKeyDown(Enum.KeyCode.S) then
-		forwardInput -= 1
-	end
-
-	if UserInputService:IsKeyDown(Enum.KeyCode.D) then
-		strafeInput += 1
-	end
-
-	if UserInputService:IsKeyDown(Enum.KeyCode.A) then
-		strafeInput -= 1
-	end
-
-	if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
-		verticalInput += 1
-	end
-
-	if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl)
-		or UserInputService:IsKeyDown(Enum.KeyCode.RightControl) then
-		verticalInput -= 1
-	end
-
-	local direction = (camera.CFrame.LookVector * forwardInput)
-		+ (camera.CFrame.RightVector * strafeInput)
-		+ (Vector3.yAxis * verticalInput)
-
-	if direction.Magnitude > 0 then
-		direction = direction.Unit
-	end
-
-	return direction, forwardInput, strafeInput
-end
-
-local function updateFly(deltaTime)
-	if not running or not FlySettings.Enabled then
-		return
-	end
-
-	local root = FlySettings.Root
-	local humanoid = FlySettings.Humanoid
-	local bodyVelocity = FlySettings.BodyVelocity
-	local bodyGyro = FlySettings.BodyGyro
-	local camera = Workspace.CurrentCamera
-
-	if not root
-		or not root.Parent
-		or not humanoid
-		or not humanoid.Parent
-		or humanoid.Health <= 0
-		or not bodyVelocity
-		or not bodyVelocity.Parent
-		or not bodyGyro
-		or not bodyGyro.Parent
-		or not camera then
-		return
-	end
-
-	deltaTime = tonumber(deltaTime) or (1 / 60)
-
-	local animator = humanoid:FindFirstChildOfClass("Animator")
-
-	if animator then
-		for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
-			stopFlyAnimationTrack(track)
-		end
-	end
-
-	local direction, _, strafeInput = getFlyInput(camera)
-	local targetVelocity = direction * FlySettings.Speed
-	local currentVelocity = FlySettings.CurrentVelocity
-	local response = targetVelocity.Magnitude > currentVelocity.Magnitude
-		and FlySettings.Acceleration
-		or FlySettings.Deceleration
-	local velocityAlpha = 1 - math.exp(-response * deltaTime)
-
-	FlySettings.CurrentVelocity = currentVelocity:Lerp(targetVelocity, velocityAlpha)
-	bodyVelocity.Velocity = FlySettings.CurrentVelocity
-
-	local lookVector = camera.CFrame.LookVector
-
-	if lookVector.Magnitude > 0.001 then
-		local velocityRatio = math.clamp(
-			FlySettings.CurrentVelocity.Magnitude / math.max(FlySettings.Speed, 1),
-			0,
-			1
-		)
-		local roll = -math.clamp(strafeInput, -1, 1) * math.rad(12) * velocityRatio
-		local targetOrientation = CFrame.lookAt(
-			root.Position,
-			root.Position + lookVector,
-			camera.CFrame.UpVector
-		) * CFrame.Angles(0, 0, roll)
-
-		if not FlySettings.CurrentOrientation then
-			FlySettings.CurrentOrientation = targetOrientation
-		else
-			local orientationAlpha = 1 - math.exp(-18 * deltaTime)
-			FlySettings.CurrentOrientation = FlySettings.CurrentOrientation:Lerp(targetOrientation, orientationAlpha)
-		end
-
-		bodyGyro.CFrame = FlySettings.CurrentOrientation
-	end
-end
-
-local function startFlyForCharacter(character)
-	stopFlyRuntime()
-
-	if not running or not FlySettings.Enabled or not character then
-		return
-	end
-
-	local humanoid = character:FindFirstChildOfClass("Humanoid")
-	local root = getRoot(character)
-
-	if not humanoid then
-		humanoid = character:WaitForChild("Humanoid", 10)
-	end
-
-	if not root then
-		root = character:WaitForChild("HumanoidRootPart", 10)
-	end
-
-	if not running
-		or not FlySettings.Enabled
-		or not humanoid
-		or not humanoid:IsA("Humanoid")
-		or not root
-		or not root:IsA("BasePart") then
-		return
-	end
-
-	FlySettings.Root = root
-	FlySettings.Humanoid = humanoid
-	FlySettings.CurrentVelocity = Vector3.zero
-	FlySettings.OriginalAutoRotate = humanoid.AutoRotate
-	FlySettings.OriginalPlatformStand = humanoid.PlatformStand
-
-	humanoid.AutoRotate = false
-	humanoid.PlatformStand = true
-	lockFlyAnimations(character, humanoid)
-	humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-
-	local camera = Workspace.CurrentCamera
-	if camera and camera.CFrame.LookVector.Magnitude > 0.001 then
-		FlySettings.CurrentOrientation = CFrame.lookAt(
-			root.Position,
-			root.Position + camera.CFrame.LookVector,
-			camera.CFrame.UpVector
-		)
-	else
-		FlySettings.CurrentOrientation = root.CFrame
-	end
-
-	local bodyVelocity = Instance.new("BodyVelocity")
-	bodyVelocity.Name = "__PlayerToolsFlyVelocity"
-	bodyVelocity.MaxForce = Vector3.new(1e6, 1e6, 1e6)
-	bodyVelocity.P = 8000
-	bodyVelocity.Velocity = Vector3.zero
-	bodyVelocity.Parent = root
-	FlySettings.BodyVelocity = bodyVelocity
-
-	local bodyGyro = Instance.new("BodyGyro")
-	bodyGyro.Name = "__PlayerToolsFlyGyro"
-	bodyGyro.MaxTorque = Vector3.new(1e7, 1e7, 1e7)
-	bodyGyro.P = 7000
-	bodyGyro.D = 600
-	bodyGyro.CFrame = FlySettings.CurrentOrientation
-	bodyGyro.Parent = root
-	FlySettings.BodyGyro = bodyGyro
-
-	pcall(function()
-		RunService:UnbindFromRenderStep(FLY_BIND_NAME)
-	end)
-
-	RunService:BindToRenderStep(FLY_BIND_NAME, Enum.RenderPriority.Character.Value + 1, updateFly)
-end
-
-local function setFlyEnabled(value)
-	local enabled = value and true or false
-
-	if FlySettings.Enabled == enabled then
-		return
-	end
-
-	FlySettings.Enabled = enabled
-
-	if not enabled then
-		stopFlyRuntime()
-		return
-	end
-
-	startFlyForCharacter(LocalPlayer.Character)
-end
-
-local function destroyVehicleFlyBodyMovers()
-	if VehicleFlySettings.BodyVelocity then
-		pcall(function()
-			VehicleFlySettings.BodyVelocity:Destroy()
-		end)
-	end
-
-	if VehicleFlySettings.BodyGyro then
-		pcall(function()
-			VehicleFlySettings.BodyGyro:Destroy()
-		end)
-	end
-
-	VehicleFlySettings.BodyVelocity = nil
-	VehicleFlySettings.BodyGyro = nil
-end
-
-stopVehicleFlyRuntime = function()
-	pcall(function()
-		RunService:UnbindFromRenderStep(VEHICLE_FLY_BIND_NAME)
-	end)
-
-	local root = VehicleFlySettings.Root
-	local carriedVelocity = VehicleFlySettings.CurrentVelocity
-
-	destroyVehicleFlyBodyMovers()
-
-	if root and root.Parent then
-		root.AssemblyLinearVelocity = carriedVelocity * 0.15
-		root.AssemblyAngularVelocity = Vector3.zero
-	end
-
-	VehicleFlySettings.Root = nil
-	VehicleFlySettings.Seat = nil
-	VehicleFlySettings.CurrentVelocity = Vector3.zero
-	VehicleFlySettings.CurrentOrientation = nil
-end
-
-local function isVehicleFlyValid()
-	local seat = VehicleFlySettings.Seat
-	local root = VehicleFlySettings.Root
-	local humanoid = MovementSettings.Humanoid
-
-	return running
-		and VehicleFlySettings.Enabled
-		and seat
-		and seat.Parent
-		and root
-		and root.Parent
-		and humanoid
-		and humanoid.Parent
-		and isVehicleSeatPart(seat)
-		and VehicleSettings.CurrentSeat == seat
-		and VehicleSettings.CurrentRoot == root
-		and seat.Occupant == humanoid
-end
-
-local function updateVehicleFly(deltaTime)
-	if not isVehicleFlyValid() then
-		if VehicleFlySettings.Root then
-			stopVehicleFlyRuntime()
-		end
-		return
-	end
-
-	local root = VehicleFlySettings.Root
-	local bodyVelocity = VehicleFlySettings.BodyVelocity
-	local bodyGyro = VehicleFlySettings.BodyGyro
-	local camera = Workspace.CurrentCamera
-
-	if not bodyVelocity
-		or not bodyVelocity.Parent
-		or not bodyGyro
-		or not bodyGyro.Parent
-		or not camera then
-		stopVehicleFlyRuntime()
-		return
-	end
-
-	deltaTime = math.max(tonumber(deltaTime) or (1 / 60), 0)
-
-	local direction, _, strafeInput = getFlyInput(camera)
-	local targetVelocity = direction * VehicleFlySettings.Speed
-	local currentVelocity = VehicleFlySettings.CurrentVelocity
-	local response = targetVelocity.Magnitude > currentVelocity.Magnitude
-		and VehicleFlySettings.Acceleration
-		or VehicleFlySettings.Deceleration
-	local velocityAlpha = 1 - math.exp(-response * deltaTime)
-
-	VehicleFlySettings.CurrentVelocity = currentVelocity:Lerp(targetVelocity, velocityAlpha)
-	bodyVelocity.Velocity = VehicleFlySettings.CurrentVelocity
-
-	local lookVector = camera.CFrame.LookVector
-
-	if lookVector.Magnitude > 0.001 then
-		local velocityRatio = math.clamp(
-			VehicleFlySettings.CurrentVelocity.Magnitude / math.max(VehicleFlySettings.Speed, 1),
-			0,
-			1
-		)
-		local roll = -math.clamp(strafeInput, -1, 1) * math.rad(12) * velocityRatio
-		local targetOrientation = CFrame.lookAt(
-			root.Position,
-			root.Position + lookVector,
-			camera.CFrame.UpVector
-		) * CFrame.Angles(0, 0, roll)
-
-		if not VehicleFlySettings.CurrentOrientation then
-			VehicleFlySettings.CurrentOrientation = targetOrientation
-		else
-			local orientationAlpha = 1 - math.exp(-18 * deltaTime)
-			VehicleFlySettings.CurrentOrientation = VehicleFlySettings.CurrentOrientation:Lerp(
-				targetOrientation,
-				orientationAlpha
-			)
-		end
-
-		bodyGyro.CFrame = VehicleFlySettings.CurrentOrientation
-	end
-end
-
-local function startVehicleFly()
-	stopVehicleFlyRuntime()
-
-	if not running
-		or not VehicleFlySettings.Enabled
-		or not VehicleSettings.CurrentSeat
-		or not VehicleSettings.CurrentRoot
-		or not MovementSettings.Humanoid then
-		return
-	end
-
-	local seat = VehicleSettings.CurrentSeat
-	local root = VehicleSettings.CurrentRoot
-	local humanoid = MovementSettings.Humanoid
-
-	if not isVehicleSeatPart(seat)
-		or not root:IsA("BasePart")
-		or not humanoid.Parent
-		or seat.Occupant ~= humanoid then
-		return
-	end
-
-	VehicleFlySettings.Seat = seat
-	VehicleFlySettings.Root = root
-	VehicleFlySettings.CurrentVelocity = Vector3.zero
-
-	local camera = Workspace.CurrentCamera
-
-	if camera and camera.CFrame.LookVector.Magnitude > 0.001 then
-		VehicleFlySettings.CurrentOrientation = CFrame.lookAt(
-			root.Position,
-			root.Position + camera.CFrame.LookVector,
-			camera.CFrame.UpVector
-		)
-	else
-		VehicleFlySettings.CurrentOrientation = root.CFrame
-	end
-
-	local bodyVelocity = Instance.new("BodyVelocity")
-	bodyVelocity.Name = "__PlayerToolsVehicleFlyVelocity"
-	bodyVelocity.MaxForce = Vector3.new(1e8, 1e8, 1e8)
-	bodyVelocity.P = 8000
-	bodyVelocity.Velocity = Vector3.zero
-	bodyVelocity.Parent = root
-	VehicleFlySettings.BodyVelocity = bodyVelocity
-
-	local bodyGyro = Instance.new("BodyGyro")
-	bodyGyro.Name = "__PlayerToolsVehicleFlyGyro"
-	bodyGyro.MaxTorque = Vector3.new(1e9, 1e9, 1e9)
-	bodyGyro.P = 7000
-	bodyGyro.D = 600
-	bodyGyro.CFrame = VehicleFlySettings.CurrentOrientation
-	bodyGyro.Parent = root
-	VehicleFlySettings.BodyGyro = bodyGyro
-
-	pcall(function()
-		RunService:UnbindFromRenderStep(VEHICLE_FLY_BIND_NAME)
-	end)
-
-	RunService:BindToRenderStep(
-		VEHICLE_FLY_BIND_NAME,
-		Enum.RenderPriority.Character.Value + 2,
-		updateVehicleFly
-	)
-end
-
-restartVehicleFly = function()
-	if VehicleFlySettings.Enabled then
-		startVehicleFly()
-	else
-		stopVehicleFlyRuntime()
-	end
-end
-
-local function setVehicleFlyEnabled(value)
-	local enabled = value and true or false
-
-	if VehicleFlySettings.Enabled == enabled then
-		return
-	end
-
-	VehicleFlySettings.Enabled = enabled
-
-	if not enabled then
-		stopVehicleFlyRuntime()
-		return
-	end
-
-	startVehicleFly()
-end
-
-local function disconnectAntiFlingConnections()
-	for _, connection in ipairs(FlingSettings.AntiFlingConnections) do
-		disconnect(connection)
-	end
-
-	table.clear(FlingSettings.AntiFlingConnections)
-end
-
-local function restoreAntiFlingCollisions()
-	for part, originalCanCollide in pairs(FlingSettings.CollisionStates) do
-		if part and part.Parent then
-			part.CanCollide = originalCanCollide
-		end
-	end
-
-	FlingSettings.CollisionStates = setmetatable({}, {__mode = "k"})
-end
-
-local function applyNoCollision(character)
-	if not character then
-		return
-	end
-
-	for _, object in ipairs(character:GetDescendants()) do
-		if object:IsA("BasePart") then
-			if FlingSettings.CollisionStates[object] == nil then
-				FlingSettings.CollisionStates[object] = object.CanCollide
-			end
-
-			object.CanCollide = false
-		end
-	end
-end
-
-local function watchNoCollisionCharacter(character)
-	if not character then
-		return
-	end
-
-	applyNoCollision(character)
-
-	table.insert(FlingSettings.AntiFlingConnections, character.DescendantAdded:Connect(function(object)
-		if FlingSettings.AntiFling and object:IsA("BasePart") then
-			if FlingSettings.CollisionStates[object] == nil then
-				FlingSettings.CollisionStates[object] = object.CanCollide
-			end
-
-			object.CanCollide = false
-		end
-	end))
-end
-
-local function disableAntiFling()
-	FlingSettings.AntiFling = false
-	disconnectAntiFlingConnections()
-	restoreAntiFlingCollisions()
-end
-
-local function enableAntiFling()
-	disableAntiFling()
-	FlingSettings.AntiFling = true
-
-	local function watchPlayer(player)
-		if player == LocalPlayer then
-			return
-		end
-
-		if player.Character then
-			watchNoCollisionCharacter(player.Character)
-		end
-
-		table.insert(FlingSettings.AntiFlingConnections, player.CharacterAdded:Connect(function(character)
-			if FlingSettings.AntiFling then
-				watchNoCollisionCharacter(character)
-			end
-		end))
-	end
-
-	for _, player in ipairs(Players:GetPlayers()) do
-		watchPlayer(player)
-	end
-
-	table.insert(FlingSettings.AntiFlingConnections, Players.PlayerAdded:Connect(watchPlayer))
-end
-
-local function setAntiFlingEnabled(value)
-	if value then
-		enableAntiFling()
-	else
-		disableAntiFling()
-	end
-end
-
-local function setFlingEnabled(value)
-	local enabled = value and true or false
-
-	if FlingSettings.Enabled == enabled then
-		return
-	end
-
-	FlingSettings.Enabled = enabled
-	FlingSettings.WorkerToken += 1
-
-	if not enabled then
-		return
-	end
-
-	local workerToken = FlingSettings.WorkerToken
-
-	task.spawn(function()
-		local verticalJitter = 0.1
-
-		while running
-			and FlingSettings.Enabled
-			and workerToken == FlingSettings.WorkerToken do
-			RunService.Heartbeat:Wait()
-
-			if not running
-				or not FlingSettings.Enabled
-				or workerToken ~= FlingSettings.WorkerToken then
-				break
-			end
-
-			local root = getRoot(LocalPlayer.Character)
-
-			if root and root.Parent then
-				local savedVelocity = root.AssemblyLinearVelocity
-				local power = math.clamp(tonumber(FlingSettings.Power) or 100, 1, 1000)
-
-				root.AssemblyLinearVelocity = savedVelocity * power + Vector3.new(0, power, 0)
-
-				RunService.RenderStepped:Wait()
-
-				if running
-					and FlingSettings.Enabled
-					and workerToken == FlingSettings.WorkerToken
-					and root
-					and root.Parent then
-					root.AssemblyLinearVelocity = savedVelocity
-				end
-
-				RunService.Stepped:Wait()
-
-				if running
-					and FlingSettings.Enabled
-					and workerToken == FlingSettings.WorkerToken
-					and root
-					and root.Parent then
-					root.AssemblyLinearVelocity = savedVelocity + Vector3.new(0, verticalJitter, 0)
-					verticalJitter = -verticalJitter
-				end
-			end
-		end
-	end)
-end
-
-local function cleanup()
-	if not running then
-		return
-	end
-
-	running = false
-	Settings.Enabled = false
-	AimlockSettings.Enabled = false
-	MovementSettings.Noclip = false
-	ClickTeleportSettings.Enabled = false
-	PlatformSettings.Enabled = false
-	PartRingSettings.Enabled = false
-	PartRingSettings.TargetPickerEnabled = false
-	PartRing.stop()
-	PartRing.stopTargetPicker()
-	clearPlatform()
-	clearNoclip()
-	FlingSettings.Enabled = false
-	FlingSettings.WorkerToken += 1
-	disableAntiFling()
-	FlySettings.Enabled = false
-	stopFlyRuntime()
-	VehicleFlySettings.Enabled = false
-	stopVehicleFlyRuntime()
-	VehicleFlingSettings.Enabled = false
-	VehicleFlingSettings.WorkerToken += 1
-	VehicleSpeedBoostSettings.ActiveUntil = 0
-	VehicleTeleportSettings.Enabled = false
-	clearVehicleTeleportReinforcement()
-	clearVehicleFlipAssist()
-	AimlockSettings.Holding = false
-	AimlockSettings.TargetPlayer = nil
-	AimlockSettings.TargetCharacter = nil
-	AimlockSettings.TargetHumanoid = nil
-	AimlockSettings.TargetPart = nil
-
-	pcall(function()
-		RunService:UnbindFromRenderStep(AIMLOCK_BIND_NAME)
-	end)
-
-	pcall(function()
-		RunService:UnbindFromRenderStep(FLY_BIND_NAME)
-	end)
-
-	pcall(function()
-		RunService:UnbindFromRenderStep(VEHICLE_FLY_BIND_NAME)
-	end)
-
-	clearSpeedWatcher()
-	clearVehicleSeatedConnection()
-	restoreVehicleSpeed()
-
-	if MovementSettings.Humanoid
-		and MovementSettings.Humanoid.Parent
-		and MovementSettings.OriginalSpeed ~= nil then
-		MovementSettings.Humanoid.WalkSpeed = MovementSettings.OriginalSpeed
-	end
-
-	for _, player in ipairs(Players:GetPlayers()) do
-		removeESP(player.Character)
-	end
-
-	for _, connection in ipairs(connections) do
-		disconnect(connection)
-	end
-
-	table.clear(connections)
-end
-
-Global.__PlayerToolsCleanup = cleanup
-Global.__AxiomCleanup = cleanup
-Global.__ProjectESPCleanup = cleanup
-
-for _, player in ipairs(Players:GetPlayers()) do
-	removeESP(player.Character)
-end
-
-bindMovementCharacter(LocalPlayer.Character)
-
-local Window = Google:CreateWindow({
-	Title = "PlayerTools",
-	Icon = "eye",
-	Size = UDim2.fromOffset(620, 420)
-})
-
-local ESPTab = Window:AddTab({
-	Name = "ESP",
-	Icon = "eye"
-})
-
-local MovementTab = Window:AddTab({
-	Name = "Movement",
-	Icon = "user"
-})
-
-local VehicleMovementTab = Window:AddTab({
-	Name = "Vehicle Movment",
-	Icon = "settings"
-})
-
-local FunTab = Window:AddTab({
-	Name = "Fun",
-	Icon = "star"
-})
-
-local UISections = {}
-
-do
-local MainSection = ESPTab:AddSection({
-	Name = "Player ESP",
-})
-
-MainSection:AddToggle({
-	Name = "Enable ESP",
-	Default = false,
-	Callback = function(value)
-		Settings.Enabled = value
-		refreshAll()
-	end
-})
-
-MainSection:AddToggle({
-	Name = "Team Check",
-	Default = true,
-	Callback = function(value)
-		Settings.TeamCheck = value
-		refreshAll()
-	end
-})
-
-MainSection:AddToggle({
-	Name = "Through Walls",
-	Default = true,
-	Callback = function(value)
-		Settings.ThroughWalls = value
-		refreshAll()
-	end
-})
-
-local LabelSection = ESPTab:AddSection({
-	Name = "ESP Elements",
-})
-
-LabelSection:AddToggle({
-	Name = "Highlight",
-	Default = true,
-	Callback = function(value)
-		Settings.Highlight = value
-		refreshAll()
-	end
-})
-
-LabelSection:AddToggle({
-	Name = "Show Name",
-	Default = true,
-	Callback = function(value)
-		Settings.ShowName = value
-		refreshAll()
-	end
-})
-
-LabelSection:AddToggle({
-	Name = "Show Health",
-	Default = true,
-	Callback = function(value)
-		Settings.ShowHealth = value
-		refreshAll()
-	end
-})
-
-LabelSection:AddToggle({
-	Name = "Show Distance",
-	Default = true,
-	Callback = function(value)
-		Settings.ShowDistance = value
-		refreshAll()
-	end
-})
-
-end
-
-do
-local StyleSection = ESPTab:AddSection({
-	Name = "Style",
-})
-UISections.Style = StyleSection
-
-local picker = Instance.new("Frame")
-picker.Name = "HSVColorPicker"
-picker.Size = UDim2.new(1, 0, 0, 218)
-picker.LayoutOrder = -10
-picker.BackgroundColor3 = Google.Theme.CardAlt
-picker.BorderSizePixel = 0
-picker.Parent = StyleSection.Content
-addCorner(picker, 10)
-local pickerStroke = addStroke(picker, Google.Theme.Border, 0.2)
-
-local paletteIcon = Google.CreateIcon("palette", 16, Google.Theme.Primary, picker, {
-	Position = UDim2.fromOffset(12, 11)
-})
-
-local pickerTitle = Instance.new("TextLabel")
-pickerTitle.BackgroundTransparency = 1
-pickerTitle.Position = UDim2.fromOffset(36, 10)
-pickerTitle.Size = UDim2.new(1, -96, 0, 18)
-pickerTitle.Font = Enum.Font.GothamBold
-pickerTitle.Text = "ESP Color"
-pickerTitle.TextSize = 13
-pickerTitle.TextColor3 = Google.Theme.Text
-pickerTitle.TextTruncate = Enum.TextTruncate.AtEnd
-pickerTitle.TextXAlignment = Enum.TextXAlignment.Left
-pickerTitle.Parent = picker
-
-local colorPreview = Instance.new("Frame")
-colorPreview.Size = UDim2.fromOffset(38, 26)
-colorPreview.Position = UDim2.new(1, -50, 0, 8)
-colorPreview.BackgroundColor3 = Settings.Color
-colorPreview.BorderSizePixel = 0
-colorPreview.ZIndex = 3
-colorPreview.Parent = picker
-addCorner(colorPreview, 8)
-local colorPreviewStroke = addStroke(colorPreview, Google.Theme.Border, 0.15)
-
-local colorReadout = Instance.new("TextLabel")
-colorReadout.BackgroundTransparency = 1
-colorReadout.Position = UDim2.fromOffset(12, 30)
-colorReadout.Size = UDim2.new(1, -80, 0, 16)
-colorReadout.Font = Enum.Font.Gotham
-colorReadout.TextSize = 12
-colorReadout.TextColor3 = Google.Theme.Muted
-colorReadout.TextTruncate = Enum.TextTruncate.AtEnd
-colorReadout.TextXAlignment = Enum.TextXAlignment.Left
-colorReadout.Parent = picker
-
-local colorSquare = Instance.new("Frame")
-colorSquare.Size = UDim2.new(1, -56, 0, 144)
-colorSquare.Position = UDim2.fromOffset(12, 58)
-colorSquare.BackgroundTransparency = 1
-colorSquare.BorderSizePixel = 0
-colorSquare.ClipsDescendants = true
-colorSquare.Parent = picker
-addCorner(colorSquare, 10)
-local colorSquareStroke = addStroke(colorSquare, Google.Theme.Border, 0.2)
-
-local colorVisual = Instance.new("Frame")
-colorVisual.Size = UDim2.fromScale(1, 1)
-colorVisual.BackgroundTransparency = 0
-colorVisual.BackgroundColor3 = Color3.fromHSV(ColorState.H, 1, 1)
-colorVisual.BorderSizePixel = 0
-colorVisual.ClipsDescendants = true
-colorVisual.Parent = colorSquare
-addCorner(colorVisual, 10)
-
-local saturationLayer = Instance.new("Frame")
-saturationLayer.Size = UDim2.fromScale(1, 1)
-saturationLayer.BackgroundColor3 = Color3.new(1, 1, 1)
-saturationLayer.BorderSizePixel = 0
-saturationLayer.Parent = colorVisual
-addCorner(saturationLayer, 10)
-
-local saturationGradient = Instance.new("UIGradient")
-saturationGradient.Rotation = 0
-saturationGradient.Color = ColorSequence.new(Color3.new(1, 1, 1))
-saturationGradient.Transparency = NumberSequence.new({
-	NumberSequenceKeypoint.new(0, 0),
-	NumberSequenceKeypoint.new(1, 1)
-})
-saturationGradient.Parent = saturationLayer
-
-local valueLayer = Instance.new("Frame")
-valueLayer.Size = UDim2.fromScale(1, 1)
-valueLayer.BackgroundColor3 = Color3.new(0, 0, 0)
-valueLayer.BorderSizePixel = 0
-valueLayer.Parent = colorVisual
-addCorner(valueLayer, 10)
-
-local valueGradient = Instance.new("UIGradient")
-valueGradient.Rotation = 90
-valueGradient.Color = ColorSequence.new(Color3.new(0, 0, 0))
-valueGradient.Transparency = NumberSequence.new({
-	NumberSequenceKeypoint.new(0, 1),
-	NumberSequenceKeypoint.new(1, 0)
-})
-valueGradient.Parent = valueLayer
-
-local colorSquareInput = Instance.new("TextButton")
-colorSquareInput.BackgroundTransparency = 1
-colorSquareInput.Size = UDim2.fromScale(1, 1)
-colorSquareInput.Text = ""
-colorSquareInput.AutoButtonColor = false
-colorSquareInput.Active = true
-colorSquareInput.ZIndex = 3
-colorSquareInput.Parent = colorSquare
-
-local colorCursorOuter = Instance.new("Frame")
-colorCursorOuter.AnchorPoint = Vector2.new(0.5, 0.5)
-colorCursorOuter.Size = UDim2.fromOffset(16, 16)
-colorCursorOuter.BackgroundColor3 = Google.Theme.Text
-colorCursorOuter.BorderSizePixel = 0
-colorCursorOuter.ZIndex = 4
-colorCursorOuter.Parent = colorSquare
-addCorner(colorCursorOuter, 99)
-
-local colorCursorInner = Instance.new("Frame")
-colorCursorInner.AnchorPoint = Vector2.new(0.5, 0.5)
-colorCursorInner.Position = UDim2.fromScale(0.5, 0.5)
-colorCursorInner.Size = UDim2.fromOffset(12, 12)
-colorCursorInner.BackgroundColor3 = Google.Theme.Card
-colorCursorInner.BorderSizePixel = 0
-colorCursorInner.ZIndex = 5
-colorCursorInner.Parent = colorCursorOuter
-addCorner(colorCursorInner, 99)
-
-local hueBar = Instance.new("Frame")
-hueBar.Size = UDim2.fromOffset(28, 144)
-hueBar.Position = UDim2.new(1, -40, 0, 58)
-hueBar.BackgroundColor3 = Color3.new(1, 1, 1)
-hueBar.BorderSizePixel = 0
-hueBar.ClipsDescendants = true
-hueBar.Parent = picker
-addCorner(hueBar, 10)
-local hueBarStroke = addStroke(hueBar, Google.Theme.Border, 0.2)
-
-local hueGradient = Instance.new("UIGradient")
-hueGradient.Rotation = 90
-hueGradient.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, Color3.fromHSV(0, 1, 1)),
-	ColorSequenceKeypoint.new(0.17, Color3.fromHSV(0.17, 1, 1)),
-	ColorSequenceKeypoint.new(0.33, Color3.fromHSV(0.33, 1, 1)),
-	ColorSequenceKeypoint.new(0.5, Color3.fromHSV(0.5, 1, 1)),
-	ColorSequenceKeypoint.new(0.67, Color3.fromHSV(0.67, 1, 1)),
-	ColorSequenceKeypoint.new(0.83, Color3.fromHSV(0.83, 1, 1)),
-	ColorSequenceKeypoint.new(1, Color3.fromHSV(1, 1, 1))
-})
-hueGradient.Parent = hueBar
-
-local hueInput = Instance.new("TextButton")
-hueInput.BackgroundTransparency = 1
-hueInput.Size = UDim2.fromScale(1, 1)
-hueInput.Text = ""
-hueInput.AutoButtonColor = false
-hueInput.Active = true
-hueInput.ZIndex = 3
-hueInput.Parent = hueBar
-
-local hueMarker = Instance.new("Frame")
-hueMarker.AnchorPoint = Vector2.new(0.5, 0.5)
-hueMarker.Size = UDim2.new(1, 0, 0, 4)
-hueMarker.BackgroundColor3 = Google.Theme.Card
-hueMarker.BorderSizePixel = 0
-hueMarker.ZIndex = 4
-hueMarker.Parent = hueBar
-addCorner(hueMarker, 99)
-local hueMarkerStroke = addStroke(hueMarker, Google.Theme.Text, 0)
-
-local function updateColorPicker()
-	local color = Color3.fromHSV(ColorState.H, ColorState.S, ColorState.V)
-
-	Settings.Color = color
-	colorPreview.BackgroundColor3 = color
-	colorVisual.BackgroundColor3 = Color3.fromHSV(ColorState.H, 1, 1)
-
-	local colorWidth = math.max(colorSquare.AbsoluteSize.X, 1)
-	local colorHeight = math.max(colorSquare.AbsoluteSize.Y, 1)
-	local cursorHalfX = colorCursorOuter.AbsoluteSize.X > 0 and (colorCursorOuter.AbsoluteSize.X * 0.5) or 8
-	local cursorHalfY = colorCursorOuter.AbsoluteSize.Y > 0 and (colorCursorOuter.AbsoluteSize.Y * 0.5) or 8
-	local cursorScaleX = math.clamp(ColorState.S, cursorHalfX / colorWidth, 1 - (cursorHalfX / colorWidth))
-	local cursorScaleY = math.clamp(1 - ColorState.V, cursorHalfY / colorHeight, 1 - (cursorHalfY / colorHeight))
-	colorCursorOuter.Position = UDim2.fromScale(cursorScaleX, cursorScaleY)
-
-	local hueHeight = math.max(hueBar.AbsoluteSize.Y, 1)
-	local hueInset = ((hueMarker.AbsoluteSize.Y > 0 and hueMarker.AbsoluteSize.Y or 4) * 0.5) + 2
-	local hueScale = math.clamp(ColorState.H, hueInset / hueHeight, 1 - (hueInset / hueHeight))
-	hueMarker.Position = UDim2.new(0.5, 0, hueScale, 0)
-
-	local red = math.floor(color.R * 255 + 0.5)
-	local green = math.floor(color.G * 255 + 0.5)
-	local blue = math.floor(color.B * 255 + 0.5)
-
-	colorReadout.Text = string.format(
-		"#%02X%02X%02X  •  RGB(%d, %d, %d)",
-		red,
-		green,
-		blue,
-		red,
-		green,
-		blue
-	)
-
-	refreshAll()
-end
-
-local function applyPickerTheme()
-	picker.BackgroundColor3 = Google.Theme.CardAlt
-	pickerStroke.Color = Google.Theme.Border
-	pickerTitle.TextColor3 = Google.Theme.Text
-	Google.SetIconColor(paletteIcon, Google.Theme.Primary)
-	colorReadout.TextColor3 = Google.Theme.Muted
-	colorPreviewStroke.Color = Google.Theme.Border
-	colorSquareStroke.Color = Google.Theme.Border
-	hueBarStroke.Color = Google.Theme.Border
-	colorCursorOuter.BackgroundColor3 = Google.Theme.Text
-	colorCursorInner.BackgroundColor3 = Google.Theme.Card
-	hueMarker.BackgroundColor3 = Google.Theme.Card
-	hueMarkerStroke.Color = Google.Theme.Text
-end
-
-local originalWindowApplyTheme = Window.ApplyTheme
-function Window:ApplyTheme()
-	originalWindowApplyTheme(self)
-	applyPickerTheme()
-end
-
-local function setSaturationValue(position)
-	if colorSquareInput.AbsoluteSize.X <= 0 or colorSquareInput.AbsoluteSize.Y <= 0 then
-		return
-	end
-
-	ColorState.S = math.clamp(
-		(position.X - colorSquareInput.AbsolutePosition.X) / colorSquareInput.AbsoluteSize.X,
-		0,
-		1
-	)
-
-	ColorState.V = 1 - math.clamp(
-		(position.Y - colorSquareInput.AbsolutePosition.Y) / colorSquareInput.AbsoluteSize.Y,
-		0,
-		1
-	)
-
-	updateColorPicker()
-end
-
-local function setHue(position)
-	if hueInput.AbsoluteSize.Y <= 0 then
-		return
-	end
-
-	ColorState.H = math.clamp(
-		(position.Y - hueInput.AbsolutePosition.Y) / hueInput.AbsoluteSize.Y,
-		0,
-		1
-	)
-
-	updateColorPicker()
-end
-
-track(colorSquareInput.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1
-		or input.UserInputType == Enum.UserInputType.Touch then
-		activePicker = "Color"
-		setSaturationValue(input.Position)
-	end
-end))
-
-track(hueInput.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1
-		or input.UserInputType == Enum.UserInputType.Touch then
-		activePicker = "Hue"
-		setHue(input.Position)
-	end
-end))
-
-track(UserInputService.InputChanged:Connect(function(input)
-	if activePicker == "Color"
-		and (input.UserInputType == Enum.UserInputType.MouseMovement
-			or input.UserInputType == Enum.UserInputType.Touch) then
-		setSaturationValue(input.Position)
-	elseif activePicker == "Hue"
-		and (input.UserInputType == Enum.UserInputType.MouseMovement
-			or input.UserInputType == Enum.UserInputType.Touch) then
-		setHue(input.Position)
-	end
-end))
-
-track(UserInputService.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1
-		or input.UserInputType == Enum.UserInputType.Touch then
-		activePicker = nil
-	end
-end))
-
-local fillSlider = StyleSection:AddSlider({
-	Name = "Fill Opacity",
-	Min = 0,
-	Max = 100,
-	Default = 26,
-	Callback = function(value)
-		Settings.FillTransparency = 1 - (value / 100)
-		refreshAll()
-	end
-})
-fillSlider.Instance.LayoutOrder = 1
-
-local distanceSlider = StyleSection:AddSlider({
-	Name = "Maximum Distance",
-	Min = 100,
-	Max = 5000,
-	Default = 1500,
-	Callback = function(value)
-		Settings.MaxDistance = value
-		refreshAll()
-	end
-})
-distanceSlider.Instance.LayoutOrder = 2
-
-applyPickerTheme()
-updateColorPicker()
-end
-
-do
-local MovementSection = MovementTab:AddSection({
-	Name = "Walk Speed",
-})
-UISections.Movement = MovementSection
-
-local speedToggle = MovementSection:AddToggle({
-	Name = "Enable Speed",
-	Default = false,
-	Callback = function(value)
-		setSpeedEnabled(value)
-	end
-})
-speedToggle.Instance.LayoutOrder = 1
-
-local speedSlider = MovementSection:AddSlider({
-	Name = "Walk Speed",
-	Min = 0,
-	Max = 250,
-	Default = 16,
-	Callback = function(value)
-		MovementSettings.Speed = value
-		applySpeed()
-	end
-})
-speedSlider.Instance.LayoutOrder = 2
-
-local normalSpeedButton = MovementSection:AddButton({
-	Name = "Set Normal Speed",
-	Icon = "refresh-cw",
-	Callback = function()
-		speedSlider:Set(16)
-	end
-})
-normalSpeedButton.Instance.LayoutOrder = 3
-
-local infiniteJumpToggle = MovementSection:AddToggle({
-	Name = "Infinite Jump",
-	Default = false,
-	Callback = function(value)
-		MovementSettings.InfiniteJump = value and true or false
-	end
-})
-infiniteJumpToggle.Instance.LayoutOrder = 4
-
-local noclipToggle = MovementSection:AddToggle({
-	Name = "Noclip",
-	Default = false,
-	Callback = function(value)
-		setNoclipEnabled(value)
-	end
-})
-noclipToggle.Instance.LayoutOrder = 5
-
-end
-
-do
-local ClickTeleportSection = MovementTab:AddSection({
-	Name = "Click Teleport",
-})
-UISections.ClickTeleport = ClickTeleportSection
-
-local clickTeleportToggle = ClickTeleportSection:AddToggle({
-	Name = "Enable Click Teleport",
-	Default = false,
-	Callback = function(value)
-		ClickTeleportSettings.Enabled = value and true or false
-	end
-})
-clickTeleportToggle.Instance.LayoutOrder = 1
-
-end
-
-do
-local PlatformSection = MovementTab:AddSection({
-	Name = "Platform",
-})
-UISections.Platform = PlatformSection
-
-local platformToggle = PlatformSection:AddToggle({
-	Name = "Enable Platform",
-	Default = false,
-	Callback = function(value)
-		setPlatformEnabled(value)
-	end
-})
-platformToggle.Instance.LayoutOrder = 1
-
-end
-
-do
-local PartRingSection = FunTab:AddSection({
-	Name = "Part Ring",
-})
-UISections.PartRing = PartRingSection
-
-local partRingToggleSyncing = false
-local partRingToggleValue = false
-local partRingToggle = PartRingSection:AddToggle({
-	Name = "Enable Part Ring",
-	Default = false,
-	Callback = function(value)
-		partRingToggleValue = value and true or false
-
-		if not partRingToggleSyncing then
-			PartRing.setEnabled(partRingToggleValue)
-		end
-	end
-})
-partRingToggle.Instance.LayoutOrder = 1
-
-PartRing.OnEnabledChanged = function(enabled)
-	local desiredValue = enabled and true or false
-
-	if partRingToggleValue == desiredValue then
-		return
-	end
-
-	partRingToggleValue = desiredValue
-	partRingToggleSyncing = true
-	pcall(function()
-		partRingToggle:Set(desiredValue)
-	end)
-	partRingToggleSyncing = false
-end
-
-local partRingTargetLabel = PartRingSection:AddLabel({
-	Name = "Target: " .. PartRing.getTargetOption(),
-})
-partRingTargetLabel.Instance.LayoutOrder = 2
-
-local partRingTargetPickerSyncing = false
-local partRingTargetPickerValue = false
-local partRingTargetPickerToggle = PartRingSection:AddToggle({
-	Name = "Select Ring Target",
-	Description = "Hover a player and left-click them",
-	Default = false,
-	Callback = function(value)
-		partRingTargetPickerValue = value and true or false
-
-		if not partRingTargetPickerSyncing then
-			PartRing.setPickerEnabled(partRingTargetPickerValue)
-		end
-	end
-})
-partRingTargetPickerToggle.Instance.LayoutOrder = 3
-
-PartRing.OnPickerEnabledChanged = function(enabled)
-	local desiredValue = enabled and true or false
-
-	if partRingTargetPickerValue == desiredValue then
-		return
-	end
-
-	partRingTargetPickerValue = desiredValue
-	partRingTargetPickerSyncing = true
-	pcall(function()
-		partRingTargetPickerToggle:Set(desiredValue)
-	end)
-	partRingTargetPickerSyncing = false
-end
-
-local partRingTargetMeButton = PartRingSection:AddButton({
-	Name = "Target Me",
-	Icon = "user",
-	Callback = function()
-		PartRing.setTarget("Me")
-	end
-})
-partRingTargetMeButton.Instance.LayoutOrder = 4
-
-local partRingStatusLabel = PartRingSection:AddLabel({
-	Name = "Part Ring off",
-})
-partRingStatusLabel.Instance.LayoutOrder = 5
-
-PartRing.OnStatusChanged = function(status)
-	partRingStatusLabel:Set(tostring(status or "Part Ring off"))
-end
-
-PartRing.OnTargetChanged = function(name)
-	partRingTargetLabel:Set("Target: " .. tostring(name or "Me"))
-
-	if partRingTargetPickerValue then
-		PartRing.setPickerEnabled(false)
-	end
-end
-
-local partRingRangeSlider = PartRingSection:AddSlider({
-	Name = "Search Range",
-	Min = 15,
-	Max = 5000,
-	Default = PartRingSettings.ScanRadius,
-	Callback = function(value)
-		PartRingSettings.ScanRadius = value
-
-		if PartRingSettings.Enabled then
-			PartRing.refresh()
-		end
-	end
-})
-partRingRangeSlider.Instance.LayoutOrder = 6
-
-
-local partRingRadiusSlider = PartRingSection:AddSlider({
-	Name = "Ring Radius",
-	Min = 3,
-	Max = 150,
-	Default = PartRingSettings.Radius,
-	Callback = function(value)
-		PartRingSettings.Radius = math.clamp(
-			tonumber(value) or 12,
-			3,
-			150
-		)
-
-		if PartRingSettings.Enabled then
-			PartRingSettings.NextRescan = 0
-			PartRing.refresh()
-		end
-	end
-})
-partRingRadiusSlider.Instance.LayoutOrder = 7
-
-local partRingHeightSlider = PartRingSection:AddSlider({
-	Name = "Ring Height",
-	Min = -10,
-	Max = 25,
-	Default = PartRingSettings.Height,
-	Callback = function(value)
-		PartRingSettings.Height = value
-	end
-})
-partRingHeightSlider.Instance.LayoutOrder = 8
-
-local partRingSpeedSlider = PartRingSection:AddSlider({
-	Name = "Ring Speed",
-	Min = 0,
-	Max = 20,
-	Default = PartRingSettings.Speed,
-	Callback = function(value)
-		PartRingSettings.Speed = value
-	end
-})
-partRingSpeedSlider.Instance.LayoutOrder = 9
-
-local partRingRotationSpeedSlider = PartRingSection:AddSlider({
-	Name = "Rotation Speed",
-	Min = 0,
-	Max = 300,
-	Default = PartRingSettings.RotationSpeed,
-	Callback = function(value)
-		PartRingSettings.RotationSpeed = value
-	end
-})
-partRingRotationSpeedSlider.Instance.LayoutOrder = 10
-
-local partRingRefreshButton = PartRingSection:AddButton({
-	Name = "Refresh Parts",
-	Icon = "refresh-cw",
-	Callback = function()
-		PartRing.refresh()
-	end
-})
-partRingRefreshButton.Instance.LayoutOrder = 11
-end
-
-do
-local FlySection = MovementTab:AddSection({
-	Name = "Fly",
-})
-UISections.Fly = FlySection
-
-local flyToggle = FlySection:AddToggle({
-	Name = "Enable Fly",
-	Default = false,
-	Callback = function(value)
-		setFlyEnabled(value)
-	end
-})
-flyToggle.Instance.LayoutOrder = 1
-
-local flySpeedSlider = FlySection:AddSlider({
-	Name = "Fly Speed",
-	Min = 10,
-	Max = 250,
-	Default = FlySettings.Speed,
-	Callback = function(value)
-		FlySettings.Speed = value
-	end
-})
-flySpeedSlider.Instance.LayoutOrder = 2
-
-end
-
-do
-local AimlockSection = MovementTab:AddSection({
-	Name = "Aimlock",
-})
-UISections.Aimlock = AimlockSection
-
-local aimlockToggle = AimlockSection:AddToggle({
-	Name = "Enable Aimlock",
-	Default = false,
-	Callback = function(value)
-		setAimlockEnabled(value)
-	end
-})
-aimlockToggle.Instance.LayoutOrder = 1
-
-local aimTeamToggle = AimlockSection:AddToggle({
-	Name = "Team Check",
-	Default = true,
-	Callback = function(value)
-		AimlockSettings.TeamCheck = value
-	end
-})
-aimTeamToggle.Instance.LayoutOrder = 2
-
-aimStatusLabel = AimlockSection:AddLabel({
-	Name = "Target: None"
-})
-aimStatusLabel.Instance.LayoutOrder = 3
-
-end
-
-do
-local FlingSection = MovementTab:AddSection({
-	Name = "Fling",
-})
-UISections.Fling = FlingSection
-
-local flingToggle = FlingSection:AddToggle({
-	Name = "Fling",
-	Default = false,
-	Callback = function(value)
-		setFlingEnabled(value)
-	end
-})
-flingToggle.Instance.LayoutOrder = 1
-
-local antiFlingToggle = FlingSection:AddToggle({
-	Name = "Anti Fling",
-	Default = false,
-	Callback = function(value)
-		setAntiFlingEnabled(value)
-	end
-})
-antiFlingToggle.Instance.LayoutOrder = 2
-
-local flingPowerInput = FlingSection:AddInput({
-	Name = "Fling Power",
-	Placeholder = "100",
-	Default = tostring(FlingSettings.Power),
-	ClearButton = false,
-	Callback = function(value)
-		local parsed = tonumber(value)
-
-		if parsed then
-			FlingSettings.Power = math.clamp(parsed, 1, 1000)
-		end
-	end
-})
-flingPowerInput.Instance.LayoutOrder = 3
-
-end
-
-do
-local VehicleSection = VehicleMovementTab:AddSection({
-	Name = "Vehicle Speed"
-})
-UISections.Vehicle = VehicleSection
-
-local vehicleSpeedSlider = VehicleSection:AddSlider({
-	Name = "Vehicle Speed",
-	Min = 0,
-	Max = 500,
-	Default = VehicleSettings.Speed,
-	Callback = function(value)
-		VehicleSettings.Speed = value
-		applyVehicleSeatSpeed()
-	end
-})
-vehicleSpeedSlider.Instance.LayoutOrder = 1
-
-local steeringStrengthSlider = VehicleSection:AddSlider({
-	Name = "Steering Strength",
-	Min = 0,
-	Max = 50,
-	Default = VehicleSettings.SteeringStrength,
-	Callback = function(value)
-		VehicleSettings.SteeringStrength = value
-		applyVehicleSeatSteering()
-	end
-})
-steeringStrengthSlider.Instance.LayoutOrder = 2
-
-end
-
-do
-local VehicleFlySection = VehicleMovementTab:AddSection({
-	Name = "Vehicle Fly"
-})
-UISections.VehicleFly = VehicleFlySection
-
-local vehicleFlyToggle = VehicleFlySection:AddToggle({
-	Name = "Enable Vehicle Fly",
-	Default = false,
-	Callback = function(value)
-		setVehicleFlyEnabled(value)
-	end
-})
-vehicleFlyToggle.Instance.LayoutOrder = 1
-
-local vehicleFlySpeedSlider = VehicleFlySection:AddSlider({
-	Name = "Vehicle Fly Speed",
-	Min = 10,
-	Max = 250,
-	Default = VehicleFlySettings.Speed,
-	Callback = function(value)
-		VehicleFlySettings.Speed = value
-	end
-})
-vehicleFlySpeedSlider.Instance.LayoutOrder = 2
-
-end
-
-do
-local VehicleJumpSection = VehicleMovementTab:AddSection({
-	Name = "Vehicle Jump"
-})
-UISections.VehicleJump = VehicleJumpSection
-
-local vehicleJumpPowerSlider = VehicleJumpSection:AddSlider({
-	Name = "Jump Power",
-	Min = 20,
-	Max = 250,
-	Default = VehicleJumpSettings.Power,
-	Callback = function(value)
-		VehicleJumpSettings.Power = value
-	end
-})
-vehicleJumpPowerSlider.Instance.LayoutOrder = 1
-
-end
-
-do
-local VehicleSpeedBoostSection = VehicleMovementTab:AddSection({
-	Name = "Vehicle Speed Boost"
-})
-UISections.VehicleSpeedBoost = VehicleSpeedBoostSection
-
-local vehicleSpeedBoostSlider = VehicleSpeedBoostSection:AddSlider({
-	Name = "Boost Speed",
-	Min = 20,
-	Max = 600,
-	Default = VehicleSpeedBoostSettings.Power,
-	Callback = function(value)
-		VehicleSpeedBoostSettings.Power = value
-	end
-})
-vehicleSpeedBoostSlider.Instance.LayoutOrder = 1
-
-end
-
-do
-local VehicleFlingSection = VehicleMovementTab:AddSection({
-	Name = "Vehicle Fling"
-})
-UISections.VehicleFling = VehicleFlingSection
-
-local vehicleFlingToggle = VehicleFlingSection:AddToggle({
-	Name = "Vehicle Fling",
-	Default = false,
-	Callback = function(value)
-		setVehicleFlingEnabled(value)
-	end
-})
-vehicleFlingToggle.Instance.LayoutOrder = 1
-
-local vehicleFlingPowerInput = VehicleFlingSection:AddInput({
-	Name = "Vehicle Fling Power",
-	Placeholder = "100",
-	Default = tostring(VehicleFlingSettings.Power),
-	ClearButton = false,
-	Callback = function(value)
-		local parsed = tonumber(value)
-
-		if parsed then
-			VehicleFlingSettings.Power = math.clamp(parsed, 1, 1000)
-		end
-	end
-})
-vehicleFlingPowerInput.Instance.LayoutOrder = 2
-
-end
-
-do
-local VehicleTeleportSection = VehicleMovementTab:AddSection({
-	Name = "Vehicle Teleport"
-})
-UISections.VehicleTeleport = VehicleTeleportSection
-
-local vehicleTeleportToggle = VehicleTeleportSection:AddToggle({
-	Name = "Enable Vehicle Teleport",
-	Default = false,
-	Callback = function(value)
-		setVehicleTeleportEnabled(value)
-	end
-})
-vehicleTeleportToggle.Instance.LayoutOrder = 1
-
-end
-
-track(LocalPlayer.CharacterAdded:Connect(function(character)
-	bindMovementCharacter(character)
-
-	if FlySettings.Enabled then
-		task.defer(function()
-			if running and FlySettings.Enabled then
-				startFlyForCharacter(character)
-			end
-		end)
-	end
-end))
-
-track(UserInputService.JumpRequest:Connect(function()
-	if not running
-		or not MovementSettings.InfiniteJump
-		or UserInputService:GetFocusedTextBox() then
-		return
-	end
-
-	local humanoid = MovementSettings.Humanoid
-
-	if humanoid
-		and humanoid.Parent
-		and humanoid.Health > 0
-		and humanoid:GetState() ~= Enum.HumanoidStateType.Seated then
-		humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-	end
-end))
-
-local function setInterfaceHidden(value)
-	InterfaceSettings.Hidden = value and true or false
-
-	if Window.Gui and Window.Gui:IsA("LayerCollector") then
-		Window.Gui.Enabled = not InterfaceSettings.Hidden
-	elseif Window.Instance and Window.Instance:IsA("GuiObject") then
-		Window.Instance.Visible = not InterfaceSettings.Hidden
-	end
-end
-
-track(UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-	if PlatformSettings.Enabled
-		and not UserInputService:GetFocusedTextBox() then
-		if input.KeyCode == Enum.KeyCode.E then
-			PlatformSettings.UpHeld = true
-			return
-		end
-
-		if input.KeyCode == Enum.KeyCode.Q then
-			PlatformSettings.DownHeld = true
-			return
-		end
-
-		if input.KeyCode == Enum.KeyCode.LeftShift
-			or input.KeyCode == Enum.KeyCode.RightShift then
-			PlatformSettings.ForwardHeld = true
-			return
-		end
-	end
-
-	if input.KeyCode == Enum.KeyCode.K
-		and not UserInputService:GetFocusedTextBox() then
-		setInterfaceHidden(not InterfaceSettings.Hidden)
-		return
-	end
-
-	if input.KeyCode == Enum.KeyCode.E
-		and not UserInputService:GetFocusedTextBox() then
-		boostVehicleSpeed()
-		return
-	end
-
-	if gameProcessedEvent or UserInputService:GetFocusedTextBox() then
-		return
-	end
-
-	if input.KeyCode == Enum.KeyCode.J then
-		jumpVehicle()
-		return
-	end
-
-	if input.UserInputType == Enum.UserInputType.MouseButton2 then
-		beginAimlock()
-	end
-end))
-
-track(UserInputService.InputEnded:Connect(function(input)
-	if input.KeyCode == Enum.KeyCode.E then
-		PlatformSettings.UpHeld = false
-		return
-	end
-
-	if input.KeyCode == Enum.KeyCode.Q then
-		PlatformSettings.DownHeld = false
-		return
-	end
-
-	if input.KeyCode == Enum.KeyCode.LeftShift
-		or input.KeyCode == Enum.KeyCode.RightShift then
-		PlatformSettings.ForwardHeld = false
-		return
-	end
-
-	if input.UserInputType == Enum.UserInputType.MouseButton2 then
-		endAimlock()
-	end
-end))
-
-
-track(Mouse.Button1Down:Connect(function()
-	if not running or UserInputService:GetFocusedTextBox() then
-		return
-	end
-
-	local position = UserInputService:GetMouseLocation()
-	local overWindow = false
-	local ok, objects = pcall(function()
-		return UserInputService:GetGuiObjectsAtPosition(position.X, position.Y)
-	end)
-
-	if ok and objects and Window and Window.Instance then
-		for _, object in ipairs(objects) do
-			if object == Window.Instance or object:IsDescendantOf(Window.Instance) then
-				overWindow = true
-				break
-			end
-		end
-	end
-
-	if overWindow then
-		return
-	end
-
-	if canVehicleTeleport() then
-		teleportVehicleToMouse(position)
-		return
-	end
-
-	teleportCharacterToMouse(position)
-end))
+local CurrentThemeIndex = 1
+
+if not getgenv().TransparencyEnabled then
+    getgenv().TransparencyEnabled = false
+end
+
+SendNexoraNotification("Eliana Hub", "Toggle Keybind: ( R )", 30, "rbxassetid://89804924525665")
+
+local MainWindow = WindUI:CreateWindow({
+    ["Title"] = "Eliana Hub",
+    ["Icon"] = "zap",
+    ["Author"] = "OP KEYLESS",
+    ["Folder"] = "Project Nexora",
+    ["Size"] = UDim2.fromOffset(500, 350),
+    ["Transparent"] = getgenv().TransparencyEnabled,
+    ["Theme"] = "Purple",
+    ["Resizable"] = true,
+    ["SideBarWidth"] = 150,
+    ["BackgroundImageTransparency"] = 0.8,
+    ["HideSearchBar"] = false,
+    ["ScrollBarEnabled"] = true,
+    ["User"] = {
+        ["Enabled"] = false,
+        ["Anonymous"] = false,
+        ["Callback"] = function()
+            CurrentThemeIndex = CurrentThemeIndex + 1
+            if CurrentThemeIndex > #ThemesList then
+                CurrentThemeIndex = 1
+            end
+            local NewTheme = ThemesList[CurrentThemeIndex]
+            WindUI:SetTheme(NewTheme)
+            WindUI:Notify({
+                ["Title"] = "Theme Changed",
+                ["Content"] = "Switched to " .. NewTheme .. " theme!",
+                ["Duration"] = 2,
+                ["Icon"] = "palette"
+            })
+        end
+    }
+})
+
+getgenv().TransparencyEnabled = true
 
 pcall(function()
-	RunService:UnbindFromRenderStep(AIMLOCK_BIND_NAME)
+    MainWindow:ToggleTransparency(true)
 end)
 
-RunService:BindToRenderStep(AIMLOCK_BIND_NAME, Enum.RenderPriority.Camera.Value + 1, updateAimlockCamera)
-
-track(Players.PlayerRemoving:Connect(function(player)
-	removeESP(player.Character)
-end))
-
-local elapsed = 0
-track(RunService.Heartbeat:Connect(function(deltaTime)
-	if not running or not Settings.Enabled then
-		return
-	end
-
-	elapsed = elapsed + deltaTime
-	if elapsed < 0.1 then
-		return
-	end
-
-	elapsed = 0
-	refreshAll()
-end))
-
-track(Window.Gui.Destroying:Connect(cleanup))
-
-local layoutRefreshQueued = false
-local function queueLayoutRefresh()
-	if layoutRefreshQueued or not running then
-		return
-	end
-
-	layoutRefreshQueued = true
-	task.defer(function()
-		layoutRefreshQueued = false
-
-		if running then
-			for _, section in pairs(UISections) do
-				if section and section.Refresh then
-					section:Refresh()
-				end
-			end
-		end
-	end)
+function getMap()
+    for _, Child in ipairs(Workspace:GetChildren()) do
+        if Child:FindFirstChild("CoinContainer") and Child:FindFirstChild("Spawns") then
+            return Child
+        end
+    end
+    return nil
 end
 
-track(Window.Instance:GetPropertyChangedSignal("AbsoluteSize"):Connect(queueLayoutRefresh))
+loadstring(game:HttpGet("https://pastefy.app/hcVkWhQF/raw"))()
 
-updateAimStatus()
-queueLayoutRefresh()
-task.defer(queueLayoutRefresh)
+MainWindow:EditOpenButton({
+    ["Title"] = "Eliana Hub",
+    ["CornerRadius"] = UDim.new(0, 6),
+    ["StrokeThickness"] = 2,
+    ["Color"] = ColorSequence.new(Color3.fromRGB(30, 30, 30), Color3.fromRGB(255, 255, 255)),
+    ["Draggable"] = true
+})
+
+MainWindow.ToggleKey = Enum.KeyCode.R
+
+local Tabs = {}
+
+Tabs.Main = MainWindow:Tab({
+    ["Title"] = "Main",
+    ["Icon"] = "eye",
+    ["Desc"] = "Eliana Hub"
+})
+
+Tabs.Misc = MainWindow:Tab({
+    ["Title"] = "Misc",
+    ["Icon"] = "sparkles",
+    ["Desc"] = "Eliana Hub"
+})
+
+Tabs.ESP = MainWindow:Tab({
+    ["Title"] = "ESP",
+    ["Icon"] = "eye",
+    ["Desc"] = "Eliana Hub"
+})
+
+Tabs.Farm = MainWindow:Tab({
+    ["Title"] = "Farm",
+    ["Icon"] = "wrench",
+    ["Desc"] = "Eliana Hub"
+})
+
+Tabs.Place = MainWindow:Tab({
+    ["Title"] = "Teleport",
+    ["Icon"] = "map",
+    ["Desc"] = "Eliana Hub"
+})
+
+Tabs.Fling = MainWindow:Tab({
+    ["Title"] = "Fling",
+    ["Icon"] = "user",
+    ["Desc"] = "Eliana Hub"
+})
+
+Tabs.Info = MainWindow:Tab({
+    ["Title"] = "Information",
+    ["Icon"] = "badge-info",
+    ["Desc"] = "Eliana Hub"
+})
+
+Tabs.Manager = MainWindow:Tab({
+    ["Title"] = "Quick Buttons",
+    ["Icon"] = "solar:widget-bold",
+    ["Desc"] = "Eliana Hub"
+})
+
+MainWindow:SelectTab(7)
+
+-- ==================== MANAGER TAB SETUP (from beta) ====================
+local SAVE_FILE = "ZCNathan_Layout_V31.json"
+local CreatedButtons = {}
+local EditMode = false
+local SelectedButton = nil
+local MASTER_VIOLET = Color3.fromRGB(138, 43, 226)
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ZCNathan_SelectionGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = cloneref(LocalPlayer:WaitForChild("PlayerGui"))
+
+local EditLabel = Instance.new("TextLabel")
+EditLabel.Name = "EditStatusLabel"
+EditLabel.Size = UDim2.new(0, 500, 0, 50)
+EditLabel.Position = UDim2.new(0.5, 0, 0.4, 0)
+EditLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+EditLabel.BackgroundTransparency = 1
+EditLabel.Visible = false
+EditLabel.Font = Enum.Font.GothamBold
+EditLabel.TextColor3 = MASTER_VIOLET
+EditLabel.TextSize = 22
+EditLabel.TextStrokeTransparency = 0.5
+EditLabel.Parent = screenGui
+
+local function UpdateEditLabel()
+    if EditMode and SelectedButton then
+        EditLabel.Text = string.format("EDITING: %s", string.upper(SelectedButton.Name))
+        EditLabel.Visible = true
+    else
+        EditLabel.Visible = false
+    end
+end
+
+local function makeDraggable(gui)
+    local dragging, dragInput, dragStart, startPos
+    gui.InputBegan:Connect(function(input)
+        if not EditMode then return end
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            if SelectedButton and SelectedButton ~= gui then
+                SelectedButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+            end
+            SelectedButton = gui
+            gui.BackgroundColor3 = MASTER_VIOLET 
+            UpdateEditLabel()
+            dragging = true
+            dragStart = input.Position
+            startPos = gui.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then dragging = false end
+            end)
+        end
+    end)
+    gui.InputChanged:Connect(function(input)
+        if not EditMode then return end
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+local function SaveConfig()
+    local fullData = {}
+    for _, btn in ipairs(CreatedButtons) do
+        local corner = btn.UICorner.CornerRadius
+        fullData[btn.Name] = {
+            PosX_Scale = btn.Position.X.Scale,   PosX_Offset = btn.Position.X.Offset,
+            PosY_Scale = btn.Position.Y.Scale,   PosY_Offset = btn.Position.Y.Offset,
+            SizeX = btn.Size.X.Offset,
+            SizeY = btn.Size.Y.Offset,
+            Transparency = btn.BackgroundTransparency,
+            CornerScale = corner.Scale,
+            CornerOffset = corner.Offset,
+        }
+    end
+    writefile(SAVE_FILE, HttpService:JSONEncode(fullData))
+    WindUI:Notify({Title = "Saved", Content = "Layout saved!", Icon = "check"})
+end
+
+local function LoadConfig()
+    if isfile(SAVE_FILE) then
+        local success, data = pcall(function() return HttpService:JSONDecode(readfile(SAVE_FILE)) end)
+        if success then
+            for _, btn in ipairs(CreatedButtons) do
+                if data[btn.Name] then
+                    local d = data[btn.Name]
+                    btn.Position = UDim2.new(d.PosX_Scale, d.PosX_Offset, d.PosY_Scale, d.PosY_Offset)
+                    btn.Size = UDim2.fromOffset(d.SizeX, d.SizeY)
+                    btn.BackgroundTransparency = d.Transparency
+                    btn.TextTransparency = d.Transparency
+                    btn.UIStroke.Transparency = d.Transparency
+                    btn.UICorner.CornerRadius = UDim.new(d.CornerScale or 1, d.CornerOffset or 0)
+                end
+            end
+        end
+    end
+end
+
+local function createShape(name, pos, text, callback)
+    local btn = Instance.new("TextButton")
+    btn.Name = name
+    btn.Size = UDim2.fromOffset(70, 70)
+    btn.Position = pos
+    btn.AnchorPoint = Vector2.new(0.5, 0.5)
+    btn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    btn.BackgroundTransparency = 0.4
+    btn.Visible = false
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.GothamMedium
+    btn.TextScaled = true
+    btn.Parent = screenGui
+
+    local uc = Instance.new("UICorner", btn)
+    uc.CornerRadius = UDim.new(1, 0)
+
+    local st = Instance.new("UIStroke", btn)
+    st.Thickness = 3
+    st.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    st.Color = Color3.fromRGB(255, 255, 255)
+
+    local gradient = Instance.new("UIGradient", st)
+    gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, MASTER_VIOLET),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 255, 255)),
+        ColorSequenceKeypoint.new(1, MASTER_VIOLET)
+    })
+
+    RunService.RenderStepped:Connect(function(dt)
+        gradient.Rotation = (gradient.Rotation + (180 * dt)) % 360
+    end)
+
+    btn.MouseButton1Click:Connect(function()
+        if not EditMode then callback() end
+    end)
+
+    makeDraggable(btn)
+    table.insert(CreatedButtons, btn)
+    return btn
+end
+
+-- Shoot Function
+createShape(
+    "Shoot_Btn",
+    UDim2.new(0.4, 0, 0.4, 0),
+    "SHOOT",
+    function()
+
+        local Character = LocalPlayer.Character
+        local Backpack = LocalPlayer:FindFirstChild("Backpack")
+        if not Character or not Backpack then return end
+
+        local Gun = Backpack:FindFirstChild("Gun") or Character:FindFirstChild("Gun")
+        if not Gun then return end
+
+        local Murderer = nil
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= LocalPlayer and plr.Character then
+                if plr.Backpack:FindFirstChild("Knife")
+                or plr.Character:FindFirstChild("Knife") then
+                    Murderer = plr
+                    break
+                end
+            end
+        end
+        if not Murderer or not Murderer.Character then return end
+
+        local MyRoot = Character:FindFirstChild("HumanoidRootPart")
+        local TargetRoot = Murderer.Character:FindFirstChild("HumanoidRootPart")
+        local ShootRemote = Gun:FindFirstChild("Shoot")
+        if not (MyRoot and TargetRoot and ShootRemote) then return end
+
+        Gun.Parent = Character
+        task.wait()
+
+        local PredictedPos =
+            TargetRoot.CFrame + (TargetRoot.Velocity * 0.125)
+
+        ShootRemote:FireServer(MyRoot.CFrame, PredictedPos)
+
+        task.wait()
+        Gun.Parent = Backpack
+
+    end
+)
+
+-- Aimbot for ZCNathan
+local AimbotActive = false
+local AimbotConnection = nil
+local PredictionFactor = 0.125
+
+local function GetBestTorsoTarget()
+    local target = nil
+    local shortest = math.huge
+    local screenCenter = Camera.ViewportSize / 2
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            local torso = player.Character:FindFirstChild("UpperTorso")
+                or player.Character:FindFirstChild("HumanoidRootPart")
+
+            if torso then
+                local pos, onScreen = Camera:WorldToViewportPoint(torso.Position)
+                if onScreen then
+                    local dist = (Vector2.new(pos.X, pos.Y) - screenCenter).Magnitude
+                    if dist < shortest then
+                        shortest = dist
+                        target = torso
+                    end
+                end
+            end
+        end
+    end
+
+    return target
+end
+
+local function StartAimbot()
+    if AimbotConnection then AimbotConnection:Disconnect() end
+
+    AimbotConnection = RunService.RenderStepped:Connect(function()
+        if not AimbotActive then return end
+
+        local target = GetBestTorsoTarget()
+        if target then
+            local velocity = target.AssemblyLinearVelocity or target.Velocity
+            local predictedPos = target.Position + (velocity * PredictionFactor)
+
+            Camera.CFrame = CFrame.new(Camera.CFrame.Position, predictedPos)
+        end
+    end)
+end
+
+-- X-Ray Toggle
+local XRayEnabled = false
+
+
+-- Aimbot Button
+createShape(
+    "Aim_Btn",
+    UDim2.new(0.5, 0, 0.85, 0),
+    "AIM",
+    function()
+        AimbotActive = not AimbotActive
+
+        if AimbotActive then
+            StartAimbot()
+            WindUI:Notify({
+                Title = "AIMBOT",
+                Content = "Enabled",
+                Icon = "target"
+            })
+        else
+            if AimbotConnection then
+                AimbotConnection:Disconnect()
+                AimbotConnection = nil
+            end
+
+            WindUI:Notify({
+                Title = "AIMBOT",
+                Content = "Disabled",
+                Icon = "target"
+            })
+        end
+    end
+)
+
+
+-- Run Button
+createShape(
+    "Run_Btn",
+    UDim2.new(0.5, 0, 0.7, 0),
+    "RUN",
+    function()
+        local character = LocalPlayer.Character
+        if character and character:FindFirstChild("Humanoid") then
+            local humanoid = character.Humanoid
+            humanoid.WalkSpeed = humanoid.WalkSpeed + 9
+
+            WindUI:Notify({
+                Title = "RUN",
+                Content = "Speed Activated",
+                Icon = "run"
+            })
+
+            task.delay(5, function()
+                if humanoid and humanoid.Parent then
+                    humanoid.WalkSpeed = humanoid.WalkSpeed - 9
+                    WindUI:Notify({
+                        Title = "RUN",
+                        Content = "Speed reverted",
+                        Icon = "run"
+                    })
+                end
+            end)
+        end
+    end
+)
+-- ==================== NINJA STEP (REGISTER OPTIMIZED) ====================
+-- Wrapping in a 'do' block prevents the "out of registers" error
+do
+    local NinjaEnabled = false
+    local NinjaCooldown = 22
+    local NinjaOnCooldown = false
+    local NinjaAirLock = false
+
+    local function getTool(char)
+        return char:FindFirstChild("FakeBomb") or LocalPlayer.Backpack:FindFirstChild("FakeBomb")
+    end
+
+    local function dropBombAndBounce(char)
+        if NinjaOnCooldown then return end
+        local hum = char:FindFirstChild("Humanoid")
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        local tool = getTool(char)
+
+        if not (hum and hrp and tool) then return end
+
+        if tool.Parent ~= char then tool.Parent = char end
+        task.wait(0.05)
+
+        local rem = tool:FindFirstChild("Remote")
+        if rem then
+            local down = CFrame.lookAt(hrp.Position, hrp.Position - Vector3.new(0, 50, 0))
+            rem:FireServer(down, 50)
+            hum:ChangeState(Enum.HumanoidStateType.Jumping)
+            
+            NinjaOnCooldown = true
+            task.delay(NinjaCooldown, function() NinjaOnCooldown = false end)
+        end
+    end
+
+    local function setupNinja(char)
+        local hum = char:WaitForChild("Humanoid")
+        local hrp = char:WaitForChild("HumanoidRootPart")
+
+        RunService.Heartbeat:Connect(function()
+            if not NinjaEnabled or NinjaOnCooldown then return end
+            if hum.FloorMaterial == Enum.Material.Air then
+                if hrp.AssemblyLinearVelocity.Y < -2 then
+                    if not NinjaAirLock then
+                        NinjaAirLock = true
+                        dropBombAndBounce(char)
+                    end
+                end
+            else
+                NinjaAirLock = false
+            end
+        end)
+    end
+
+    -- Character Init
+    if LocalPlayer.Character then task.spawn(setupNinja, LocalPlayer.Character) end
+    LocalPlayer.CharacterAdded:Connect(function(c) task.spawn(setupNinja, c) end)
+
+    -- Create Quick Button
+    createShape(
+        "NinjaStep_Btn", 
+        UDim2.new(0.5, 0, 0.5, 0), 
+        "NINJA: OFF", 
+        function()
+            NinjaEnabled = not NinjaEnabled
+            
+            -- Safe update for the Hub's button list
+            for _, b in ipairs(CreatedButtons) do
+                if b.Name == "NinjaStep_Btn" then
+                    b.Text = NinjaEnabled and "NINJA: ON" or "NINJA: OFF"
+                    break
+                end
+            end
+
+            WindUI:Notify({
+                Title = "Ninja Step",
+                Content = NinjaEnabled and "Active" or "Inactive",
+                Duration = 2
+            })
+        end
+    )
+end
+
+-- God Mode Button
+createShape("GodMode_Btn", UDim2.new(0.6, 0, 0.7, 0), "GOD MODE", function() 
+    loadstring(game:HttpGet("https://pastefy.app/FHl36Zg1/raw"))("true") 
+end)
+
+-- Kill All Button
+createShape(
+    "KillAll_Btn",
+    UDim2.new(0.6, 0, 0.3, 0),
+    "KILL ALL",
+    function()
+
+        local character = LocalPlayer.Character
+        local backpack = LocalPlayer:FindFirstChild("Backpack")
+        if not character or not backpack then return end
+
+        local knife = character:FindFirstChild("Knife") or backpack:FindFirstChild("Knife")
+        if not knife then
+            WindUI:Notify({
+                Title = "Kill All",
+                Content = "You are not the Murderer",
+                Icon = "x"
+            })
+            return
+        end
+
+        local myRoot = character:FindFirstChild("HumanoidRootPart")
+        local humanoid = character:FindFirstChild("Humanoid")
+        if not (myRoot and humanoid) then return end
+
+        if knife.Parent == backpack then
+            humanoid:EquipTool(knife)
+            task.wait()
+        end
+
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= LocalPlayer
+            and plr.Character
+            and plr.Character:FindFirstChild("HumanoidRootPart") then
+
+                local enemyRoot = plr.Character.HumanoidRootPart
+                enemyRoot.Anchored = true
+                enemyRoot.CFrame = myRoot.CFrame * CFrame.new(0, 0, -2)
+            end
+        end
+
+        local stab = knife:FindFirstChild("Stab")
+        if stab then
+            stab:FireServer("Slash")
+        end
+
+        task.wait(0.1)
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                plr.Character.HumanoidRootPart.Anchored = false
+            end
+        end
+
+        if knife.Parent == character then
+            knife.Parent = backpack
+        end
+    end
+)
+
+-- Invisibility
+local InvisibleActive = false
+local Character, Humanoid, HumanoidRoot = nil, nil, nil
+local PartsList = {}
+
+local function UpdateCharacter()
+    Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    Humanoid = Character:WaitForChild("Humanoid")
+    HumanoidRoot = Character:WaitForChild("HumanoidRootPart")
+
+    PartsList = {}
+    for _, part in ipairs(Character:GetDescendants()) do
+        if part:IsA("BasePart") and part.Transparency == 0 then
+            table.insert(PartsList, part)
+        end
+    end
+end
+
+local function ToggleInvisibility()
+    InvisibleActive = not InvisibleActive
+    for _, part in ipairs(PartsList) do
+        part.Transparency = InvisibleActive and 0.5 or 0
+    end
+end
+
+RunService.Heartbeat:Connect(function()
+    if InvisibleActive and HumanoidRoot and Humanoid then
+        local originalCFrame = HumanoidRoot.CFrame
+        local originalOffset = Humanoid.CameraOffset
+
+        local downCFrame = originalCFrame * CFrame.new(0, -200000, 0)
+        HumanoidRoot.CFrame = downCFrame
+        Humanoid.CameraOffset = (downCFrame:ToObjectSpace(originalCFrame)).Position
+
+        RunService.RenderStepped:Wait()
+
+        HumanoidRoot.CFrame = originalCFrame
+        Humanoid.CameraOffset = originalOffset
+    end
+end)
+
+LocalPlayer.CharacterAdded:Connect(function()
+    InvisibleActive = false
+    UpdateCharacter()
+end)
+
+UpdateCharacter()
+
+createShape(
+    "Invisible_Btn",
+    UDim2.new(0.5, 0, 0.75, 0),
+    "INVISIBLE",
+    ToggleInvisibility
+)
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local function GetGunNow()
+    local character = LocalPlayer.Character
+    if not character then return end
+
+    -- Prefer limb for touch, fallback to HRP
+    local touchPart =
+        character:FindFirstChild("LeftFoot")
+        or character:FindFirstChild("Left Leg")
+        or character:FindFirstChild("HumanoidRootPart")
+
+    if not touchPart then return end
+
+    local found = false
+
+    for _, v in ipairs(workspace:GetDescendants()) do
+        if v.Name == "GunDrop" then
+            firetouchinterest(touchPart, v, 0)
+            task.wait()
+            firetouchinterest(touchPart, v, 1)
+            found = true
+            break
+        end
+    end
+
+    if found then
+        WindUI:Notify({
+            Title = "GUN",
+            Content = "Gun acquired",
+            Icon = "check"
+        })
+    else
+        WindUI:Notify({
+            Title = "GUN",
+            Content = "No gun found",
+            Icon = "x"
+        })
+    end
+end
+
+createShape(
+    "Gun_Btn",
+    UDim2.new(0.5, 0, 0.65, 0),
+    "GET GUN",
+    GetGunNow
+)
+
+-- ==================== MANAGER TAB UI ====================
+Tabs.Manager:Section({ ["Title"] = "Main Controls" })
+
+Tabs.Manager:Toggle({
+    ["Title"] = "Enable All Buttons",
+    ["Value"] = false,
+    ["Callback"] = function(v)
+        for _, btn in ipairs(CreatedButtons) do
+            btn.Visible = v
+        end
+    end
+})
+
+Tabs.Manager:Section({ ["Title"] = "Edit Controls" })
+
+Tabs.Manager:Button({
+    ["Title"] = "Edit Layout",
+    ["Callback"] = function()
+        EditMode = not EditMode
+        if not EditMode and SelectedButton then
+            SelectedButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+            SelectedButton = nil
+        end
+        UpdateEditLabel()
+    end
+})
+
+Tabs.Manager:Button({
+    ["Title"] = "Save Layout",
+    ["Callback"] = SaveConfig
+})
+
+-- ==================== MAC-STYLE EDIT WIDGET ====================
+local EditGui = Instance.new("ScreenGui")
+EditGui.Name = "MacEditWidget"
+EditGui.ResetOnSpawn = false
+EditGui.DisplayOrder = 100
+EditGui.Parent = cloneref(LocalPlayer:WaitForChild("PlayerGui"))
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 240, 0, 245)
+MainFrame.Position = UDim2.new(0.5, -120, 0.5, -122)
+MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+MainFrame.Active = true
+MainFrame.Visible = false
+MainFrame.Parent = EditGui
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
+
+local Header = Instance.new("Frame")
+Header.Size = UDim2.new(1, 0, 0, 30)
+Header.BackgroundTransparency = 1
+Header.Parent = MainFrame
+
+local draggingWidget, dragStart, startPos
+Header.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        draggingWidget = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if draggingWidget and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        draggingWidget = false
+    end
+end)
+
+local Content = Instance.new("Frame")
+Content.Size = UDim2.new(1, 0, 1, -30)
+Content.Position = UDim2.new(0, 0, 0, 30)
+Content.BackgroundTransparency = 1
+Content.Parent = MainFrame
+
+local function createLabel(text, pos, parent, size, alignment, isBold)
+    local label = Instance.new("TextLabel")
+    label.Text = text
+    label.Size = UDim2.new(1, -24, 0, 15)
+    label.Position = pos
+    label.BackgroundTransparency = 1
+    label.TextColor3 = isBold and Color3.fromRGB(40, 40, 40) or Color3.fromRGB(120, 120, 120)
+    label.TextXAlignment = alignment or Enum.TextXAlignment.Left
+    label.Font = isBold and Enum.Font.GothamBold or Enum.Font.Gotham
+    label.TextSize = size or 11
+    label.Parent = parent
+    return label
+end
+
+createLabel("NAME", UDim2.new(0, 12, 0, 5), Content, 10, nil, true)
+local NameLabel = createLabel("No Selection", UDim2.new(0, 12, 0, 18), Content, 12, nil, false)
+
+local function createSlider(name, pos, parent, onChange, getCurrent)
+    local container = Instance.new("Frame", parent)
+    container.Size = UDim2.new(1, -24, 0, 35)
+    container.Position = pos
+    container.BackgroundTransparency = 1
+
+    createLabel(name, UDim2.new(0, 0, 0, 0), container, 10, nil, true)
+    local valLabel = createLabel("0", UDim2.new(0, 0, 0, 0), container, 10, Enum.TextXAlignment.Right, true)
+    valLabel.TextColor3 = MASTER_VIOLET
+
+    local track = Instance.new("TextButton", container)
+    track.Size = UDim2.new(1, 0, 0, 4)
+    track.Position = UDim2.new(0, 0, 0, 22)
+    track.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
+    track.BorderSizePixel = 0
+    track.Text = ""
+
+    local knob = Instance.new("Frame", track)
+    knob.Size = UDim2.new(0, 14, 0, 14)
+    knob.AnchorPoint = Vector2.new(0.5, 0.5)
+    knob.Position = UDim2.new(0, 0, 0.5, 0)
+    knob.BackgroundColor3 = MASTER_VIOLET
+    Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
+
+    local isSliding = false
+    local function move(input)
+        local ratio = math.clamp((input.Position.X - track.AbsolutePosition.X) / track.AbsoluteSize.X, 0, 1)
+        knob.Position = UDim2.new(ratio, 0, 0.5, 0)
+        valLabel.Text = tostring(math.round(ratio * 100))
+        if SelectedButton then onChange(ratio) end
+    end
+
+    track.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isSliding = true
+            move(input)
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if isSliding and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            move(input)
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isSliding = false
+        end
+    end)
+
+    RunService.RenderStepped:Connect(function()
+        if not isSliding and SelectedButton and getCurrent then
+            local p = getCurrent()
+            knob.Position = UDim2.new(p, 0, 0.5, 0)
+            valLabel.Text = tostring(math.round(p * 100))
+        end
+    end)
+end
+
+createSlider("OPACITY", UDim2.new(0, 12, 0, 45), Content, 
+    function(p) SelectedButton.BackgroundTransparency = 1-p SelectedButton.TextTransparency = 1-p SelectedButton.UIStroke.Transparency = 1-p end,
+    function() return 1 - SelectedButton.BackgroundTransparency end
+)
+
+createSlider("SCALE", UDim2.new(0, 12, 0, 85), Content, 
+    function(p) local s = 30 + (p * 220) local ratio = SelectedButton.Size.Y.Offset / SelectedButton.Size.X.Offset SelectedButton.Size = UDim2.fromOffset(s, s*ratio) end,
+    function() return (SelectedButton.Size.X.Offset - 30) / 220 end
+)
+
+createLabel("SHAPE", UDim2.new(0, 12, 0, 130), Content, 10, nil, true)
+local ShapeBtn = Instance.new("TextButton", Content)
+ShapeBtn.Size = UDim2.new(1, -24, 0, 26)
+ShapeBtn.Position = UDim2.new(0, 12, 0, 148)
+ShapeBtn.BackgroundColor3 = Color3.fromRGB(245, 245, 245)
+ShapeBtn.Text = "  Select Shape..."
+ShapeBtn.TextColor3 = Color3.fromRGB(100, 100, 100)
+ShapeBtn.TextXAlignment = Enum.TextXAlignment.Left
+ShapeBtn.Font = Enum.Font.Gotham
+Instance.new("UICorner", ShapeBtn).CornerRadius = UDim.new(0, 6)
+
+local Dropdown = Instance.new("ScrollingFrame", ShapeBtn)
+Dropdown.Size = UDim2.new(1, 0, 0, 0)
+Dropdown.Position = UDim2.new(0, 0, 1, 5)
+Dropdown.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Dropdown.BorderSizePixel = 0
+Dropdown.ZIndex = 500
+Dropdown.Visible = false
+Instance.new("UICorner", Dropdown).CornerRadius = UDim.new(0, 6)
+Instance.new("UIStroke", Dropdown).Transparency = 0.8
+
+local shapeConfigs = {
+    Circle = {corner = UDim.new(1, 0), forceSquare = true},
+    Square = {corner = UDim.new(0, 0), forceSquare = true},
+    ["Rounded Rectangle"] = {corner = UDim.new(0, 12), forceSquare = false},
+    Capsule = {corner = UDim.new(1, 0), forceSquare = false},
+    ["Sharp Rectangle"] = {corner = UDim.new(0, 0), forceSquare = false},
+}
+local shapes = {"Circle", "Square", "Rounded Rectangle", "Capsule", "Sharp Rectangle"}
+
+for i, sName in ipairs(shapes) do
+    local b = Instance.new("TextButton", Dropdown)
+    b.Size = UDim2.new(1, 0, 0, 25)
+    b.Position = UDim2.new(0, 0, 0, (i-1)*25)
+    b.BackgroundTransparency = 1
+    b.Text = "  " .. sName
+    b.TextColor3 = Color3.fromRGB(80, 80, 80)
+    b.Font = Enum.Font.Gotham
+    b.TextSize = 10
+    b.TextXAlignment = Enum.TextXAlignment.Left
+    b.ZIndex = 501
+    b.MouseButton1Click:Connect(function()
+        if SelectedButton then
+            local cfg = shapeConfigs[sName]
+            local w = SelectedButton.Size.X.Offset
+            SelectedButton.Size = UDim2.fromOffset(w, cfg.forceSquare and w or w * 0.6)
+            SelectedButton.UICorner.CornerRadius = cfg.corner
+            ShapeBtn.Text = "  " .. sName
+            Dropdown.Visible = false
+            Dropdown.Size = UDim2.new(1, 0, 0, 0)
+        end
+    end)
+end
+
+ShapeBtn.MouseButton1Click:Connect(function()
+    Dropdown.Visible = not Dropdown.Visible
+    Dropdown.Size = Dropdown.Visible and UDim2.new(1, 0, 0, 125) or UDim2.new(1, 0, 0, 0)
+end)
+
+local ResetBtn = Instance.new("TextButton", Content)
+ResetBtn.Size = UDim2.new(0, 65, 0, 26)
+ResetBtn.Position = UDim2.new(0, 12, 1, -35)
+ResetBtn.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+ResetBtn.Text = "Reset"
+ResetBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", ResetBtn).CornerRadius = UDim.new(0, 6)
+
+local ExitBtn = Instance.new("TextButton", Content)
+ExitBtn.Size = UDim2.new(0, 65, 0, 26)
+ExitBtn.Position = UDim2.new(0.5, -32, 1, -35)
+ExitBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+ExitBtn.Text = "EXIT"
+ExitBtn.TextColor3 = Color3.new(1,1,1)
+ExitBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", ExitBtn).CornerRadius = UDim.new(0, 6)
+
+local SaveBtn = Instance.new("TextButton", Content)
+SaveBtn.Size = UDim2.new(0, 65, 0, 26)
+SaveBtn.Position = UDim2.new(1, -77, 1, -35)
+SaveBtn.BackgroundColor3 = MASTER_VIOLET
+SaveBtn.Text = "Save"
+SaveBtn.TextColor3 = Color3.new(1,1,1)
+SaveBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", SaveBtn).CornerRadius = UDim.new(0, 6)
+
+ResetBtn.MouseButton1Click:Connect(function()
+    if SelectedButton then
+        SelectedButton.Size = UDim2.fromOffset(70, 70)
+        SelectedButton.BackgroundTransparency = 0.4
+        SelectedButton.UICorner.CornerRadius = UDim.new(1, 0)
+    end
+end)
+
+ExitBtn.MouseButton1Click:Connect(function()
+    EditMode = false
+    MainFrame.Visible = false
+    if SelectedButton then SelectedButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25) end
+    SelectedButton = nil
+    UpdateEditLabel()
+end)
+
+SaveBtn.MouseButton1Click:Connect(SaveConfig)
+
+RunService.Heartbeat:Connect(function()
+    MainFrame.Visible = EditMode and SelectedButton ~= nil
+    if SelectedButton then NameLabel.Text = SelectedButton.Name end
+end)
+
+LoadConfig()
+
+--- ===============MAIN TAB========================
+
+Tabs.Main:Section({
+    ["Title"] = "Player",
+    ["Icon"] = "player"
+})
+
+-- Assuming 'Tabs.Main' is your target tab
+local FOVSection = Tabs.Main:Section({ 
+    ["Title"] = "Field of View",
+})
+
+-- We leave the Slider Title empty to give the bar full width, 
+-- preventing the text from being squished vertically.
+local FOVSlider = Tabs.Main:Slider({
+    ["Title"] = "FOV", -- Left empty to prevent "Ch-An-Ge" vertical text
+    ["Step"] = 1,
+    ["Value"] = {
+        ["Min"] = 30,
+        ["Max"] = 120,
+        ["Default"] = 70
+    },
+    ["Callback"] = function(Value)
+        game:GetService("Workspace").CurrentCamera.FieldOfView = Value
+    end
+})
+
+-- We place the Reset button directly under it
+Tabs.Main:Button({
+    ["Title"] = "Reset FOV to Default",
+    ["Icon"] = "refresh-cw",
+    ["Callback"] = function()
+        FOVSlider:Set(70)
+        game:GetService("Workspace").CurrentCamera.FieldOfView = 70
+        WindUI:Notify({
+            ["Title"] = "Camera",
+            ["Content"] = "FOV Reset to 70",
+            ["Duration"] = 2
+        })
+    end
+})
+
+Tabs.Main:Section({
+    ["Title"] = "Murder",
+    ["Icon"] = "sword"
+})
+
+Tabs.Main:Button({
+    ["Title"] = "Kill All (hold knife)",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://pastefy.app/2eOpHYrg/raw"))("true")
+    end
+})
+
+Tabs.Main:Button({
+    ["Title"] = "Kill Sheriff (hold knife)",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://pastefy.app/YBXds1as/raw"))("true")
+    end
+})
+
+Tabs.Main:Button({
+    ["Title"] = "Kill Innocents (hold knife)",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://pastefy.app/vmG5vtCc/raw"))("true")
+    end
+})
+
+local HitboxSettings = {
+    ["Hitbox"] = {
+        ["Enabled"] = false,
+        ["Size"] = 5,
+        ["Color"] = Color3.new(1, 0, 0),
+        ["Adornments"] = {},
+        ["Connection"] = nil
+    }
+}
+
+local function UpdateHitboxes()
+    if HitboxSettings.Hitbox.Enabled then
+        for _, Player in pairs(Players:GetPlayers()) do
+            if Player ~= LocalPlayer then
+                local Character = Player.Character
+                local Adornment = HitboxSettings.Hitbox.Adornments[Player]
+                if Character and HitboxSettings.Hitbox.Enabled then
+                    local RootPart = Character:FindFirstChild("HumanoidRootPart")
+                    if RootPart then
+                        if Adornment then
+                            Adornment.Size = Vector3.new(HitboxSettings.Hitbox.Size, HitboxSettings.Hitbox.Size, HitboxSettings.Hitbox.Size)
+                            Adornment.Color3 = HitboxSettings.Hitbox.Color
+                        else
+                            local NewAdornment = Instance.new("BoxHandleAdornment")
+                            NewAdornment.Adornee = RootPart
+                            NewAdornment.Size = Vector3.new(HitboxSettings.Hitbox.Size, HitboxSettings.Hitbox.Size, HitboxSettings.Hitbox.Size)
+                            NewAdornment.Color3 = HitboxSettings.Hitbox.Color
+                            NewAdornment.Transparency = 0.4
+                            NewAdornment.ZIndex = 10
+                            NewAdornment.Parent = RootPart
+                            HitboxSettings.Hitbox.Adornments[Player] = NewAdornment
+                        end
+                    end
+                elseif Adornment then
+                    Adornment:Destroy()
+                    HitboxSettings.Hitbox.Adornments[Player] = nil
+                end
+            end
+        end
+    end
+end
+
+Tabs.Main:Toggle({
+    ["Title"] = "Hitboxes",
+    ["Callback"] = function(State)
+        HitboxSettings.Hitbox.Enabled = State
+        if State then
+            if not HitboxSettings.Hitbox.Connection then
+                HitboxSettings.Hitbox.Connection = RunService.Heartbeat:Connect(UpdateHitboxes)
+            end
+        else
+            if HitboxSettings.Hitbox.Connection then
+                HitboxSettings.Hitbox.Connection:Disconnect()
+                HitboxSettings.Hitbox.Connection = nil
+            end
+            for _, Adornment in pairs(HitboxSettings.Hitbox.Adornments) do
+                if Adornment then
+                    Adornment:Destroy()
+                end
+            end
+            HitboxSettings.Hitbox.Adornments = {}
+        end
+    end
+})
+
+Tabs.Main:Slider({
+    ["Title"] = "Hitbox size",
+    ["Value"] = {
+        ["Min"] = 1,
+        ["Max"] = 20,
+        ["Default"] = 5
+    },
+    ["Callback"] = function(Value)
+        HitboxSettings.Hitbox.Size = Value
+    end
+})
+
+Tabs.Main:Colorpicker({
+    ["Title"] = "Hitbox color",
+    ["Default"] = Color3.new(1, 0, 0),
+    ["Callback"] = function(Color)
+        HitboxSettings.Hitbox.Color = Color
+    end
+})
+
+Tabs.Main:Section({
+    ["Title"] = "Sheriff",
+    ["Icon"] = "heart"
+})
+
+Tabs.Main:Button({
+    ["Title"] = "Shoot Murderer",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://pastefy.app/IeVSJS2e/raw"))("true")
+    end
+})
+
+local AimbotMasterToggle = false
+local AimbotActive = false
+local AimbotConnection = nil
+local CurrentTarget = nil
+local screenGui = nil
+
+-- Function to find the player closest to the center of the screen
+local function GetClosestPlayerToCursor()
+    local Target = nil
+    local ShortestDistance = math.huge
+    local MousePos = Camera.ViewportSize / 2
+
+    for _, Player in ipairs(Players:GetPlayers()) do
+        if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+            local RootPart = Player.Character.HumanoidRootPart
+            local Pos, OnScreen = Camera:WorldToViewportPoint(RootPart.Position)
+
+            if OnScreen then
+                local Distance = (Vector2.new(Pos.X, Pos.Y) - MousePos).Magnitude
+                if Distance < ShortestDistance then
+                    Target = Player
+                    ShortestDistance = Distance
+                end
+            end
+        end
+    end
+    return Target
+end
+
+-- Logic to handle the hard lock-on
+local function StartAimbot()
+    if AimbotConnection then AimbotConnection:Disconnect() end
+    AimbotConnection = RunService.RenderStepped:Connect(function()
+        if AimbotMasterToggle and AimbotActive and CurrentTarget and CurrentTarget.Character and CurrentTarget.Character:FindFirstChild("Head") then
+            -- Hard lock the camera to the head
+            Camera.CFrame = CFrame.new(Camera.CFrame.Position, CurrentTarget.Character.Head.Position)
+        elseif AimbotActive and not CurrentTarget then
+            CurrentTarget = GetClosestPlayerToCursor()
+        end
+    end)
+end
+
+-- WinUI Toggle Integration
+Tabs.Main:Toggle({
+    ["Title"] = "Camera Hard-Lock GUI",
+    ["Value"] = false,
+    ["Callback"] = function(State)
+        AimbotMasterToggle = State
+        
+        if State then
+            -- GUI Setup (Exact Original Design)
+            local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+            screenGui = Instance.new("ScreenGui")
+            screenGui.Name = "CustomJumpGui"
+            screenGui.ResetOnSpawn = false
+            screenGui.Parent = PlayerGui
+
+            local VERTICAL_OFFSET = 0.10
+
+            local jumpButton = Instance.new("TextButton")
+            jumpButton.Name = "JumpButton"
+            jumpButton.Size = UDim2.new(0, 90, 0, 90)
+            jumpButton.AnchorPoint = Vector2.new(1, 0.5) 
+            jumpButton.Position = UDim2.new(1, -10, VERTICAL_OFFSET, 0)
+            jumpButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20) 
+            jumpButton.BackgroundTransparency = 0.5
+            jumpButton.Text = ""
+            jumpButton.AutoButtonColor = true
+            jumpButton.Parent = screenGui
+
+            local uiCorner = Instance.new("UICorner")
+            uiCorner.CornerRadius = UDim.new(1, 0)
+            uiCorner.Parent = jumpButton
+
+            local insetStrokeFrame = Instance.new("Frame")
+            insetStrokeFrame.Name = "InsetStroke"
+            insetStrokeFrame.Size = UDim2.new(0.9, 0, 0.9, 0) 
+            insetStrokeFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+            insetStrokeFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+            insetStrokeFrame.BackgroundTransparency = 1 
+            insetStrokeFrame.Parent = jumpButton
+
+            local insetCorner = Instance.new("UICorner")
+            insetCorner.CornerRadius = UDim.new(1, 0)
+            insetCorner.Parent = insetStrokeFrame
+
+            local uiStroke = Instance.new("UIStroke")
+            uiStroke.Thickness = 2 
+            uiStroke.Color = Color3.fromRGB(255, 255, 255) 
+            uiStroke.Transparency = 0.5 
+            uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            uiStroke.Parent = insetStrokeFrame
+
+            local arrowIcon = Instance.new("ImageLabel")
+            arrowIcon.Name = "ArrowIcon"
+            arrowIcon.Size = UDim2.new(0.7, 0, 0.7, 0) 
+            arrowIcon.Position = UDim2.new(0.5, 0, 0.5, 0)
+            arrowIcon.AnchorPoint = Vector2.new(0.5, 0.5)
+            arrowIcon.BackgroundTransparency = 1
+            arrowIcon.Image = "rbxassetid://17544521115"
+            arrowIcon.ImageColor3 = Color3.fromRGB(255, 255, 255) 
+            arrowIcon.ImageTransparency = 0.5 
+            arrowIcon.Parent = jumpButton
+
+            -- Button Functionality
+            jumpButton.MouseButton1Click:Connect(function()
+                AimbotActive = not AimbotActive
+                
+                if AimbotActive then
+                    CurrentTarget = GetClosestPlayerToCursor()
+                    arrowIcon.ImageColor3 = Color3.fromRGB(255, 0, 0)
+                    SendNexoraNotification("Aimbot", "Locked On", 2)
+                    if not AimbotConnection then
+                        StartAimbot()
+                    end
+                else
+                    CurrentTarget = nil
+                    arrowIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
+                end
+            end)
+        else
+            -- Cleanup when toggle is turned OFF
+            AimbotActive = false
+            CurrentTarget = nil
+            if screenGui then
+                screenGui:Destroy()
+                screenGui = nil
+            end
+            if AimbotConnection then
+                AimbotConnection:Disconnect()
+                AimbotConnection = nil
+            end
+        end
+    end
+})
+
+local _G = _G or {}
+_G.GunAimbotArgs = nil
+local GunAimbotEnabled = false
+local GunAimbotConnection = nil
+local InputConnection = nil
+local TouchConnection = nil
+
+-- The function that actually fires the gun using your specific remote
+local function FireAtMurderer()
+    if not GunAimbotEnabled or not _G.GunAimbotArgs then return end
+    
+    local Character = LocalPlayer.Character
+    local Gun = Character and Character:FindFirstChild("Gun")
+    local ShootRemote = Gun and Gun:FindFirstChild("Shoot")
+    
+    if ShootRemote then
+        -- We use the pre-calculated args from the RenderStepped loop
+        ShootRemote:FireServer(unpack(_G.GunAimbotArgs))
+    end
+end
+
+Tabs.Main:Toggle({
+    ["Title"] = "Gun Aimbot (Auto-Target Murderer)",
+    ["Value"] = false,
+    ["Callback"] = function(State)
+        GunAimbotEnabled = State
+        
+        -- Clean up existing connections to prevent lag/double-firing
+        if GunAimbotConnection then GunAimbotConnection:Disconnect() end
+        if InputConnection then InputConnection:Disconnect() end
+        if TouchConnection then TouchConnection:Disconnect() end
+
+        if State then
+            -- Constant Loop to track the Murderer's position
+            GunAimbotConnection = RunService.RenderStepped:Connect(function()
+                local TargetPlayer = nil
+                for _, Player in ipairs(Players:GetPlayers()) do
+                    if Player ~= LocalPlayer then
+                        local Backpack = Player:FindFirstChild("Backpack")
+                        local Char = Player.Character
+                        -- Detection Logic
+                        if (Backpack and Backpack:FindFirstChild("Knife")) or (Char and Char:FindFirstChild("Knife")) then
+                            TargetPlayer = Player
+                            break
+                        end
+                    end
+                end
+
+                if TargetPlayer and TargetPlayer.Character and TargetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    local MyRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    local TargetRoot = TargetPlayer.Character.HumanoidRootPart
+                    
+                    if MyRoot then
+                        -- PREDICTION: Current Pos + (Velocity * Lead Factor)
+                        local PredictedPos = TargetRoot.CFrame + (TargetRoot.Velocity * 0.125)
+                        
+                        -- Update Global Args for the click event
+                        _G.GunAimbotArgs = {
+                            MyRoot.CFrame,
+                            PredictedPos
+                        }
+                    end
+                else
+                    _G.GunAimbotArgs = nil
+                end
+            end)
+
+            -- Desktop Click Detection
+            InputConnection = UserInputService.InputBegan:Connect(function(Input, Processed)
+                if not Processed and Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    FireAtMurderer()
+                end
+            end)
+
+            -- Mobile Tap Detection
+            TouchConnection = UserInputService.TouchTap:Connect(function()
+                FireAtMurderer()
+            end)
+        else
+            _G.GunAimbotArgs = nil
+        end
+    end
+})
+
+local AutoShootEnabled = false
+local currentScreenGui = nil
+local inventoryCheckConnection = nil
+local hasNotifiedSuccess = false
+local hasNotifiedFailure = false
+
+-- Function to send notifications
+local function Notify(title, text)
+    SendNexoraNotification(title, text, 3)
+end
+
+-- Function to find the murderer
+local function GetMurderer()
+    for _, Player in ipairs(Players:GetPlayers()) do
+        if Player ~= LocalPlayer and Player.Character then
+            local Knife = Player.Backpack:FindFirstChild("Knife") or Player.Character:FindFirstChild("Knife")
+            if Knife then return Player end
+        end
+    end
+    return nil
+end
+
+-- The specific combat sequence
+local function InstantShootSequence()
+    local Character = LocalPlayer.Character
+    local Backpack = LocalPlayer:FindFirstChild("Backpack")
+    if not Character or not Backpack then return end
+
+    local Gun = Backpack:FindFirstChild("Gun") or Character:FindFirstChild("Gun")
+    
+    if Gun then
+        Gun.Parent = Character
+        task.wait()
+        
+        local ShootRemote = Gun:FindFirstChild("Shoot")
+        local Murderer = GetMurderer()
+        
+        if ShootRemote and Murderer and Murderer.Character:FindFirstChild("HumanoidRootPart") then
+            local TargetRoot = Murderer.Character.HumanoidRootPart
+            local MyRoot = Character:FindFirstChild("HumanoidRootPart")
+            
+            if MyRoot then
+                local PredictedPos = TargetRoot.CFrame + (TargetRoot.Velocity * 0.125)
+                local args = { MyRoot.CFrame, PredictedPos }
+                ShootRemote:FireServer(unpack(args))
+            end
+        end
+        
+        task.wait()
+        Gun.Parent = Backpack
+    end
+end
+
+-- Function to build your exact GUI
+local function CreateCombatGui()
+    if currentScreenGui then return end
+    
+    currentScreenGui = Instance.new("ScreenGui")
+    currentScreenGui.Name = "CustomJumpGui"
+    currentScreenGui.ResetOnSpawn = false
+    currentScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+    local jumpButton = Instance.new("TextButton")
+    jumpButton.Name = "JumpButton"
+    jumpButton.Size = UDim2.new(0, 90, 0, 90)
+    jumpButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20) 
+    jumpButton.BackgroundTransparency = 0.5
+    jumpButton.Text = ""
+    jumpButton.AutoButtonColor = true
+    jumpButton.Parent = currentScreenGui
+
+    local function alignToMobile()
+        local touchGui = LocalPlayer.PlayerGui:FindFirstChild("TouchGui")
+        if touchGui then
+            local controlFrame = touchGui:FindFirstChild("TouchControlFrame")
+            local jumpControl = controlFrame and controlFrame:FindFirstChild("JumpButton")
+            if jumpControl then
+                jumpButton.Position = UDim2.new(
+                    jumpControl.Position.X.Scale, 
+                    jumpControl.Position.X.Offset - 110, 
+                    jumpControl.Position.Y.Scale, 
+                    jumpControl.Position.Y.Offset - 110
+                )
+            end
+        else
+            jumpButton.Position = UDim2.new(0.85, 0, 0.7, 0)
+        end
+    end
+    alignToMobile()
+
+    local uiCorner = Instance.new("UICorner")
+    uiCorner.CornerRadius = UDim.new(1, 0)
+    uiCorner.Parent = jumpButton
+
+    local insetStrokeFrame = Instance.new("Frame")
+    insetStrokeFrame.Name = "InsetStroke"
+    insetStrokeFrame.Size = UDim2.new(0.9, 0, 0.9, 0) 
+    insetStrokeFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    insetStrokeFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    insetStrokeFrame.BackgroundTransparency = 1 
+    insetStrokeFrame.Parent = jumpButton
+
+    local insetCorner = Instance.new("UICorner")
+    insetCorner.CornerRadius = UDim.new(1, 0)
+    insetCorner.Parent = insetStrokeFrame
+
+    local uiStroke = Instance.new("UIStroke")
+    uiStroke.Thickness = 2 
+    uiStroke.Color = Color3.fromRGB(255, 255, 255) 
+    uiStroke.Transparency = 0.5 
+    uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    uiStroke.Parent = insetStrokeFrame
+
+    local arrowIcon = Instance.new("ImageLabel")
+    arrowIcon.Name = "ArrowIcon"
+    arrowIcon.Size = UDim2.new(0.7, 0, 0.7, 0) 
+    arrowIcon.Position = UDim2.new(0.5, 0, 0.5, 0)
+    arrowIcon.AnchorPoint = Vector2.new(0.5, 0.5)
+    arrowIcon.BackgroundTransparency = 1
+    arrowIcon.Image = "rbxassetid://139650104834071"
+    arrowIcon.ImageColor3 = Color3.fromRGB(255, 255, 255) 
+    arrowIcon.ImageTransparency = 0.5 
+    arrowIcon.Parent = jumpButton
+
+    jumpButton.MouseButton1Click:Connect(function()
+        InstantShootSequence()
+    end)
+end
+
+Tabs.Main:Toggle({
+    ["Title"] = "Flick Shot Gui",
+    ["Value"] = false,
+    ["Callback"] = function(State)
+        AutoShootEnabled = State
+        hasNotifiedSuccess = false
+        hasNotifiedFailure = false
+        
+        if State then
+            -- Connection to check for Gun inventory status
+            inventoryCheckConnection = RunService.Heartbeat:Connect(function()
+                if not AutoShootEnabled then return end
+                
+                local Backpack = LocalPlayer:FindFirstChild("Backpack")
+                local Character = LocalPlayer.Character
+                local Gun = (Backpack and Backpack:FindFirstChild("Gun")) or (Character and Character:FindFirstChild("Gun"))
+                
+                if Gun then
+                    if not currentScreenGui then
+                        CreateCombatGui()
+                        if not hasNotifiedSuccess then
+                            Notify("Eliana Hub", "Gun Detected: Combat Button is now visible.")
+                            hasNotifiedSuccess = true
+                            hasNotifiedFailure = false
+                        end
+                    end
+                else
+                    if currentScreenGui then
+                        currentScreenGui:Destroy()
+                        currentScreenGui = nil
+                    end
+                    if not hasNotifiedFailure then
+                        Notify("Project Nexora", "Gun Needed: You need a Gun to use this feature.")
+                        hasNotifiedFailure = true
+                        hasNotifiedSuccess = false
+                    end
+                end
+            end)
+        else
+            -- Cleanup everything
+            if inventoryCheckConnection then inventoryCheckConnection:Disconnect() end
+            if currentScreenGui then currentScreenGui:Destroy() currentScreenGui = nil end
+        end
+    end
+})
+
+Tabs.Main:Toggle({
+    ["Title"] = "Mobile Murderer Button",
+    ["Value"] = false,
+    ["Callback"] = function(State)
+        AutoShootEnabled = State
+        
+        if State then
+            -- EXACT REPLICATION OF YOUR GUI CODE
+            currentScreenGui = Instance.new("ScreenGui")
+            currentScreenGui.Name = "CustomJumpGui"
+            currentScreenGui.ResetOnSpawn = false
+            currentScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+            local jumpButton = Instance.new("TextButton")
+            jumpButton.Name = "JumpButton"
+            jumpButton.Size = UDim2.new(0, 90, 0, 90)
+            jumpButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20) 
+            jumpButton.BackgroundTransparency = 0.5
+            jumpButton.Text = ""
+            jumpButton.AutoButtonColor = true
+            jumpButton.Parent = currentScreenGui
+
+            -- Positioning Logic: Target the default Mobile Jump Button
+            local function alignToMobile()
+                local touchGui = LocalPlayer.PlayerGui:FindFirstChild("TouchGui")
+                if touchGui then
+                    local controlFrame = touchGui:FindFirstChild("TouchControlFrame")
+                    local jumpControl = controlFrame and controlFrame:FindFirstChild("JumpButton")
+                    if jumpControl then
+                        jumpButton.Position = UDim2.new(
+                            jumpControl.Position.X.Scale, 
+                            jumpControl.Position.X.Offset - 110, 
+                            jumpControl.Position.Y.Scale, 
+                            jumpControl.Position.Y.Offset - 110
+                        )
+                    end
+                else
+                    jumpButton.Position = UDim2.new(0.85, 0, 0.7, 0)
+                end
+            end
+            alignToMobile()
+
+            local uiCorner = Instance.new("UICorner")
+            uiCorner.CornerRadius = UDim.new(1, 0)
+            uiCorner.Parent = jumpButton
+
+            local insetStrokeFrame = Instance.new("Frame")
+            insetStrokeFrame.Name = "InsetStroke"
+            insetStrokeFrame.Size = UDim2.new(0.9, 0, 0.9, 0) 
+            insetStrokeFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+            insetStrokeFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+            insetStrokeFrame.BackgroundTransparency = 1 
+            insetStrokeFrame.Parent = jumpButton
+
+            local insetCorner = Instance.new("UICorner")
+            insetCorner.CornerRadius = UDim.new(1, 0)
+            insetCorner.Parent = insetStrokeFrame
+
+            local uiStroke = Instance.new("UIStroke")
+            uiStroke.Thickness = 2 
+            uiStroke.Color = Color3.fromRGB(255, 255, 255) 
+            uiStroke.Transparency = 0.5 
+            uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            uiStroke.Parent = insetStrokeFrame
+
+            local arrowIcon = Instance.new("ImageLabel")
+            arrowIcon.Name = "ArrowIcon"
+            arrowIcon.Size = UDim2.new(0.7, 0, 0.7, 0) 
+            arrowIcon.Position = UDim2.new(0.5, 0, 0.5, 0)
+            arrowIcon.AnchorPoint = Vector2.new(0.5, 0.5)
+            arrowIcon.BackgroundTransparency = 1
+            arrowIcon.Image = "rbxassetid://139650104834071"
+            arrowIcon.ImageColor3 = Color3.fromRGB(255, 255, 255) 
+            arrowIcon.ImageTransparency = 0.5 
+            arrowIcon.Parent = jumpButton
+
+            -- CONNECTING THE ACTION
+            jumpButton.MouseButton1Click:Connect(function()
+                InstantShootSequence()
+            end)
+        else
+            -- Cleanup
+            if currentScreenGui then
+                currentScreenGui:Destroy()
+                currentScreenGui = nil
+            end
+        end
+    end
+})
+
+Tabs.Main:Section({
+    ["Title"] = "Innocent",
+    ["Icon"] = "eye"
+})
+
+local InvisAnimationId = "90878454666108"
+local InvisAnimTimePos = 0.2
+local InvisAnimSpeed = 0
+local InvisibilityEnabled = false
+local CurrentInvisAnimation = nil
+local AnimationBlockConnection = nil
+local HeartbeatConnection = nil
+local CollisionConnection = nil
+
+local function SetCharacterTransparency(Character, Transparency)
+    if Character then
+        local BodyParts = {
+            "Head",
+            "UpperTorso",
+            "LowerTorso",
+            "LeftUpperArm",
+            "LeftLowerArm",
+            "LeftHand",
+            "RightUpperArm",
+            "RightLowerArm",
+            "RightHand",
+            "LeftUpperLeg",
+            "LeftLowerLeg",
+            "LeftFoot",
+            "RightUpperLeg",
+            "RightLowerLeg",
+            "RightFoot"
+        }
+        for _, PartName in ipairs(BodyParts) do
+            local Part = Character:FindFirstChild(PartName)
+            if Part and Part:IsA("BasePart") then
+                Part.Transparency = Transparency
+            end
+        end
+    end
+end
+
+local function PlayInvisAnimation(Animator)
+    if Animator then
+        if not (CurrentInvisAnimation and CurrentInvisAnimation.IsPlaying) then
+            local Animation = Instance.new("Animation")
+            Animation.AnimationId = "rbxassetid://" .. InvisAnimationId
+            CurrentInvisAnimation = Animator:LoadAnimation(Animation)
+            CurrentInvisAnimation:Play()
+            CurrentInvisAnimation.TimePosition = InvisAnimTimePos
+            CurrentInvisAnimation:AdjustSpeed(InvisAnimSpeed)
+        end
+    end
+end
+
+local function StopInvisAnimation()
+    if CurrentInvisAnimation then
+        CurrentInvisAnimation:Stop()
+        CurrentInvisAnimation = nil
+    end
+end
+
+local function BlockOtherAnimations(Humanoid)
+    if Humanoid then
+        if AnimationBlockConnection then
+            AnimationBlockConnection:Disconnect()
+        end
+        AnimationBlockConnection = Humanoid.AnimationPlayed:Connect(function(AnimTrack)
+            if AnimTrack.Animation.AnimationId:match("%d+") ~= InvisAnimationId then
+                AnimTrack:Stop()
+            end
+        end)
+    end
+end
+
+local function UnblockAnimations()
+    if AnimationBlockConnection then
+        AnimationBlockConnection:Disconnect()
+        AnimationBlockConnection = nil
+    end
+end
+
+local function StartInvisibility(Character)
+    if Character then
+        local Humanoid = Character:WaitForChild("Humanoid")
+        local Animator
+        if Humanoid then
+            Animator = Humanoid:FindFirstChildOfClass("Animator")
+        else
+            Animator = Humanoid
+        end
+        if Humanoid and Animator then
+            SetCharacterTransparency(Character, 0.5)
+            BlockOtherAnimations(Humanoid)
+            if HeartbeatConnection then
+                HeartbeatConnection:Disconnect()
+            end
+            HeartbeatConnection = RunService.Heartbeat:Connect(function()
+                if InvisibilityEnabled then
+                    PlayInvisAnimation(Animator)
+                end
+            end)
+        end
+    else
+        return
+    end
+end
+
+local function StopInvisibility(Character)
+    StopInvisAnimation()
+    UnblockAnimations()
+    SetCharacterTransparency(Character, 0)
+    if HeartbeatConnection then
+        HeartbeatConnection:Disconnect()
+        HeartbeatConnection = nil
+    end
+end
+
+local function DisableCollision(Character)
+    if Character then
+        if CollisionConnection then
+            CollisionConnection:Disconnect()
+        end
+        CollisionConnection = RunService.Stepped:Connect(function()
+            if Character then
+                for _, Descendant in ipairs(Character:GetDescendants()) do
+                    if Descendant:IsA("BasePart") and Descendant.Name ~= "HumanoidRootPart" then
+                        Descendant.CanCollide = false
+                    end
+                end
+            end
+        end)
+    end
+end
+
+local function EnableCollision(Character)
+    if CollisionConnection then
+        CollisionConnection:Disconnect()
+        CollisionConnection = nil
+    end
+    if Character then
+        for _, Descendant in ipairs(Character:GetDescendants()) do
+            if Descendant:IsA("BasePart") then
+                Descendant.CanCollide = true
+            end
+        end
+    end
+end
+
+local function EnableFullInvisibility(Character)
+    StartInvisibility(Character)
+    DisableCollision(Character)
+end
+
+local function DisableFullInvisibility(Character)
+    StopInvisibility(Character)
+    EnableCollision(Character)
+end
+
+local function OnCharacterAddedInvis(NewCharacter)
+    DisableFullInvisibility(LocalPlayer.Character)
+    if InvisibilityEnabled then
+        task.wait(0.5)
+        EnableFullInvisibility(NewCharacter)
+    end
+    NewCharacter:WaitForChild("Humanoid").Died:Connect(function()
+        DisableFullInvisibility(NewCharacter)
+    end)
+end
+
+Tabs.Main:Toggle({
+    ["Title"] = "invisibility",
+    ["Value"] = false,
+    ["Callback"] = function(State)
+        InvisibilityEnabled = State
+        local Character = LocalPlayer.Character
+        if InvisibilityEnabled then
+            EnableFullInvisibility(Character)
+        else
+            DisableFullInvisibility(Character)
+        end
+    end
+})
+
+LocalPlayer.CharacterAdded:Connect(OnCharacterAddedInvis)
+
+if LocalPlayer.Character then
+    OnCharacterAddedInvis(LocalPlayer.Character)
+end
+
+local AutoGetGunEnabled = false
+
+Tabs.Main:Toggle({
+    ["Title"] = "Auto Get Gun",
+    ["Value"] = false,
+    ["Callback"] = function(State)
+        AutoGetGunEnabled = State
+        if State then
+            task.spawn(function()
+                while AutoGetGunEnabled do
+                    local Character = Players.LocalPlayer.Character
+                    if Character and Character:FindFirstChild("HumanoidRootPart") then
+                        local OriginalPosition = Character.HumanoidRootPart.Position
+                        local NearestGun = nil
+                        local NearestDistance = math.huge
+                        for _, Descendant in pairs(Workspace:GetDescendants()) do
+                            if Descendant.Name == "GunDrop" and Descendant:IsA("BasePart") then
+                                local Distance = (Character.HumanoidRootPart.Position - Descendant.Position).Magnitude
+                                if Distance < NearestDistance then
+                                    NearestGun = Descendant
+                                    NearestDistance = Distance
+                                end
+                            end
+                        end
+                        if NearestGun then
+                            Character.HumanoidRootPart.CFrame = NearestGun.CFrame
+                            task.wait(0.1)
+                            Character.HumanoidRootPart.CFrame = CFrame.new(OriginalPosition)
+                        end
+                    end
+                    task.wait(1)
+                end
+            end)
+        end
+    end
+})
+
+Tabs.Main:Button({
+    ["Title"] = "Get Second Life (unstable)",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://pastefy.app/FHl36Zg1/raw"))("true")
+    end
+})
+
+Tabs.Main:Section({
+    ["Title"] = "Fly",
+    ["Icon"] = "utensils"
+})
+
+local FlySpeed = 50
+local FlyEnabled = false
+local MobilePadEnabled = false
+local InputBeganConnection = nil
+local InputEndedConnection = nil
+local CharacterAddedConnection = nil
+
+local FlyDirection = {
+    ["f"] = 0,
+    ["b"] = 0,
+    ["l"] = 0,
+    ["r"] = 0
+}
+
+local function PlayFlyAnimation(AnimationId, TimePosition, Speed)
+    pcall(function()
+        if LocalPlayer.Character then
+            LocalPlayer.Character.Animate.Disabled = true
+            local Humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if Humanoid then
+                for _, Track in ipairs(Humanoid:GetPlayingAnimationTracks()) do
+                    Track:Stop(0)
+                end
+                local Animation = Instance.new("Animation")
+                Animation.AnimationId = "rbxassetid://" .. AnimationId
+                local AnimTrack = Humanoid:LoadAnimation(Animation)
+                AnimTrack:Play(0.1)
+                AnimTrack.TimePosition = TimePosition
+                AnimTrack:AdjustSpeed(Speed)
+            end
+        else
+            return
+        end
+    end)
+end
+
+local function StopAllAnimations()
+    pcall(function()
+        if LocalPlayer.Character then
+            local Humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if Humanoid then
+                for _, Track in ipairs(Humanoid:GetPlayingAnimationTracks()) do
+                    Track:Stop(0.1)
+                end
+                LocalPlayer.Character.Animate.Disabled = false
+            end
+        else
+            return
+        end
+    end)
+end
+
+local FlyPadGui = Instance.new("ScreenGui")
+FlyPadGui.Name = "FlyPadGui_Gemini"
+FlyPadGui.Parent = game.CoreGui
+FlyPadGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+FlyPadGui.Enabled = false
+
+local FlyPad = Instance.new("ImageButton")
+FlyPad.Name = "Fly_Pad"
+FlyPad.Parent = FlyPadGui
+FlyPad.BackgroundTransparency = 1
+FlyPad.Position = UDim2.new(0.1, 0, 0.6, 0)
+FlyPad.Size = UDim2.new(0, 100, 0, 100)
+FlyPad.ZIndex = 2
+FlyPad.Image = "rbxassetid://6764432293"
+FlyPad.ImageRectOffset = Vector2.new(713, 315)
+FlyPad.ImageRectSize = Vector2.new(75, 75)
+
+local LeftButton = Instance.new("TextButton")
+LeftButton.Parent = FlyPad
+LeftButton.BackgroundTransparency = 1
+LeftButton.Size = UDim2.new(0, 30, 0, 40)
+LeftButton.Position = UDim2.new(0, 0, 0, 30)
+LeftButton.Text = ""
+
+local RightButton = Instance.new("TextButton")
+RightButton.Parent = FlyPad
+RightButton.BackgroundTransparency = 1
+RightButton.Size = UDim2.new(0, 30, 0, 40)
+RightButton.Position = UDim2.new(0, 70, 0, 30)
+RightButton.Text = ""
+
+local ForwardButton = Instance.new("TextButton")
+ForwardButton.Parent = FlyPad
+ForwardButton.BackgroundTransparency = 1
+ForwardButton.Size = UDim2.new(0, 40, 0, 30)
+ForwardButton.Position = UDim2.new(0, 30, 0, 0)
+ForwardButton.Text = ""
+
+local BackwardButton = Instance.new("TextButton")
+BackwardButton.Parent = FlyPad
+BackwardButton.BackgroundTransparency = 1
+BackwardButton.Size = UDim2.new(0, 40, 0, 30)
+BackwardButton.Position = UDim2.new(0, 30, 0, 70)
+BackwardButton.Text = ""
+
+ForwardButton.MouseButton1Down:Connect(function()
+    if typeof(keypress) == "function" then
+        keypress("0x57")
+    end
+end)
+
+ForwardButton.MouseButton1Up:Connect(function()
+    if typeof(keyrelease) == "function" then
+        keyrelease("0x57")
+    end
+end)
+
+BackwardButton.MouseButton1Down:Connect(function()
+    if typeof(keypress) == "function" then
+        keypress("0x53")
+    end
+end)
+
+BackwardButton.MouseButton1Up:Connect(function()
+    if typeof(keyrelease) == "function" then
+        keyrelease("0x53")
+    end
+end)
+
+LeftButton.MouseButton1Down:Connect(function()
+    if typeof(keypress) == "function" then
+        keypress("0x41")
+    end
+end)
+
+LeftButton.MouseButton1Up:Connect(function()
+    if typeof(keyrelease) == "function" then
+        keyrelease("0x41")
+    end
+end)
+
+RightButton.MouseButton1Down:Connect(function()
+    if typeof(keypress) == "function" then
+        keypress("0x44")
+    end
+end)
+
+RightButton.MouseButton1Up:Connect(function()
+    if typeof(keyrelease) == "function" then
+        keyrelease("0x44")
+    end
+end)
+
+local function StartFlying(Character)
+    if Character and Character:FindFirstChild("UpperTorso") then
+        local Torso = Character.UpperTorso
+        local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+        if Humanoid then
+            for _, Child in pairs(Torso:GetChildren()) do
+                if Child.Name == "GeminiFlyMover" then
+                    Child:Destroy()
+                end
+            end
+            local BodyGyro = Instance.new("BodyGyro", Torso)
+            BodyGyro.Name = "GeminiFlyMover"
+            BodyGyro.P = 20000
+            BodyGyro.maxTorque = Vector3.new(math.huge, math.huge, math.huge)
+            BodyGyro.cframe = Torso.CFrame
+            local BodyVelocity = Instance.new("BodyVelocity", Torso)
+            BodyVelocity.Name = "GeminiFlyMover"
+            BodyVelocity.velocity = Vector3.new(0, 0.1, 0)
+            BodyVelocity.maxForce = Vector3.new(math.huge, math.huge, math.huge)
+            PlayFlyAnimation(10714347256, 4, 0)
+            while true do
+                task.wait()
+                pcall(function()
+                    if Character.Parent and Humanoid:GetState() ~= Enum.HumanoidStateType.Dead then
+                        Humanoid.PlatformStand = true
+                        local CameraFly = Workspace.CurrentCamera
+                        local Direction = Vector3.new(FlyDirection.l + FlyDirection.r, 0, FlyDirection.f + FlyDirection.b)
+                        local WorldDirection = CameraFly.CFrame:VectorToWorldSpace(Direction).Unit
+                        if Direction.Magnitude <= 0 then
+                            BodyVelocity.Velocity = Vector3.new(0, 0.1, 0)
+                        else
+                            BodyVelocity.Velocity = WorldDirection * FlySpeed
+                        end
+                        local TiltX = math.rad(-75) * -(FlyDirection.f + FlyDirection.b)
+                        local TiltZ = math.rad(30) * -(FlyDirection.l + FlyDirection.r)
+                        BodyGyro.CFrame = CameraFly.CFrame * CFrame.Angles(TiltX, 0, TiltZ)
+                    else
+                        FlyEnabled = false
+                    end
+                end)
+                if not (FlyEnabled and Humanoid) then
+                    break
+                end
+                if Humanoid:GetState() == Enum.HumanoidStateType.Dead then
+                    break
+                end
+            end
+            pcall(function()
+                BodyGyro:Destroy()
+                BodyVelocity:Destroy()
+                Humanoid.PlatformStand = false
+                StopAllAnimations()
+            end)
+        end
+    else
+        return
+    end
+end
+
+function updateMobilePadVisibility()
+    local ShouldShow = FlyEnabled and MobilePadEnabled
+    if ShouldShow then
+        ShouldShow = UserInputService.TouchEnabled
+    end
+    FlyPadGui.Enabled = ShouldShow
+end
+
+Tabs.Main:Input({
+    ["Title"] = "Fly Speed",
+    ["Placeholder"] = tostring(FlySpeed),
+    ["Callback"] = function(Text)
+        local NewSpeed = tonumber(Text)
+        if NewSpeed and 0 < NewSpeed then
+            FlySpeed = NewSpeed
+            SendNexoraNotification("ElianaFly", "Speed set to: " .. FlySpeed, 2, "rbxassetid://89804924525665")
+        else
+            SendNexoraNotification("ElianaFly", "Invalid speed. Please enter a number greater than 0.", 3, "rbxassetid://89804924525665")
+        end
+    end
+})
+
+Tabs.Main:Toggle({
+    ["Title"] = "Mobile Fly Panel",
+    ["Value"] = MobilePadEnabled,
+    ["Callback"] = function(State)
+        MobilePadEnabled = State
+        updateMobilePadVisibility()
+    end
+})
+
+Tabs.Main:Toggle({
+    ["Title"] = "Fly",
+    ["Value"] = FlyEnabled,
+    ["Callback"] = function(State)
+        FlyEnabled = State
+        if FlyEnabled then
+            InputBeganConnection = UserInputService.InputBegan:Connect(function(Input, GameProcessed)
+                if not GameProcessed then
+                    if Input.UserInputType == Enum.UserInputType.Keyboard then
+                        local Key = Input.KeyCode.Name:lower()
+                        if Key == "w" then
+                            FlyDirection.f = -1
+                            PlayFlyAnimation(10714177846, 4.65, 0)
+                        elseif Key == "s" then
+                            FlyDirection.b = 1
+                            PlayFlyAnimation(10147823318, 4.11, 0)
+                        elseif Key == "a" then
+                            FlyDirection.l = -1
+                            PlayFlyAnimation(10147823318, 3.55, 0)
+                        elseif Key == "d" then
+                            FlyDirection.r = 1
+                            PlayFlyAnimation(10147823318, 4.81, 0)
+                        end
+                    end
+                end
+            end)
+            InputEndedConnection = UserInputService.InputEnded:Connect(function(Input)
+                if Input.UserInputType == Enum.UserInputType.Keyboard then
+                    local Key = Input.KeyCode.Name:lower()
+                    if Key == "w" then
+                        FlyDirection.f = 0
+                        PlayFlyAnimation(10714347256, 4, 0)
+                    elseif Key == "s" then
+                        FlyDirection.b = 0
+                        PlayFlyAnimation(10714347256, 4, 0)
+                    elseif Key == "a" then
+                        FlyDirection.l = 0
+                        PlayFlyAnimation(10714347256, 4, 0)
+                    elseif Key == "d" then
+                        FlyDirection.r = 0
+                        PlayFlyAnimation(10714347256, 4, 0)
+                    end
+                end
+            end)
+            CharacterAddedConnection = LocalPlayer.CharacterAdded:Connect(function(NewCharacter)
+                task.wait(0.5)
+                if FlyEnabled then
+                    task.spawn(StartFlying, NewCharacter)
+                end
+            end)
+            if LocalPlayer.Character then
+                task.spawn(StartFlying, LocalPlayer.Character)
+            end
+        else
+            if InputBeganConnection then
+                InputBeganConnection:Disconnect()
+                InputBeganConnection = nil
+            end
+            if InputEndedConnection then
+                InputEndedConnection:Disconnect()
+                InputEndedConnection = nil
+            end
+            if CharacterAddedConnection then
+                CharacterAddedConnection:Disconnect()
+                CharacterAddedConnection = nil
+            end
+            FlyDirection = {
+                ["f"] = 0,
+                ["b"] = 0,
+                ["l"] = 0,
+                ["r"] = 0
+            }
+            if LocalPlayer.Character then
+                for _, Child in pairs(LocalPlayer.Character.UpperTorso:GetChildren()) do
+                    if Child.Name == "GeminiFlyMover" then
+                        Child:Destroy()
+                    end
+                end
+                StopAllAnimations()
+            end
+        end
+        updateMobilePadVisibility()
+    end
+})
+
+Tabs.Main:Section({
+    ["Title"] = "Movement",
+    ["Icon"] = "settings"
+})
+
+local speedToggle = false
+local speedValue = 9
+local humanoid = nil
+local character = nil
+
+LocalPlayer.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    humanoid = character:WaitForChild("Humanoid")
+end)
+
+if LocalPlayer.Character then
+    character = LocalPlayer.Character
+    humanoid = character:FindFirstChild("Humanoid")
+end
+
+local function ToggleSpeedBypass(State)
+    speedToggle = State
+    getgenv().WalkspeedBypass = speedToggle
+    if State then
+        task.spawn(function()
+            while getgenv().WalkspeedBypass and (character and character.Parent) do
+                local Humanoid = character:FindFirstChildOfClass("Humanoid")
+                if Humanoid and Humanoid.MoveDirection.Magnitude > 0 then
+                    character:TranslateBy(Humanoid.MoveDirection * speedValue * RunService.Heartbeat:Wait() * 7)
+                else
+                    task.wait()
+                end
+            end
+        end)
+    end
+end
+
+Tabs.Main:Toggle({
+    ["Title"] = "Speed (V Key On/Off)",
+    ["Value"] = false,
+    ["Callback"] = ToggleSpeedBypass
+})
+
+Tabs.Main:Slider({
+    ["Title"] = "Speed Boost Value",
+    ["step"] = 1,
+    ["Value"] = {
+        ["Min"] = 1,
+        ["Max"] = 100,
+        ["Default"] = 9
+    },
+    ["Callback"] = function(Value)
+        speedValue = Value
+    end
+})
+
+UserInputService.InputBegan:Connect(function(Input, GameProcessed)
+    if Input.KeyCode == Enum.KeyCode.V and not GameProcessed then
+        ToggleSpeedBypass(not speedToggle)
+    end
+end)
+
+local jumpValue = 200
+
+Tabs.Main:Toggle({
+    ["Title"] = "Jump",
+    ["Value"] = false,
+    ["Callback"] = function(State)
+        getgenv().JumpPowerBypass = State
+        if State then
+            task.spawn(function()
+                while getgenv().JumpPowerBypass do
+                    if humanoid and humanoid:GetState() == Enum.HumanoidStateType.Jumping then
+                        character.HumanoidRootPart.CFrame = character.HumanoidRootPart.CFrame * CFrame.new(0, jumpValue, 0)
+                    end
+                    task.wait()
+                end
+            end)
+        end
+    end
+})
+
+Tabs.Main:Slider({
+    ["Title"] = "Jump Boost Value",
+    ["step"] = 1,
+    ["Value"] = {
+        ["Min"] = 1,
+        ["Max"] = 1000,
+        ["Default"] = 200
+    },
+    ["Callback"] = function(Value)
+        jumpValue = Value
+    end
+})
+
+--- ========MISC TAB=============================
+
+Tabs.Misc:Section({
+    ["Title"] = "Universal Scripts",
+    ["Icon"] = "flame"
+})
+
+Tabs.Misc:Button({
+    ["Title"] = "Godly OP spawner",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/UniversalScripter1/ProjectNexora/refs/heads/main/V3.txt"))()
+    end
+})
+
+Tabs.Misc:Button({
+    ["Title"] = "Speed Glitch",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://pastefy.app/YNWpDybh/raw"))()
+    end
+})
+
+
+Tabs.Misc:Button({
+    ["Title"] = "Inf Yield",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+    end
+})
+
+Tabs.Misc:Button({
+    ["Title"] = "Dex Explorer",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Classic-Dex-Explorer-21009"))()
+    end
+})
+
+Tabs.Misc:Button({
+    ["Title"] = "Remote Spy",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/78n/SimpleSpy/main/SimpleSpySource.lua"))()
+    end
+})
+
+Tabs.Misc:Button({
+    ["Title"] = "Keyboard",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/advxzivhsjjdhxhsidifvsh/mobkeyboard/main/main.txt", true))()
+    end
+})
+
+Tabs.Misc:Button({
+    ["Title"] = "Anim Logger",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://pastefy.app/juBGMpCZ/raw"))()
+    end
+})
+
+Tabs.Misc:Button({
+    ["Title"] = "f3x",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/refs/heads/main/f3x.lua"))()
+    end
+})
+
+Tabs.Misc:Button({
+    ["Title"] = "Fly V3",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/xuSMWfDu"))()
+    end
+})
+
+Tabs.Misc:Button({
+    ["Title"] = "VFX Logger",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/2uXfJqdU"))()
+    end
+})
+
+Tabs.Misc:Section({
+    ["Title"] = "Player",
+    ["Icon"] = "star"
+})
+
+Tabs.Misc:Button({
+    ["Title"] = "ServerHop",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://pastefy.app/uTXUoORd/raw"))()
+    end
+})
+
+Tabs.Misc:Button({
+    ["Title"] = "Rejoin",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        game:GetService("TeleportService"):Teleport(game.PlaceId)
+    end
+})
+
+Tabs.Misc:Button({
+    ["Title"] = "Reset",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://pastefy.app/YPv8xrYN/raw"))()
+    end
+})
+
+Tabs.Misc:Button({
+    ["Title"] = "Fixcam",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://pastefy.app/IrvnCaF2/raw"))()
+    end
+})
+
+Tabs.Misc:Section({
+    ["Title"] = "Tools",
+    ["Icon"] = "sword"
+})
+
+Tabs.Misc:Button({
+    ["Title"] = "Teleport Tool",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://pastefy.app/ZLpXLAeF/raw"))()
+    end
+})
+
+Tabs.Misc:Button({
+    ["Title"] = "Jerk Off Tool",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://pastefy.app/LcC6ZrhN/raw"))()
+    end
+})
+
+--- =============ESP TAB==========================
+-- PASTE THIS BLOCK to replace the old ESP section
+-- The do...end wrapper fixes the "out of registers" error
+
+Tabs.ESP:Section({
+    ["Title"] = "ESP",
+    ["Icon"] = "package"
+})
+
+do -- <<<< DO BLOCK: isolates all ESP locals from the top-level scope
+
+    local ESPConfig = {
+        MasterEnabled     = false,
+        ChamsTransparency = 0.5,
+        ShowLines         = false,
+        ShowTexts         = true,
+        ShowHighlight     = true,
+        ShowMurderer      = true,
+        ShowSheriff       = true,
+        ShowInnocent      = true,
+        ShowGun           = true,
+    }
+
+    local ESPColors = {
+        Murder     = Color3.fromRGB(255, 0,   0),
+        Sheriff    = Color3.fromRGB(0,   150, 255),
+        Innocent   = Color3.fromRGB(0,   255, 100),
+        DroppedGun = Color3.fromRGB(255, 255, 0),
+    }
+
+    local ESP_PlayerESP = {}
+    local ESP_GunESP    = {}
+    local ESP_RoleCache = {}
+    local ESP_GunCache  = {}
+
+    -- Drawing pool
+    local ESP_Pool = {Box = {}, Text = {}, Line = {}}
+
+    local function ESP_Acquire(kind)
+        local pool = ESP_Pool[kind]
+        if #pool > 0 then
+            local d = table.remove(pool)
+            d.Visible = false
+            return d
+        end
+        local t = {Box = "Square", Text = "Text", Line = "Line"}
+        return Drawing.new(t[kind])
+    end
+
+    local function ESP_Release(kind, d)
+        if not d then return end
+        d.Visible = false
+        table.insert(ESP_Pool[kind], d)
+    end
+
+    local function ESP_RemoveHighlight(entry)
+        if entry and entry.Highlight then
+            pcall(function() entry.Highlight:Destroy() end)
+            entry.Highlight = nil
+        end
+    end
+
+    local function ESP_DestroyEntry(entry)
+        if not entry then return end
+        ESP_Release("Box",  entry.Box)
+        ESP_Release("Text", entry.Text)
+        ESP_Release("Line", entry.Tracer)
+        entry.Box = nil
+        entry.Text = nil
+        entry.Tracer = nil
+        ESP_RemoveHighlight(entry)
+    end
+
+    local function ESP_NewEntry()
+        local box = ESP_Acquire("Box")
+        box.Thickness = 1.8; box.Filled = false; box.Transparency = 1
+
+        local text = ESP_Acquire("Text")
+        text.Size = 18; text.Center = true; text.Outline = true; text.Font = 2
+
+        local tracer = ESP_Acquire("Line")
+        tracer.Thickness = 4.5; tracer.Transparency = 0.85
+
+        return {Box = box, Text = text, Tracer = tracer, Highlight = nil}
+    end
+
+    local function ESP_GetRole(player)
+        local Char = player.Character
+        local BP   = player:FindFirstChild("Backpack")
+        local function Scan(loc)
+            if not loc then return nil end
+            for _, item in ipairs(loc:GetChildren()) do
+                if item:IsA("Tool") then
+                    local n = item.Name:lower()
+                    if n:find("knife") or n:find("sword") or n:find("murder") or item:FindFirstChild("Knife") then return "Murder" end
+                    if n:find("gun") or n:find("revolver") or n:find("sheriff") or item:FindFirstChild("Gun") then return "Sheriff" end
+                end
+            end
+        end
+        return Scan(Char) or Scan(BP) or "Innocent"
+    end
+
+    local function ESP_IsAllowed(player)
+        local char = player.Character
+        if not char then return false end
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if not hum then return false end
+        return hum.NameDisplayDistance == 0
+    end
+
+    local function ESP_EnsurePlayerHL(player, entry, role, color)
+        if ESP_RoleCache[player] == role and entry.Highlight then
+            entry.Highlight.FillTransparency = ESPConfig.ChamsTransparency
+            return
+        end
+        ESP_RoleCache[player] = role
+        ESP_RemoveHighlight(entry)
+        local char = player.Character
+        if not char then return end
+        local h = Instance.new("Highlight")
+        h.FillColor = color; h.OutlineColor = color
+        h.FillTransparency = ESPConfig.ChamsTransparency
+        h.OutlineTransparency = 0.2
+        h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        h.Adornee = char; h.Parent = char
+        entry.Highlight = h
+    end
+
+    local function ESP_EnsureGunHL(gun, entry)
+        if entry.Highlight then
+            entry.Highlight.FillTransparency = ESPConfig.ChamsTransparency
+            return
+        end
+        local h = Instance.new("Highlight")
+        h.FillColor = ESPColors.DroppedGun; h.OutlineColor = ESPColors.DroppedGun
+        h.FillTransparency = ESPConfig.ChamsTransparency
+        h.OutlineTransparency = 0.2
+        h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        h.Adornee = gun; h.Parent = gun
+        entry.Highlight = h
+    end
+
+    local function ESP_UnregisterGun(part)
+        ESP_GunCache[part] = nil
+        if ESP_GunESP[part] then
+            ESP_DestroyEntry(ESP_GunESP[part])
+            ESP_GunESP[part] = nil
+        end
+    end
+
+    local function ESP_CleanupAll()
+        for _, e in pairs(ESP_PlayerESP) do ESP_DestroyEntry(e) end
+        for _, e in pairs(ESP_GunESP)    do ESP_DestroyEntry(e) end
+        table.clear(ESP_PlayerESP)
+        table.clear(ESP_GunESP)
+        table.clear(ESP_RoleCache)
+    end
+
+    -- Seed gun cache
+    for _, v in ipairs(Workspace:GetDescendants()) do
+        if v.Name == "GunDrop" and v:IsA("BasePart") then ESP_GunCache[v] = true end
+    end
+    Workspace.DescendantAdded:Connect(function(d)
+        if d.Name == "GunDrop" and d:IsA("BasePart") then ESP_GunCache[d] = true end
+    end)
+    Workspace.DescendantRemoving:Connect(function(d)
+        if d.Name == "GunDrop" and d:IsA("BasePart") then ESP_UnregisterGun(d) end
+    end)
+
+    -- Player hooks
+    Players.PlayerRemoving:Connect(function(P)
+        if ESP_PlayerESP[P] then
+            ESP_DestroyEntry(ESP_PlayerESP[P])
+            ESP_PlayerESP[P] = nil
+        end
+        ESP_RoleCache[P] = nil
+    end)
+    for _, P in ipairs(Players:GetPlayers()) do
+        P.CharacterRemoving:Connect(function()
+            if ESP_PlayerESP[P] then ESP_RemoveHighlight(ESP_PlayerESP[P]) end
+            ESP_RoleCache[P] = nil
+        end)
+    end
+    Players.PlayerAdded:Connect(function(P)
+        P.CharacterRemoving:Connect(function()
+            if ESP_PlayerESP[P] then ESP_RemoveHighlight(ESP_PlayerESP[P]) end
+            ESP_RoleCache[P] = nil
+        end)
+    end)
+
+    -- Main update
+    local function ESP_MainUpdate()
+        if not ESPConfig.MasterEnabled then return end
+
+        local Mid = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+
+        -- Players
+        for _, P in ipairs(Players:GetPlayers()) do
+            if P == LocalPlayer then continue end
+
+            local Char  = P.Character
+            local Root  = Char and Char:FindFirstChild("HumanoidRootPart")
+            local Hum   = Char and Char:FindFirstChildOfClass("Humanoid")
+            local alive = Hum and Hum.Health > 0
+
+            if not Char or not Root or not alive or not ESP_IsAllowed(P) then
+                if ESP_PlayerESP[P] then
+                    ESP_DestroyEntry(ESP_PlayerESP[P])
+                    ESP_PlayerESP[P] = nil
+                    ESP_RoleCache[P] = nil
+                end
+                continue
+            end
+
+            local Role = ESP_GetRole(P)
+            local ShowTarget =
+                (Role == "Murder"   and ESPConfig.ShowMurderer) or
+                (Role == "Sheriff"  and ESPConfig.ShowSheriff)  or
+                (Role == "Innocent" and ESPConfig.ShowInnocent)
+
+            if not ShowTarget then
+                if ESP_PlayerESP[P] then
+                    ESP_DestroyEntry(ESP_PlayerESP[P])
+                    ESP_PlayerESP[P] = nil
+                    ESP_RoleCache[P] = nil
+                end
+                continue
+            end
+
+            if not ESP_PlayerESP[P] then
+                ESP_PlayerESP[P] = ESP_NewEntry()
+            end
+
+            local entry = ESP_PlayerESP[P]
+            local SP, OnScreen = Camera:WorldToViewportPoint(Root.Position)
+
+            if OnScreen then
+                local C = ESPColors[Role]
+
+                if ESPConfig.ShowHighlight then
+                    ESP_EnsurePlayerHL(P, entry, Role, C)
+                else
+                    ESP_RemoveHighlight(entry)
+                    ESP_RoleCache[P] = nil
+                end
+
+                entry.Box.Visible  = true
+                entry.Box.Color    = C
+                entry.Box.Position = Vector2.new(SP.X - 20, SP.Y - 30)
+                entry.Box.Size     = Vector2.new(40, 60)
+
+                if ESPConfig.ShowTexts then
+                    entry.Text.Visible  = true
+                    entry.Text.Text     = "["..Role:upper().."] "..P.Name
+                    entry.Text.Color    = C
+                    entry.Text.Position = Vector2.new(SP.X, SP.Y - 50)
+                else
+                    entry.Text.Visible = false
+                end
+
+                if ESPConfig.ShowLines then
+                    entry.Tracer.Visible = true
+                    entry.Tracer.From    = Mid
+                    entry.Tracer.To      = Vector2.new(SP.X, SP.Y)
+                    entry.Tracer.Color   = C
+                else
+                    entry.Tracer.Visible = false
+                end
+            else
+                entry.Box.Visible    = false
+                entry.Text.Visible   = false
+                entry.Tracer.Visible = false
+            end
+        end
+
+        -- Stale cleanup
+        for P in pairs(ESP_PlayerESP) do
+            if not P.Parent then
+                ESP_DestroyEntry(ESP_PlayerESP[P])
+                ESP_PlayerESP[P] = nil
+                ESP_RoleCache[P] = nil
+            end
+        end
+
+        -- Gun drops
+        if ESPConfig.ShowGun then
+            for gun in pairs(ESP_GunCache) do
+                if not gun.Parent or not gun:IsDescendantOf(Workspace) then
+                    ESP_UnregisterGun(gun)
+                    continue
+                end
+                if not ESP_GunESP[gun] then
+                    ESP_GunESP[gun] = ESP_NewEntry()
+                end
+                local entry = ESP_GunESP[gun]
+                local Pos, OnScreen = Camera:WorldToViewportPoint(gun.Position)
+                local C = ESPColors.DroppedGun
+                local fallback = not ESPConfig.ShowLines and not ESPConfig.ShowTexts
+                if ESPConfig.ShowHighlight or fallback then
+                    ESP_EnsureGunHL(gun, entry)
+                else
+                    ESP_RemoveHighlight(entry)
+                end
+                if OnScreen then
+                    entry.Box.Visible  = true
+                    entry.Box.Color    = C
+                    entry.Box.Position = Vector2.new(Pos.X - 10, Pos.Y - 10)
+                    entry.Box.Size     = Vector2.new(20, 20)
+                    if ESPConfig.ShowTexts then
+                        entry.Text.Visible   = true
+                        entry.Text.Text      = "[ GUN ]"
+                        entry.Text.Color     = C
+                        entry.Text.Position  = Vector2.new(Pos.X, Pos.Y - 28)
+                    else
+                        entry.Text.Visible = false
+                    end
+                    if ESPConfig.ShowLines then
+                        entry.Tracer.Visible = true
+                        entry.Tracer.From    = Mid
+                        entry.Tracer.To      = Vector2.new(Pos.X, Pos.Y)
+                        entry.Tracer.Color   = C
+                    else
+                        entry.Tracer.Visible = false
+                    end
+                else
+                    entry.Box.Visible    = false
+                    entry.Text.Visible   = false
+                    entry.Tracer.Visible = false
+                end
+            end
+        else
+            for gun, entry in pairs(ESP_GunESP) do
+                ESP_DestroyEntry(entry)
+                ESP_GunESP[gun] = nil
+            end
+        end
+    end
+
+    -- WindUI controls
+    Tabs.ESP:Toggle({
+        ["Title"]    = "Master ESP Switch",
+        ["Value"]    = false,
+        ["Callback"] = function(S)
+            ESPConfig.MasterEnabled = S
+            if not S then ESP_CleanupAll() end
+        end,
+    })
+
+    Tabs.ESP:Dropdown({
+        ["Title"]     = "ESP Mode",
+        ["Desc"]      = "Choose which visual elements to display",
+        ["Values"]    = {"Lines", "Texts", "Highlight"},
+        ["Value"]     = {"Lines", "Texts", "Highlight"},
+        ["Multi"]     = true,
+        ["AllowNone"] = true,
+        ["Callback"]  = function(Selected)
+            ESPConfig.ShowLines     = false
+            ESPConfig.ShowTexts     = false
+            ESPConfig.ShowHighlight = false
+            for _, v in pairs(Selected) do
+                if v == "Lines"     then ESPConfig.ShowLines     = true end
+                if v == "Texts"     then ESPConfig.ShowTexts     = true end
+                if v == "Highlight" then ESPConfig.ShowHighlight = true end
+            end
+            if not ESPConfig.ShowHighlight then
+                for _, e in pairs(ESP_PlayerESP) do ESP_RemoveHighlight(e) end
+                for _, e in pairs(ESP_GunESP)    do ESP_RemoveHighlight(e) end
+                table.clear(ESP_RoleCache)
+            end
+        end,
+    })
+
+    Tabs.ESP:Dropdown({
+        ["Title"]     = "ESP Target",
+        ["Desc"]      = "Choose which roles and objects to show",
+        ["Values"]    = {"Murderer", "Sheriff", "Innocent", "Gun Dropped"},
+        ["Value"]     = {"Murderer", "Sheriff", "Innocent", "Gun Dropped"},
+        ["Multi"]     = true,
+        ["AllowNone"] = true,
+        ["Callback"]  = function(Selected)
+            ESPConfig.ShowMurderer = false
+            ESPConfig.ShowSheriff  = false
+            ESPConfig.ShowInnocent = false
+            ESPConfig.ShowGun      = false
+            for _, v in pairs(Selected) do
+                if v == "Murderer"    then ESPConfig.ShowMurderer = true end
+                if v == "Sheriff"     then ESPConfig.ShowSheriff  = true end
+                if v == "Innocent"    then ESPConfig.ShowInnocent = true end
+                if v == "Gun Dropped" then ESPConfig.ShowGun      = true end
+            end
+            if not ESPConfig.ShowGun then
+                for gun, entry in pairs(ESP_GunESP) do
+                    ESP_DestroyEntry(entry)
+                    ESP_GunESP[gun] = nil
+                end
+            end
+        end,
+    })
+
+    Tabs.ESP:Slider({
+        ["Title"] = "Chams Opacity",
+        ["Desc"]  = "Fill transparency of all highlights",
+        ["Value"] = {["Min"] = 0, ["Max"] = 1, ["Default"] = 0.5},
+        ["Callback"] = function(V)
+            ESPConfig.ChamsTransparency = V
+            for _, e in pairs(ESP_PlayerESP) do if e.Highlight then e.Highlight.FillTransparency = V end end
+            for _, e in pairs(ESP_GunESP)    do if e.Highlight then e.Highlight.FillTransparency = V end end
+        end,
+    })
+
+    RunService.Heartbeat:Connect(function()
+        if ESPConfig.MasterEnabled then pcall(ESP_MainUpdate) end
+    end)
+
+end -- <<<< END DO BLOCK
+
+Tabs.ESP:Section({
+    ["Title"] = "Expose Roles",
+    ["Icon"] = "info"
+})
+
+local function SendChatMessage(Message)
+    if TextChatService and TextChatService:FindFirstChild("ChatInputBarConfiguration") then
+        local TextChannels = TextChatService:FindFirstChild("TextChannels")
+        if TextChannels and TextChannels:FindFirstChild("RBXGeneral") then
+            TextChannels.RBXGeneral:SendAsync(Message)
+        end
+    else
+        local ChatEvents = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
+        if ChatEvents then
+            ChatEvents.SayMessageRequest:FireServer(Message, "All")
+        end
+    end
+end
+
+local function ExposeRole(WeaponName, RoleName)
+    for _, Player in pairs(Players:GetPlayers()) do
+        local Character = Player.Character
+        local Backpack = Player.Backpack
+        if Character and Character:FindFirstChild(WeaponName) or Backpack and Backpack:FindFirstChild(WeaponName) then
+            SendChatMessage(RoleName .. ": " .. Player.Name)
+            return true
+        end
+    end
+    return false
+end
+
+local function CreateAutoExposeToggle(Title, WeaponName, RoleName)
+    local ExposeConnection = nil
+    Tabs.ESP:Toggle({
+        ["Title"] = Title,
+        ["Value"] = false,
+        ["Callback"] = function(State)
+            if State then
+                ExposeConnection = RunService.Heartbeat:Connect(function()
+                    if ExposeRole(WeaponName, RoleName) and ExposeConnection then
+                        ExposeConnection:Disconnect()
+                        ExposeConnection = nil
+                    end
+                end)
+            elseif ExposeConnection then
+                ExposeConnection:Disconnect()
+                ExposeConnection = nil
+            end
+        end
+    })
+end
+
+Tabs.ESP:Button({
+    ["Title"] = "Expose Murderer",
+    ["Callback"] = function()
+        ExposeRole("Knife", "Murderer")
+    end
+})
+
+Tabs.ESP:Button({
+    ["Title"] = "Expose Sheriff",
+    ["Callback"] = function()
+        ExposeRole("Gun", "Sheriff")
+    end
+})
+
+CreateAutoExposeToggle("Auto Expose Murderer", "Knife", "Murderer")
+CreateAutoExposeToggle("Auto Expose Sheriff", "Gun", "Sheriff")
+
+Tabs.ESP:Section({
+    ["Title"] = "Notify",
+    ["Icon"] = "alert-circle"
+})
+
+local function SendNotification(Message)
+    SendNexoraNotification("Eliana Hub", Message, 5, "http://www.roblox.com/asset/?id=89804924525665")
+end
+
+local function NotifyRole(WeaponName, RoleName)
+    for _, Player in pairs(Players:GetPlayers()) do
+        if Player.Character and Player.Character:FindFirstChild(WeaponName) or Player.Backpack and Player.Backpack:FindFirstChild(WeaponName) then
+            SendNotification(RoleName .. ": " .. Player.Name)
+            return true
+        end
+    end
+    return false
+end
+
+local function CreateAutoNotifyToggle(Title, WeaponName, RoleName)
+    local NotifyConnection = nil
+    Tabs.ESP:Toggle({
+        ["Title"] = Title,
+        ["Value"] = false,
+        ["Callback"] = function(State)
+            if State then
+                NotifyConnection = RunService.Heartbeat:Connect(function()
+                    if NotifyRole(WeaponName, RoleName) and NotifyConnection then
+                        NotifyConnection:Disconnect()
+                        NotifyConnection = nil
+                    end
+                end)
+            elseif NotifyConnection then
+                NotifyConnection:Disconnect()
+                NotifyConnection = nil
+            end
+        end
+    })
+end
+
+Tabs.ESP:Button({
+    ["Title"] = "Notify Murderer",
+    ["Callback"] = function()
+        NotifyRole("Knife", "Murderer")
+    end
+})
+
+Tabs.ESP:Button({
+    ["Title"] = "Notify Sheriff",
+    ["Callback"] = function()
+        NotifyRole("Gun", "Sheriff")
+    end
+})
+
+CreateAutoNotifyToggle("Auto Notify Murderer", "Knife", "Murderer")
+CreateAutoNotifyToggle("Auto Notify Sheriff", "Gun", "Sheriff")
+
+Tabs.ESP:Section({
+    ["Title"] = "Spectate",
+    ["Icon"] = "eye"
+})
+
+local function FindMurdererCharacter()
+    for _, Player in pairs(Players:GetPlayers()) do
+        if Player ~= LocalPlayer and Player.Character and (Player.Backpack:FindFirstChild("Knife") or Player.Character:FindFirstChild("Knife")) then
+            return Player.Character
+        end
+    end
+    return nil
+end
+
+Tabs.ESP:Button({
+    ["Title"] = "Spectate Murderer",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        local MurdererCharacter = FindMurdererCharacter()
+        if MurdererCharacter and MurdererCharacter:FindFirstChild("HumanoidRootPart") then
+            Camera.CameraSubject = MurdererCharacter:FindFirstChild("Humanoid")
+        else
+            SendNexoraNotification("Project Nexora", "Murder Not Found!", 1)
+        end
+    end
+})
+
+local function FindSheriffCharacter()
+    for _, Player in pairs(Players:GetPlayers()) do
+        if Player ~= LocalPlayer and Player.Character and (Player.Backpack:FindFirstChild("Gun") or Player.Character:FindFirstChild("Gun")) then
+            return Player.Character
+        end
+    end
+    return nil
+end
+
+Tabs.ESP:Button({
+    ["Title"] = "Spectate Sheriff",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        local SheriffCharacter = FindSheriffCharacter()
+        if SheriffCharacter and SheriffCharacter:FindFirstChild("Humanoid") then
+            Camera.CameraSubject = SheriffCharacter:FindFirstChild("Humanoid")
+        else
+            SendNexoraNotification("Project Nexora", "Sheriff Not Found", 10)
+        end
+    end
+})
+
+Tabs.ESP:Button({
+    ["Title"] = "Spectate Random",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        local AllPlayers = Players:GetPlayers()
+        if #AllPlayers <= 1 then
+            SendNexoraNotification("Project Nexora", "There must be at least 2 people on the server", 1)
+        else
+            local RandomPlayer
+            repeat
+                RandomPlayer = AllPlayers[math.random(1, #AllPlayers)]
+            until RandomPlayer ~= LocalPlayer and RandomPlayer.Character and RandomPlayer.Character:FindFirstChild("Humanoid")
+            Camera.CameraSubject = RandomPlayer.Character:FindFirstChild("Humanoid")
+        end
+    end
+})
+
+Tabs.ESP:Button({
+    ["Title"] = "Stop Spectating",
+    ["Locked"] = false,
+    ["Callback"] = function()
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            Camera.CameraSubject = LocalPlayer.Character:FindFirstChild("Humanoid")
+        end
+    end
+})
+
+--- ===========FARM TAB===========================
+
+Tabs.Farm:Section({
+    ["Title"] = "Coin Farm",
+    ["Icon"] = "package"
+})
+
+local CoinFarmEnabled = false
+local TeleportWalkEnabled = false
+local CoinFarmMode = "Nearest"
+local TeleportInterval = 3
+local WalkCoinRadius = 15
+local LastTeleportTime = 0
+local LastTeleportedCoin = nil
+local CurrentWalkTarget = nil
+local CoinContainer = nil
+
+local function FindTargetCoin(RootPart)
+    local NearestDistance = math.huge
+    local AllCoins = {}
+    local NearestCoin = nil
+    for _, Child in ipairs(CoinContainer:GetChildren()) do
+        local CoinPart = nil
+        if Child:IsA("BasePart") then
+            CoinPart = Child
+        elseif Child:IsA("Model") and Child.PrimaryPart then
+            CoinPart = Child.PrimaryPart
+        end
+        if CoinPart and (CoinPart.Parent and CoinPart ~= LastTeleportedCoin) then
+            if CoinFarmMode ~= "Nearest" then
+                table.insert(AllCoins, CoinPart)
+            else
+                local Distance = (RootPart.Position - CoinPart.Position).Magnitude
+                if Distance < NearestDistance then
+                    NearestCoin = CoinPart
+                    NearestDistance = Distance
+                end
+            end
+        end
+    end
+    if CoinFarmMode == "Nearest" then
+        return NearestCoin
+    end
+    if #AllCoins > 0 then
+        return AllCoins[math.random(1, #AllCoins)]
+    end
+end
+
+local function FindNearbyCoin(RootPart)
+    local SearchRadius = WalkCoinRadius
+    local CurrentPosition = RootPart.Position
+    local NearestCoin = nil
+    local NearestDistance = SearchRadius
+    for _, Child in ipairs(CoinContainer:GetChildren()) do
+        local CoinPart = nil
+        if Child:IsA("BasePart") then
+            CoinPart = Child
+        elseif Child:IsA("Model") and Child.PrimaryPart then
+            CoinPart = Child.PrimaryPart
+        end
+        if CoinPart and (CoinPart.Parent and (CoinPart ~= LastTeleportedCoin and CoinPart ~= CurrentWalkTarget)) then
+            local Distance = (CurrentPosition - CoinPart.Position).Magnitude
+            if Distance < NearestDistance then
+                NearestCoin = CoinPart
+                NearestDistance = Distance
+            end
+        end
+    end
+    return NearestCoin
+end
+
+RunService.Heartbeat:Connect(function()
+    if not (CoinContainer and CoinContainer.Parent) then
+        CoinContainer = Workspace:FindFirstChild("CoinContainer", true)
+    end
+    if CoinFarmEnabled and (LocalPlayer and CoinContainer) then
+        local Character = LocalPlayer.Character
+        if Character then
+            local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+            local RootPart = Character:FindFirstChild("HumanoidRootPart")
+            if Humanoid and (Humanoid.Health > 0 and RootPart) then
+                local CurrentTime = os.clock()
+                if TeleportWalkEnabled then
+                    if TeleportInterval > CurrentTime - LastTeleportTime then
+                        local NearbyCoin = not (CurrentWalkTarget and CurrentWalkTarget.Parent) and FindNearbyCoin(RootPart)
+                        if NearbyCoin then
+                            CurrentWalkTarget = NearbyCoin
+                            Humanoid:MoveTo(NearbyCoin.Position)
+                            Humanoid.MoveToFinished:Wait()
+                            CurrentWalkTarget = nil
+                        end
+                    else
+                        local TargetCoin = FindTargetCoin(RootPart)
+                        if TargetCoin then
+                            RootPart.CFrame = TargetCoin.CFrame
+                            LastTeleportedCoin = TargetCoin
+                            CurrentWalkTarget = nil
+                            LastTeleportTime = CurrentTime
+                        end
+                    end
+                else
+                    local TargetCoin = TeleportInterval <= CurrentTime - LastTeleportTime and FindTargetCoin(RootPart)
+                    if TargetCoin then
+                        RootPart.CFrame = TargetCoin.CFrame
+                        LastTeleportedCoin = TargetCoin
+                        LastTeleportTime = CurrentTime
+                    end
+                end
+            end
+        else
+            return
+        end
+    else
+        return
+    end
+end)
+
+Tabs.Farm:Toggle({
+    ["Title"] = "Auto Farm Coin",
+    ["Value"] = false,
+    ["Callback"] = function(State)
+        CoinFarmEnabled = State
+        if not State then
+            LastTeleportedCoin = nil
+            CurrentWalkTarget = nil
+        end
+    end
+})
+
+Tabs.Farm:Toggle({
+    ["Title"] = "Teleport + Walk",
+    ["Value"] = false,
+    ["Callback"] = function(State)
+        TeleportWalkEnabled = State
+    end
+})
+
+Tabs.Farm:Dropdown({
+    ["Title"] = "Coin Farm Mode",
+    ["Desc"] = "Ana hedef coin'i nasıl seçeğini belirle",
+    ["Values"] = { "Nearest", "Random" },
+    ["Value"] = "Nearest",
+    ["Callback"] = function(Value)
+        CoinFarmMode = Value
+    end
+})
+
+Tabs.Farm:Slider({
+    ["Title"] = "Teleport Interval",
+    ["step"] = 1,
+    ["Value"] = {
+        ["Min"] = 3,
+        ["Max"] = 10,
+        ["Default"] = 4
+    },
+    ["Callback"] = function(Value)
+        TeleportInterval = tonumber(Value) or 3
+    end
+})
+
+local SpinEnabled = false
+local SpinSpeed = 5
+local SpinConnection = nil
+
+Tabs.Farm:Toggle({
+    ["Title"] = "Spin (spin for getting coins easily)",
+    ["Value"] = false,
+    ["Callback"] = function(State)
+        if State then
+            SpinEnabled = true
+            local RootPart = (LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()):WaitForChild("HumanoidRootPart")
+            SpinConnection = RunService.RenderStepped:Connect(function(_)
+                if SpinEnabled and RootPart then
+                    RootPart.CFrame = RootPart.CFrame * CFrame.Angles(0, math.rad(SpinSpeed), 0)
+                end
+            end)
+        else
+            SpinEnabled = false
+            if SpinConnection then
+                SpinConnection:Disconnect()
+                SpinConnection = nil
+            end
+        end
+    end
+})
+
+local AntiAFKConnection = nil
+
+Tabs.Farm:Toggle({
+    ["Title"] = "Anti-AFK",
+    ["Value"] = false,
+    ["Callback"] = function(State)
+        if State then
+            AntiAFKConnection = LocalPlayer.Idled:Connect(function()
+                VirtualUser:Button2Down(Vector2.new(0, 0), Camera.CFrame)
+                task.wait(10)
+                VirtualUser:Button2Up(Vector2.new(0, 0), Camera.CFrame)
+            end)
+        elseif AntiAFKConnection then
+            AntiAFKConnection:Disconnect()
+            AntiAFKConnection = nil
+        end
+    end
+})
+
+Tabs.Farm:Button({
+    ["Title"] = "Nexora Floating GUI",
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/UniversalScripter1/ProjectNexora/refs/heads/main/MM2AUTOFARMMAINsource"))()
+    end
+})
+
+--- =========TELEPORTATION TAB===================
+
+Tabs.Place:Button({
+    ["Title"] = "Teleport To Sheriff",
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://pastefy.app/62Z9VRVr/raw"))("true")
+    end
+})
+
+Tabs.Place:Button({
+    ["Title"] = "Teleport To Murderer",
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://pastefy.app/IrRhoidd/raw"))("true")
+    end
+})
+
+local LoopTeleportAllEnabled = false
+local originalPosition = nil
+
+Tabs.Place:Toggle({
+    ["Title"] = "Loop Teleport Everyone",
+    ["Value"] = false,
+    ["Callback"] = function(State)
+        LoopTeleportAllEnabled = State
+        if State then
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                originalPosition = LocalPlayer.Character.HumanoidRootPart.CFrame
+            end
+            startTeleporting()
+        elseif originalPosition and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = originalPosition
+        end
+    end
+})
+
+function startTeleporting()
+    task.spawn(function()
+        while LoopTeleportAllEnabled do
+            for _, Player in ipairs(Players:GetPlayers()) do
+                if Player ~= LocalPlayer and Player.Character and (Player.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")) then
+                    LocalPlayer.Character.HumanoidRootPart.CFrame = Player.Character.HumanoidRootPart.CFrame
+                    task.wait(0.1)
+                end
+            end
+            task.wait(0.1)
+        end
+    end)
+end
+
+LocalPlayer.CharacterAdded:Connect(function()
+    if LoopTeleportAllEnabled then
+        startTeleporting()
+    end
+end)
+
+Tabs.Place:Button({
+    ["Title"] = "Teleport To Lobby",
+    ["Callback"] = function()
+        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-108.5, 142, 0.6)
+    end
+})
+
+Tabs.Place:Button({
+    ["Title"] = "Teleport To Map",
+    ["Callback"] = function()
+        loadstring(game:HttpGet("https://pastefy.app/lvZs7ugv/raw"))("true")
+    end
+})
+
+--- ============FLING TAB========================
+
+-- miniFling function (from beta script)
+local function miniFling(targetPlayer)
+    if not targetPlayer or not targetPlayer.Character then return end
+    local targetRoot = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+    local myRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    
+    if targetRoot and myRoot then
+        getgenv().OldPos = myRoot.CFrame
+        local flingVelocity = CFrame.new(targetRoot.Position, myRoot.Position).LookVector * 100
+        targetRoot.Velocity = flingVelocity
+    end
+end
+
+Tabs.Fling:Button({
+    ["Title"] = "Fling Sheriff",
+    ["Callback"] = function()
+        local TargetPlayer = nil
+        for _, Player in pairs(Players:GetPlayers()) do
+            if Player ~= LocalPlayer and Player.Character then
+                local Backpack = Player:FindFirstChild("Backpack")
+                if Backpack and Backpack:FindFirstChild("Gun") then
+                    TargetPlayer = Player
+                    break
+                end
+            end
+        end
+        if TargetPlayer then
+            miniFling(TargetPlayer)
+        else
+            SendNexoraNotification("Project Nexora", "Sheriff Not found!", 1)
+        end
+    end
+})
+
+Tabs.Fling:Button({
+    ["Title"] = "Fling Murderer",
+    ["Callback"] = function()
+        local TargetPlayer = nil
+        for _, Player in pairs(Players:GetPlayers()) do
+            if Player ~= LocalPlayer and Player.Character then
+                local Backpack = Player:FindFirstChild("Backpack")
+                if Backpack and Backpack:FindFirstChild("Knife") then
+                    TargetPlayer = Player
+                    break
+                end
+            end
+        end
+        if TargetPlayer then
+            miniFling(TargetPlayer)
+        else
+            SendNexoraNotification("Project Nexora", "Murderer Not Found", 1)
+        end
+    end
+})
+
+Tabs.Fling:Button({
+    ["Title"] = "Fix fling teleport bug",
+    ["Callback"] = function()
+        local RootPart = LocalPlayer.Character
+        if RootPart then
+            RootPart = RootPart:FindFirstChild("HumanoidRootPart")
+        end
+        if RootPart then
+            if getgenv().OldPos then
+                RootPart.CFrame = getgenv().OldPos
+                SendNexoraNotification("Project Nexora", "Teleport bug fixed!", 5)
+            else
+                SendNexoraNotification("Project Nexora", "Didn't find any teleport bug?", 5)
+            end
+        end
+    end
+})
+
+local SelectedPlayer = nil
+local DeathNotifyConnection = nil
+local OrbitHeartbeatConnection = nil
+local OrbitRenderConnection = nil
+local ESPRenderConnection = nil
+local ESPBillboards = {}
+local ESPEnabled = false
+local OriginalCameraSubject = Camera.CameraSubject
+
+local PlayerActions = {
+    ["teleport"] = false,
+    ["fling"] = false,
+    ["view"] = false,
+    ["aimLockCam"] = false,
+    ["aimLockChar"] = false,
+    ["orbit"] = false,
+    ["notifyOnDeath"] = false
+}
+
+local function SendPlayerNotification(Title, Text, Icon, Duration)
+    SendNexoraNotification(Title or "Project Nexora", Text or "", Duration or 5, Icon or "rbxassetid://89804924525665")
+end
+
+local function AimCameraAtPlayer(Player)
+    if Player then
+        Player = Player.Character
+    end
+    if Player then
+        Player = Player:FindFirstChild("Head")
+    end
+    if Player then
+        Camera.CFrame = CFrame.new(Camera.CFrame.Position, Player.Position)
+    end
+end
+
+local function AimCharacterAtPlayer(Player)
+    local MyRootPart = LocalPlayer.Character
+    if MyRootPart then
+        MyRootPart = MyRootPart:FindFirstChild("HumanoidRootPart")
+    end
+    if Player then
+        Player = Player.Character
+    end
+    if Player then
+        Player = Player:FindFirstChild("HumanoidRootPart")
+    end
+    if MyRootPart and Player then
+        MyRootPart.CFrame = CFrame.new(MyRootPart.Position, Player.Position)
+    end
+end
+
+local function SetupDeathNotification()
+    if DeathNotifyConnection then
+        DeathNotifyConnection:Disconnect()
+        DeathNotifyConnection = nil
+    end
+    if PlayerActions.notifyOnDeath and SelectedPlayer then
+        local Character = SelectedPlayer.Character or SelectedPlayer.CharacterAdded:Wait()
+        if Character then
+            Character = Character:FindFirstChildOfClass("Humanoid")
+        end
+        if Character then
+            DeathNotifyConnection = Character.Died:Connect(function()
+                SendPlayerNotification("Project Nexora", SelectedPlayer.DisplayName .. " Died")
+            end)
+        end
+    end
+end
+
+local function SelectPlayer(PlayerName)
+    if DeathNotifyConnection then
+        DeathNotifyConnection:Disconnect()
+        DeathNotifyConnection = nil
+    end
+    SelectedPlayer = nil
+    if not PlayerName or PlayerName == "" then
+        SendPlayerNotification("Project Nexora", "No One Selected")
+        return
+    end
+    local LowerName = string.lower(PlayerName)
+    local FoundPlayer = nil
+    for _, Player in ipairs(Players:GetPlayers()) do
+        if string.find(string.lower(Player.Name), LowerName, 1, true) or string.find(string.lower(Player.DisplayName), LowerName, 1, true) then
+            FoundPlayer = Player
+            break
+        end
+    end
+    if FoundPlayer then
+        SelectedPlayer = FoundPlayer
+        SendPlayerNotification("Project Nexora", "Selected: " .. FoundPlayer.DisplayName, "https://www.roblox.com/headshot-thumbnail/image?userId=" .. FoundPlayer.UserId .. "&width=420&height=420&format=png", 5)
+        SetupDeathNotification()
+    else
+        SendPlayerNotification("Project Nexora", "Player Not Found...")
+    end
+end
+
+function createEspForPlayer(Player)
+    local Head = Player.Character
+    if Head then
+        Head = Player.Character:FindFirstChild("Head")
+    end
+    if Head then
+        local Billboard = Instance.new("BillboardGui")
+        Billboard.Name = "ESP_Billboard"
+        Billboard.Size = UDim2.new(0, 200, 0, 50)
+        Billboard.Adornee = Head
+        Billboard.AlwaysOnTop = true
+        local Frame = Instance.new("Frame")
+        Frame.Size = UDim2.new(1, 0, 1, 0)
+        Frame.BackgroundColor3 = Color3.new(0.8, 0, 0)
+        Frame.BackgroundTransparency = 0.6
+        Frame.Parent = Billboard
+        local Corner = Instance.new("UICorner")
+        Corner.CornerRadius = UDim.new(0, 8)
+        Corner.Parent = Frame
+        local Label = Instance.new("TextLabel")
+        Label.Size = UDim2.new(1, 0, 1, 0)
+        Label.BackgroundTransparency = 1
+        Label.TextColor3 = Color3.new(1, 1, 1)
+        Label.Text = Player.DisplayName
+        Label.Font = Enum.Font.SourceSansBold
+        Label.TextSize = 16
+        Label.Parent = Frame
+        ESPBillboards[Player] = {
+            ["billboard"] = Billboard
+        }
+        Billboard.Parent = LocalPlayer.PlayerGui
+    end
+end
+
+function updateEspForPlayer(Player)
+    local Data = ESPBillboards[Player]
+    if Data and Data.billboard then
+        local Head = Player.Character
+        if Head then
+            Head = Head:FindFirstChild("Head")
+        end
+        if Head and Data.billboard.Adornee ~= Head then
+            Data.billboard.Adornee = Head
+        end
+    end
+end
+
+function removeEspForPlayer(Player)
+    if ESPBillboards[Player] then
+        if ESPBillboards[Player].billboard then
+            ESPBillboards[Player].billboard:Destroy()
+        end
+        ESPBillboards[Player] = nil
+    end
+end
+
+function runEspLoop()
+    for _, Player in ipairs(Players:GetPlayers()) do
+        if Player == LocalPlayer or not Player.Character or not Player.Character:FindFirstChild("Head") then
+            if ESPBillboards[Player] then
+                removeEspForPlayer(Player)
+            end
+        elseif ESPBillboards[Player] then
+            updateEspForPlayer(Player)
+        else
+            createEspForPlayer(Player)
+        end
+    end
+end
+
+Tabs.Fling:Section({
+    ["Title"] = "Player Selection",
+    ["Icon"] = "eye"
+})
+
+Tabs.Fling:Input({
+    ["Title"] = "Select Player",
+    ["Desc"] = "Enter Player Name To Select Target",
+    ["Placeholder"] = "PlayerName",
+    ["Callback"] = function(Text)
+        SelectPlayer(Text)
+    end
+})
+
+Tabs.Fling:Section({
+    ["Title"] = "Player Actions"
+})
+
+Tabs.Fling:Button({
+    ["Title"] = "Teleport to Player",
+    ["Callback"] = function()
+        if SelectedPlayer then
+            local MyRootPart = LocalPlayer.Character
+            if MyRootPart then
+                MyRootPart = MyRootPart:FindFirstChild("HumanoidRootPart")
+            end
+            local TargetRootPart = SelectedPlayer.Character
+            if TargetRootPart then
+                TargetRootPart = TargetRootPart:FindFirstChild("HumanoidRootPart")
+            end
+            if MyRootPart and TargetRootPart then
+                MyRootPart.CFrame = TargetRootPart.CFrame
+            else
+                SendPlayerNotification("Project Nexora", "Could not find character to teleport.")
+            end
+        else
+            SendPlayerNotification("Project Nexora", "No One Selected")
+        end
+    end
+})
+
+Tabs.Fling:Toggle({
+    ["Title"] = "Loop Teleport",
+    ["Value"] = PlayerActions.teleport,
+    ["Callback"] = function(State)
+        PlayerActions.teleport = State
+        if State then
+            if SelectedPlayer then
+                task.spawn(function()
+                    while PlayerActions.teleport and (SelectedPlayer and SelectedPlayer.Parent) do
+                        local MyRootPart = LocalPlayer.Character
+                        if MyRootPart then
+                            MyRootPart = MyRootPart:FindFirstChild("HumanoidRootPart")
+                        end
+                        local TargetRootPart = SelectedPlayer.Character
+                        if TargetRootPart then
+                            TargetRootPart = TargetRootPart:FindFirstChild("HumanoidRootPart")
+                        end
+                        if not (MyRootPart and TargetRootPart) then
+                            PlayerActions.teleport = false
+                            break
+                        end
+                        MyRootPart.CFrame = TargetRootPart.CFrame
+                        task.wait()
+                    end
+                end)
+            else
+                SendPlayerNotification("Project Nexora", "No One Selected")
+                PlayerActions.teleport = false
+            end
+        else
+            return
+        end
+    end
+})
+
+Tabs.Fling:Button({
+    ["Title"] = "Fling Player",
+    ["Callback"] = function()
+        if SelectedPlayer then
+            miniFling(SelectedPlayer)
+        else
+            SendPlayerNotification("Project Nexora", "No One Selected")
+        end
+    end
+})
+
+Tabs.Fling:Toggle({
+    ["Title"] = "Loop Fling",
+    ["Value"] = PlayerActions.fling,
+    ["Callback"] = function(State)
+        PlayerActions.fling = State
+        if State then
+            if SelectedPlayer then
+                task.spawn(function()
+                    while PlayerActions.fling and (SelectedPlayer and SelectedPlayer.Parent) do
+                        miniFling(SelectedPlayer)
+                        task.wait(0.5)
+                    end
+                end)
+            else
+                SendPlayerNotification("Project Nexora", "No One Selected")
+                PlayerActions.fling = false
+            end
+        else
+            return
+        end
+    end
+})
+
+Tabs.Fling:Button({
+    ["Title"] = "View Player (3 sec)",
+    ["Callback"] = function()
+        if SelectedPlayer then
+            local TargetHumanoid = SelectedPlayer.Character
+            if TargetHumanoid then
+                TargetHumanoid = TargetHumanoid:FindFirstChildOfClass("Humanoid")
+            end
+            if TargetHumanoid then
+                Camera.CameraSubject = TargetHumanoid
+                task.delay(3, function()
+                    if Camera.CameraSubject == TargetHumanoid then
+                        Camera.CameraSubject = OriginalCameraSubject
+                    end
+                end)
+            else
+                SendPlayerNotification("Project Nexora", "Could not find the player's character to view.")
+            end
+        else
+            SendPlayerNotification("Project Nexora", "No One Selected")
+        end
+    end
+})
+
+Tabs.Fling:Toggle({
+    ["Title"] = "Loop View",
+    ["Value"] = PlayerActions.view,
+    ["Callback"] = function(State)
+        PlayerActions.view = State
+        if State then
+            if SelectedPlayer then
+                task.spawn(function()
+                    while PlayerActions.view and (SelectedPlayer and SelectedPlayer.Parent) do
+                        local TargetHumanoid = SelectedPlayer.Character
+                        if TargetHumanoid then
+                            TargetHumanoid = TargetHumanoid:FindFirstChildOfClass("Humanoid")
+                        end
+                        if TargetHumanoid then
+                            Camera.CameraSubject = TargetHumanoid
+                        end
+                        task.wait(0.1)
+                    end
+                    Camera.CameraSubject = OriginalCameraSubject
+                end)
+            else
+                SendPlayerNotification("Project Nexora", "No One Selected")
+                PlayerActions.view = false
+            end
+        else
+            Camera.CameraSubject = OriginalCameraSubject
+            return
+        end
+    end
+})
+
+Tabs.Fling:Toggle({
+    ["Title"] = "AimLock (Camera)",
+    ["Value"] = PlayerActions.aimLockCam,
+    ["Callback"] = function(State)
+        PlayerActions.aimLockCam = State
+        if State then
+            if SelectedPlayer then
+                task.spawn(function()
+                    while PlayerActions.aimLockCam and (SelectedPlayer and SelectedPlayer.Parent) do
+                        AimCameraAtPlayer(SelectedPlayer)
+                        RunService.RenderStepped:Wait()
+                    end
+                end)
+            else
+                SendPlayerNotification("Project Nexora", "No One Selected")
+                PlayerActions.aimLockCam = false
+            end
+        else
+            return
+        end
+    end
+})
+
+Tabs.Fling:Toggle({
+    ["Title"] = "AimLock (Character)",
+    ["Value"] = PlayerActions.aimLockChar,
+    ["Callback"] = function(State)
+        PlayerActions.aimLockChar = State
+        if State then
+            if SelectedPlayer then
+                task.spawn(function()
+                    while PlayerActions.aimLockChar and (SelectedPlayer and SelectedPlayer.Parent) do
+                        AimCharacterAtPlayer(SelectedPlayer)
+                        RunService.Heartbeat:Wait()
+                    end
+                end)
+            else
+                SendPlayerNotification("Project Nexora", "No One Selected")
+                PlayerActions.aimLockChar = false
+            end
+        else
+            return
+        end
+    end
+})
+
+Tabs.Fling:Toggle({
+    ["Title"] = "ESP",
+    ["Value"] = ESPEnabled,
+    ["Callback"] = function(State)
+        ESPEnabled = State
+        if ESPEnabled then
+            if not ESPRenderConnection then
+                ESPRenderConnection = RunService.RenderStepped:Connect(runEspLoop)
+            end
+        else
+            if ESPRenderConnection then
+                ESPRenderConnection:Disconnect()
+                ESPRenderConnection = nil
+            end
+            for Player, _ in pairs(ESPBillboards) do
+                removeEspForPlayer(Player)
+            end
+            table.clear(ESPBillboards)
+        end
+    end
+})
+
+Tabs.Fling:Toggle({
+    ["Title"] = "Orbit Player",
+    ["Value"] = PlayerActions.orbit,
+    ["Callback"] = function(State)
+        PlayerActions.orbit = State
+        if OrbitHeartbeatConnection then
+            OrbitHeartbeatConnection:Disconnect()
+            OrbitHeartbeatConnection = nil
+        end
+        if OrbitRenderConnection then
+            OrbitRenderConnection:Disconnect()
+            OrbitRenderConnection = nil
+        end
+        if State then
+            if SelectedPlayer then
+                task.spawn(function()
+                    local OrbitAngle = 0
+                    local OrbitSpeed = 8
+                    local OrbitRadius = 10
+                    OrbitHeartbeatConnection = RunService.Heartbeat:Connect(function()
+                        if PlayerActions.orbit and (SelectedPlayer and SelectedPlayer.Parent) then
+                            local MyRootPart = LocalPlayer.Character
+                            if MyRootPart then
+                                MyRootPart = MyRootPart:FindFirstChild("HumanoidRootPart")
+                            end
+                            local TargetRootPart = SelectedPlayer.Character
+                            if TargetRootPart then
+                                TargetRootPart = TargetRootPart:FindFirstChild("HumanoidRootPart")
+                            end
+                            if MyRootPart and TargetRootPart then
+                                OrbitAngle = OrbitAngle + OrbitSpeed
+                                MyRootPart.CFrame = CFrame.new(TargetRootPart.Position) * CFrame.Angles(0, math.rad(OrbitAngle), 0) * CFrame.new(OrbitRadius, 0, 0)
+                            else
+                                PlayerActions.orbit = false
+                            end
+                        else
+                            if OrbitHeartbeatConnection then
+                                OrbitHeartbeatConnection:Disconnect()
+                                OrbitHeartbeatConnection = nil
+                            end
+                            if OrbitRenderConnection then
+                                OrbitRenderConnection:Disconnect()
+                                OrbitRenderConnection = nil
+                            end
+                            return
+                        end
+                    end)
+                    OrbitRenderConnection = RunService.RenderStepped:Connect(function()
+                        if PlayerActions.orbit and (SelectedPlayer and SelectedPlayer.Parent) then
+                            local MyRootPart = LocalPlayer.Character
+                            if MyRootPart then
+                                MyRootPart = MyRootPart:FindFirstChild("HumanoidRootPart")
+                            end
+                            local TargetRootPart = SelectedPlayer.Character
+                            if TargetRootPart then
+                                TargetRootPart = TargetRootPart:FindFirstChild("HumanoidRootPart")
+                            end
+                            if MyRootPart and TargetRootPart then
+                                MyRootPart.CFrame = CFrame.new(MyRootPart.Position, TargetRootPart.Position)
+                            else
+                                PlayerActions.orbit = false
+                            end
+                        else
+                            if OrbitHeartbeatConnection then
+                                OrbitHeartbeatConnection:Disconnect()
+                                OrbitHeartbeatConnection = nil
+                            end
+                            if OrbitRenderConnection then
+                                OrbitRenderConnection:Disconnect()
+                                OrbitRenderConnection = nil
+                            end
+                            return
+                        end
+                    end)
+                end)
+            else
+                SendPlayerNotification("Project Nexora", "No One Selected")
+                PlayerActions.orbit = false
+            end
+        else
+            return
+        end
+    end
+})
+
+Tabs.Fling:Toggle({
+    ["Title"] = "Notify On Death",
+    ["Value"] = PlayerActions.notifyOnDeath,
+    ["Callback"] = function(State)
+        PlayerActions.notifyOnDeath = State
+        SetupDeathNotification()
+    end
+})
+
+Players.PlayerRemoving:Connect(function(Player)
+    if SelectedPlayer and Player == SelectedPlayer then
+        SendPlayerNotification("Project Nexora", Player.DisplayName .. " left the game")
+        SelectedPlayer = nil
+        for Key, _ in pairs(PlayerActions) do
+            PlayerActions[Key] = false
+        end
+    end
+    removeEspForPlayer(Player)
+end)
+
+Tabs.Fling:Section({
+    ["Title"] = "Fling",
+    ["Icon"] = "utensils"
+})
+
+local FlingAuraEnabled = false
+
+Tabs.Fling:Toggle({
+    ["Title"] = "Fling Aura",
+    ["Value"] = false,
+    ["Callback"] = function(State)
+        FlingAuraEnabled = State
+        if State then
+            task.spawn(function()
+                while FlingAuraEnabled do
+                    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        for _, Player in pairs(Players:GetPlayers()) do
+                            if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+                                local TargetRootPart = Player.Character.HumanoidRootPart
+                                if (LocalPlayer.Character.HumanoidRootPart.Position - TargetRootPart.Position).Magnitude <= 10 then
+                                    miniFling(Player)
+                                end
+                            end
+                        end
+                    end
+                    task.wait(0.5)
+                end
+            end)
+        end
+    end
+})
+
+LocalPlayer.CharacterAdded:Connect(function()
+    FlingAuraEnabled = false
+end)
+
+local MouseClickFling = LocalPlayer:GetMouse()
+local ClickFlingEnabled = false
+
+Tabs.Fling:Toggle({
+    ["Title"] = "Click Fling",
+    ["Value"] = false,
+    ["Callback"] = function(State)
+        ClickFlingEnabled = State
+    end
+})
+
+local function GetPlayerFromPart(Part)
+    if Part and Part.Parent and Part.Parent:IsA("Model") then
+        return Players:FindFirstChild(Part.Parent.Name)
+    end
+    return nil
+end
+
+MouseClickFling.Button1Down:Connect(function()
+    if ClickFlingEnabled then
+        local TargetPlayer = GetPlayerFromPart(MouseClickFling.Target)
+        if TargetPlayer and TargetPlayer ~= LocalPlayer then
+            miniFling(TargetPlayer)
+        end
+    end
+end)
+
+UserInputService.TouchTap:Connect(function(TouchPositions, GameProcessed)
+    if ClickFlingEnabled and not GameProcessed then
+        local TouchPosition = TouchPositions[1]
+        local CameraPosition = Camera.CFrame.Position
+        local RayDirection = Camera:ViewportPointToRay(TouchPosition.X, TouchPosition.Y).Direction * 500
+        local RayParams = RaycastParams.new()
+        RayParams.FilterDescendantsInstances = { LocalPlayer.Character }
+        RayParams.FilterType = Enum.RaycastFilterType.Blacklist
+        local RayResult = Workspace:Raycast(CameraPosition, RayDirection, RayParams)
+        local HitInstance
+        if RayResult then
+            HitInstance = RayResult.Instance
+        end
+        local TargetPlayer = GetPlayerFromPart(HitInstance)
+        if TargetPlayer and TargetPlayer ~= LocalPlayer then
+            miniFling(TargetPlayer)
+        end
+    end
+end)
+
+local FlingAllEnabled = false
+local OriginalCFrameFlingAll = (LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()):FindFirstChild("HumanoidRootPart")
+local SavedCFrameFlingAll
+if OriginalCFrameFlingAll then
+    SavedCFrameFlingAll = OriginalCFrameFlingAll.CFrame
+else
+    SavedCFrameFlingAll = OriginalCFrameFlingAll
+end
+
+Tabs.Fling:Toggle({
+    ["Title"] = "Fling All (Buggy?)",
+    ["Value"] = false,
+    ["Callback"] = function(State)
+        FlingAllEnabled = State
+        if State then
+            task.spawn(function()
+                while FlingAllEnabled do
+                    for _, Player in pairs(Players:GetPlayers()) do
+                        if Player ~= LocalPlayer then
+                            miniFling(Player)
+                        end
+                    end
+                    task.wait(0.5)
+                end
+            end)
+        elseif SavedCFrameFlingAll and OriginalCFrameFlingAll then
+            OriginalCFrameFlingAll.CFrame = SavedCFrameFlingAll
+        end
+    end
+})
+
+local TouchFlingEnabled = false
+
+local function TouchFlingLoop()
+    local Character = nil
+    local RootPart = nil
+    local ToggleValue = 0.1
+    while TouchFlingEnabled do
+        RunService.Heartbeat:Wait()
+        while TouchFlingEnabled and not (Character and (Character.Parent and (RootPart and RootPart.Parent))) do
+            RunService.Heartbeat:Wait()
+            Character = LocalPlayer.Character
+            RootPart = Character:FindFirstChild("HumanoidRootPart") or (Character:FindFirstChild("Torso") or Character:FindFirstChild("UpperTorso"))
+        end
+        if TouchFlingEnabled then
+            local CurrentVelocity = RootPart.Velocity
+            RootPart.Velocity = CurrentVelocity * 10000 + Vector3.new(0, 10000, 0)
+            RunService.RenderStepped:Wait()
+            if Character and (Character.Parent and (RootPart and RootPart.Parent)) then
+                RootPart.Velocity = CurrentVelocity
+            end
+            RunService.Stepped:Wait()
+            if Character and (Character.Parent and (RootPart and RootPart.Parent)) then
+                RootPart.Velocity = CurrentVelocity + Vector3.new(0, ToggleValue, 0)
+                ToggleValue = ToggleValue * -1
+            end
+        end
+    end
+end
+
+Tabs.Fling:Toggle({
+    ["Title"] = "Touch Fling",
+    ["Value"] = false,
+    ["Callback"] = function(State)
+        if State then
+            TouchFlingEnabled = true
+            coroutine.wrap(TouchFlingLoop)()
+        else
+            TouchFlingEnabled = false
+        end
+    end
+})
+
+local AntiFlingEnabled = false
+local AntiFlingConnections = {}
+
+local function DisablePlayerCollision(Player)
+    if AntiFlingEnabled and Player.Character then
+        for _, Descendant in pairs(Player.Character:GetDescendants()) do
+            if Descendant:IsA("BasePart") and Descendant.CanCollide then
+                Descendant.CanCollide = false
+            end
+        end
+    end
+end
+
+local function EnableAllPlayerCollisions()
+    for _, Player in pairs(Players:GetPlayers()) do
+        if Player ~= LocalPlayer and Player.Character then
+            for _, Descendant in pairs(Player.Character:GetDescendants()) do
+                if Descendant:IsA("BasePart") then
+                    Descendant.CanCollide = true
+                end
+            end
+        end
+    end
+end
+
+local function StartAntiFling()
+    for _, Player in pairs(Players:GetPlayers()) do
+        if Player ~= LocalPlayer then
+            local Connection = RunService.Stepped:Connect(function()
+                DisablePlayerCollision(Player)
+            end)
+            table.insert(AntiFlingConnections, Connection)
+        end
+    end
+    Players.PlayerAdded:Connect(function(Player)
+        if Player ~= LocalPlayer then
+            local Connection = RunService.Stepped:Connect(function()
+                DisablePlayerCollision(Player)
+            end)
+            table.insert(AntiFlingConnections, Connection)
+        end
+    end)
+end
+
+local function StopAntiFling()
+    for _, Connection in pairs(AntiFlingConnections) do
+        Connection:Disconnect()
+    end
+    table.clear(AntiFlingConnections)
+    EnableAllPlayerCollisions()
+end
+
+Tabs.Fling:Toggle({
+    ["Title"] = "Anti Fling",
+    ["Value"] = false,
+    ["Callback"] = function(State)
+        AntiFlingEnabled = State
+        if State then
+            StartAntiFling()
+        else
+            StopAntiFling()
+        end
+    end
+})
+
+local CustomFlingPower = 1000
+local CustomTouchFlingEnabled = false
+
+local function CustomTouchFlingLoop()
+    local Character = nil
+    local RootPart = nil
+    local ToggleValue = 0.1
+    while CustomTouchFlingEnabled do
+        RunService.Heartbeat:Wait()
+        while CustomTouchFlingEnabled and not (Character and (Character.Parent and (RootPart and RootPart.Parent))) do
+            RunService.Heartbeat:Wait()
+            Character = LocalPlayer.Character
+            RootPart = Character:FindFirstChild("HumanoidRootPart") or (Character:FindFirstChild("Torso") or Character:FindFirstChild("UpperTorso"))
+        end
+        if CustomTouchFlingEnabled then
+            local CurrentVelocity = RootPart.Velocity
+            RootPart.Velocity = CurrentVelocity * CustomFlingPower + Vector3.new(0, 100, 0)
+            RunService.RenderStepped:Wait()
+            if Character and (Character.Parent and (RootPart and RootPart.Parent)) then
+                RootPart.Velocity = CurrentVelocity
+            end
+            RunService.Stepped:Wait()
+            if Character and (Character.Parent and (RootPart and RootPart.Parent)) then
+                RootPart.Velocity = CurrentVelocity + Vector3.new(0, ToggleValue, 0)
+                ToggleValue = ToggleValue * -1
+            end
+        end
+    end
+end
+
+Tabs.Fling:Toggle({
+    ["Title"] = "Custom Touch Fling Power",
+    ["Value"] = false,
+    ["Callback"] = function(State)
+        if State then
+            CustomTouchFlingEnabled = true
+            coroutine.wrap(CustomTouchFlingLoop)()
+        else
+            CustomTouchFlingEnabled = false
+        end
+    end
+})
+
+Tabs.Fling:Slider({
+    ["Title"] = "Fling Power Value",
+    ["Value"] = {
+        ["Min"] = 1,
+        ["Max"] = 10000,
+        ["Default"] = 100
+    },
+    ["Callback"] = function(Value)
+        CustomFlingPower = Value
+    end
+})
+
+--- ========INFO TAB==============================
+
+local Info = Tabs.Info
+
+Info:Section({
+    ["Title"] = "Project Nexora Features",
+    ["TextXAlignment"] = "Center"
+})
+
+Info:Paragraph({
+    ["Title"] = "Current Features",
+    ["Desc"] = "• Fake Bomb jump\n• upgraded ESP",
+    ["Image"] = "rbxassetid://89804924525665",
+    ["ImageSize"] = 30
+})
+
+Info:Divider()
+
+Info:Section({
+    ["Title"] = "Official Socials",
+    ["TextSize"] = 20,
+})
+
+Info:Paragraph({
+    ["Title"] = "Nexora Hub TikTok",
+    ["Desc"] = "Follow us for the latest script updates and short showcases.",
+    ["Image"] = "rbxassetid://134384554225463",
+    ["Buttons"] = {
+        {
+            ["Title"] = "Copy Link",
+            ["Icon"] = "link",
+            ["Variant"] = "Primary",
+            ["Callback"] = function()
+                setclipboard("https://www.tiktok.com/@nexora.hub.nds")
+                WindUI:Notify({
+                    ["Title"] = "TikTok Link Copied",
+                    ["Content"] = "Successfully saved to clipboard!",
+                    ["Duration"] = 3
+                })
+            end
+        }
+    }
+})
+
+Info:Space()
+
+Info:Paragraph({
+    ["Title"] = "Script Showcaser",
+    ["Desc"] = "Subscribe for full-length high-quality showcases and tutorials.",
+    ["Image"] = "rbxassetid://109919668957167",
+    ["Buttons"] = {
+        {
+            ["Title"] = "Copy Channel Link",
+            ["Icon"] = "youtube",
+            ["Variant"] = "Secondary",
+            ["Callback"] = function()
+                setclipboard("https://www.youtube.com/@mm2scriptsop-e2j")
+                WindUI:Notify({
+                    ["Title"] = "YouTube Link Copied",
+                    ["Content"] = "Successfully saved to clipboard!",
+                    ["Duration"] = 3
+                })
+            end
+        }
+    }
+})
+
+SendNexoraNotification("Eliana Hub", "Merged script loaded successfully!", 5, "rbxassetid://89804924525665")
